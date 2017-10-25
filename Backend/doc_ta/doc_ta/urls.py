@@ -20,5 +20,6 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'test_index', views.test_view),
+    url(r'check_current_constraints', views.check_constraints),
     url(r'', views.get_index),
 ]
