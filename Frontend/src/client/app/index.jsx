@@ -1,6 +1,7 @@
 import React from 'react';
 import {render} from 'react-dom';
 import Timetable from './Timetable.jsx';
+import axios from 'axios'
 
 
 
@@ -25,14 +26,15 @@ class App extends React.Component {
   }
 
   saveTimetable(timetable){
-    $.ajax({
-      url:"/timetable/save",
-      dataType: "json",
-      data:timetable,
-      success: function(data){
-        //TODO: notify user alert
-      }
-    })
+    axios.post('/timetable/save', {
+    timetable: timetable
+  })
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
   }
 
   generateRows(data){
