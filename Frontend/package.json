@@ -20,11 +20,9 @@
     "babel-preset-react": "^6.24.1",
     "create-react-class": "^15.6.2",
     "i": "^0.3.6",
-    "jquery": "^3.2.1",
     "npm": "^5.5.1",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
-    "react-json-table": "^0.1.1",
     "webpack": "^3.7.1"
   }
 }

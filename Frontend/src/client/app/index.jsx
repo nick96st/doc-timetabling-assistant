@@ -37,6 +37,19 @@ class App extends React.Component {
   });
   }
 
+  checkTimetable(timetable){
+    axios.post('/timetable/check', {
+    timetable: timetable
+  })
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+  }
+
   generateRows(data){
     var monday = {day: "Monday"}
     var tuesday = {day: "Tuesday"}
@@ -55,10 +68,12 @@ class App extends React.Component {
   render () {
     var rows = this.generateRows(this.state.timetable)
     var timetable = <Timetable rows={rows}/>
-    var saveBtn = <button onclick={this.saveTimetable(this.state.timetable)}>Save</button>
+    var saveBtn = <button onClick={this.saveTimetable(this.state.timetable)}>Save</button>
+    var checkBtn = <button onClick={this.checkTimetable(this.state.timetable)}>Check</button>
     return( <div>
             {timetable}
             {saveBtn}
+            {checkBtn}
            </div>)
   }
 
