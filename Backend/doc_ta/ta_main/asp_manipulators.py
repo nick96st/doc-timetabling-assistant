@@ -38,10 +38,11 @@ class ASPCodeGenerator():
     def generate_default_object_definitions(self):
         return ''
 
+    # pre: LectureClass obj array in result_Facts
     def generate_result_facts(self):
         result_string = ''
         for fact in self.result_facts:
-            result_string += json_term_to_asp_string(fact) + ".\n"
+            result_string += fact.to_asp() + ".\n"
 
         return result_string
 
