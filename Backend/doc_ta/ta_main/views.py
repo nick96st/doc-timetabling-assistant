@@ -42,12 +42,18 @@ def get_index(request):
 def check_constraints(request):
 
     # grid_objects = request["data"]["grid_objects"]
-    grid_objects = [{"id":"lecture","params": ["Ian","Logic"]},
-                    {"id":"lecture","params": ["Mark","Reasoning"]}]
+    timetable = json.loads(request.body)["timetable"]
     # hard_constraints = request.data["constraints"]
     # soft_constraints = request.data[""]
-    if not grid_objects:
-        return response.HttpResponseBadRequest('No grid objects field')
+    if not timetable:
+        return response.HttpResponseBadRequest('No grid objects data given')
+
+    # create models from json
+    grid_objects = []
+    for obj in timetable:
+        model = ta_models.LectureClass()
+        model.init_from_json(obj)
+        grid_objects.append(model)
 
     # build pattern
     codegen = asp_manipulators.CodeGeneratorBuilder()
