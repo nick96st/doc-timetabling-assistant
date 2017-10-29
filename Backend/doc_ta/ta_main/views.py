@@ -2,11 +2,15 @@
 from __future__ import unicode_literals
 from django.http import request, response
 from django.template import loader
+import models as ta_models
 from django.shortcuts import render
 import datetime
 import asp_manipulators
 import os
-
+import json
+from django.views.decorators.csrf import csrf_exempt
+# from rest_framework.decorators import APIView, permission_classes
+# from rest_framework.permissions import AllowAny
 
 def read_from_asp_result(result_src):
     f = open(result_src)
@@ -54,5 +58,40 @@ def check_constraints(request):
     code_result = read_from_asp_result('default_001.in')
     return response.HttpResponse(content=code_result)
 
+
+@csrf_exempt
+def save_timetable(request):
+    # return response.HttpResponse(content=json.loads(request.body)['timetable'],content_type="application/json")
+    timetable = json.loads(request.body)["timetable"]
+    # delete any previous saved data
+    previous_save = ta_models.SavedTable.objects.filter(name="test_timetable").first()
+    if not (previous_save is None):
+        ta_models.LectureClass.objects.filter(save_it_belongs_to=previous_save).delete()
+        previous_save.delete()
+
+    save_id = ta_models.SavedTable()
+    save_id.name = "test_timetable"  # TODO: pass a name of timetable
+    save_id.save()
+    for obj in timetable:
+        model = ta_models.LectureClass()
+        model.init_from_json(obj)
+        model.save_it_belongs_to = save_id
+        model.save()
+
+    return response.HttpResponse(status=200)
+
+
+@csrf_exempt
+def init_timeslots_DoC(request):
+    for i in range(9,19):
+        for day in ta_models.days_choices:
+            if ta_models.Timeslot.objects.filter(day=day[0], hour=i).first() is None:
+                # return response.HttpResponse(content="does not have item")
+                model = ta_models.Timeslot()
+                model.hour = i
+                model.day = day[0]
+                model.save()
+
+    return response.HttpResponse()
 
 
