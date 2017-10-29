@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib import admin
+import asp_manipulators
 
 # Create your models here.
 
@@ -37,13 +38,13 @@ class Timeslot(models.Model):
     hour = models.IntegerField()
 
     def __str__(self):
-        return str(self.hour) + ":" + self.day
+        return str(self.hour) + ":" + str(self.day)
 
     def to_json(self):
         return {"time": self.hour, "day": self.day}
 
     def to_asp(self):
-        return NotImplementedError
+        return "timeslot(" + str(self.day) + "," + str(self.hour) + ")"
 
 
 class TimeslotAdmin(admin.ModelAdmin):
@@ -63,7 +64,7 @@ class Subject(models.Model):
     population_estimate = models.IntegerField()
 
     def __str__(self):
-        return str(self.code) + self.title
+        return str(self.code) + str(self.title)
 
     def to_json_for_frontend(self):
         return {"course_code": self.code,
@@ -72,7 +73,7 @@ class Subject(models.Model):
                 }
 
     def to_asp(self):
-        return NotImplementedError
+        return "subject(" + self.title + "," + str(self.population_estimate) + "," + str(self.hours) + ")"
 
 
 class SubjectAdmin(admin.ModelAdmin):
@@ -91,6 +92,9 @@ class Room(models.Model):
 
     def to_json(self):
         return {"room": self.room_name}
+
+    def to_asp(self):
+        return "room(" + self.room_name + "," + str(self.room_size) + ")"
 
 
 class RoomAdmin(admin.ModelAdmin):
@@ -125,10 +129,16 @@ class LectureClass(models.Model):
         self.subject = Subject.objects.get(title=json_data['name'])
 
     def to_asp(self):
-        return self.time_slot.model.to_asp() + self.subject.model.to_json()
+        json_data = {"id":"class","params":[self.subject.title,
+                                            self.room.room_name,
+                                            self.time_slot.hour,
+                                            self.time_slot.day,
+                                            ]}
+        return asp_manipulators.json_term_to_asp_string(json_data)
 
     def from_asp(self):
         return NotImplementedError
+
 
 
 class LectureClassAdmin(admin.ModelAdmin):
