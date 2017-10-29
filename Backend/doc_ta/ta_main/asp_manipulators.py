@@ -20,7 +20,7 @@ def json_term_to_asp_string(json_term):
         param_list = json_term["params"]
         params_string = param_list[0]
         for i in range(1,len(param_list)):
-            params_string += ',' + param_list[i]
+            params_string += ',' + str(param_list[i])
 
         total_string = json_term["id"] + '(' + params_string + ')'
         return total_string
