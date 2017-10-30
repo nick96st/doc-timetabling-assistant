@@ -120,11 +120,10 @@ class LectureClass(models.Model):
 #   type = Tutorial || Lecture // i don't think it matters to be saved
 
     def to_json_for_frontend(self):
-        result = {}
-        # .update() extend dict with other dict
-        result.update(self.subject.model.to_json())
-        result.update(self.time_slot.model.to_json())
-        result.update(self.room.model.to_json())
+        result = {"time": self.time_slot.hour,
+                  "day":  get_verbose_of_choice(self.time_slot.day, days_choices),
+                  "room": self.room.room_name,
+                  "name": self.subject.title}
         return result
 
     def init_from_json(self,json_data):
