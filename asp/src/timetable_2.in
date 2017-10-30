@@ -1,26 +1,55 @@
 %initialise
-%Assume class can start from 9am to 8pm
-start(2..6, 9..18).
-lecturer(a,6).
-lecturer(b,6).
-lecturer(c,6).
+%Assume class can start from 9am to 6pm
+%room(145,100).
+room(308,190).
+room(311,150).
+%room(144,90).timeslot(m,9).
+timeslot(tu,9).timeslot(w,9).timeslot(th,9).timeslot(f,9).timeslot(m,10).
+timeslot(tu,10).timeslot(w,10).timeslot(th,10).timeslot(f,10).timeslot(m,11).
+timeslot(tu,11).timeslot(w,11).timeslot(th,11).timeslot(f,11).timeslot(m,12).
+timeslot(tu,12).timeslot(w,12).timeslot(th,12).timeslot(f,12).timeslot(m,13).
+timeslot(tu,13).timeslot(w,13).timeslot(th,13).timeslot(f,13).timeslot(m,14).
+timeslot(tu,14).timeslot(w,14).timeslot(th,14).timeslot(f,14).timeslot(m,15).
+timeslot(tu,15).timeslot(w,15).timeslot(th,15).timeslot(f,15).timeslot(m,16).
+timeslot(tu,16).timeslot(w,16).timeslot(th,16).timeslot(f,16).timeslot(m,17).
+timeslot(tu,17).timeslot(w,17).timeslot(th,17).timeslot(f,17).timeslot(m,18).
+timeslot(tu,18).timeslot(w,18).timeslot(th,18).timeslot(f,18).
+subject(hardware,145,3).
+subject(mathematical_methods,145,3).
+subject(architecture,185,3).
+subject(databases_i,145,3).
+subject(reasoning_for_programs,185,3).
+%lecturer(a,6).
+%lecturer(b,6).
+%lecturer(c,6).
 % Generate
-{add(L,D,S): start(D,S)} = R :- lecturer(L,R).
-
+% title room day start_hour
+%{class(T,R,D,S): timeslot(D,S)} = R :- lecturer(L,R).
 
 %Define
-
+0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_).
+class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_).
 
 
 %Constraints
+% checks if classes has been allocated properly.
+:- not class_has_enough_hours(T), subject(T,_,_).
+% checks if room size is big enough
+%:- class(T,R,D,S), room(R,C0), subject(T,C1,_), C1 < C0.
+% Two class in the same room at the same time.
+:- class(T1,R,D,S), class(T2,R,D,S),room(R,_),T1!=T2.
+% Two classes in in different rooms at the same time (assuming we are in just 1 course).
+%:- class(T1,R1,D,S), class(T2,R2,D,S),room(R1,_),room(R2,_),T1!=T2, R1!=R2.
 % 2 lecturers cannot be on same slot
-:- add(X,D,S), add(Y,D,S), X !=Y.
+%:- add(X,D,S), add(Y,D,S), X !=Y.
 
 %Same day class of same lecturer maximum 2 hours
 %If the there is a 2 hour class that day make it consecutive
-:- add(X,D,T), add(X,D,T+Y), Y=2..15.
+%:- class(X,D,T), class(X,D,T+Y), Y=2..15.
 
 %Optimisation
 %Make pack as much lessons of the same course on the same day as possible
-#minimize { |D-DD| : add(X,D,S), add(XX,DD,SS) }.
-#show add/3.
+%#minimize { |D-DD| : add(X,D,S), add(XX,DD,SS) }.
+
+#show class/4.
+#show class_has_enough_hours/1.
