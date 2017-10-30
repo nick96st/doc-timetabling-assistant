@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'test_index', views.test_view),
     url(r'timetable/check', views.check_constraints),
     url(r'timetable/save', views.save_timetable),
+    url(r'timetable/generate', views.generate_table),
     url(r'init_timeslots_doc', views.init_timeslots_DoC),
     url(r'', views.get_index),
 ]

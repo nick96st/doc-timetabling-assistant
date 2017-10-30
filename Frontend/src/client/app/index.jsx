@@ -50,6 +50,20 @@ class App extends React.Component {
 
   }
 
+  generateTimetable() {
+    axios.get('/timetable/generate')
+    .then(function (response) {
+        this.fillTable(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
+  }
+
+  fillTable(data) {
+  }
+
   generateRows(data){
     var monday = {day: "Monday"}
     var tuesday = {day: "Tuesday"}
@@ -70,10 +84,12 @@ class App extends React.Component {
     var timetable = <Timetable rows={rows}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
+    var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
     return( <div>
             {timetable}
             {saveBtn}
             {checkBtn}
+            {generateBtn}
            </div>)
   }
 
