@@ -39,6 +39,17 @@ def get_index(request):
 
 
 # checks if constraints with current table selection succeeds
+
+@csrf_exempt
+def generate_table(request):
+    codegen = asp_manipulators.CodeGeneratorBuilder()
+    # codegen.with_hard_constraints(hard_constraints)
+    # codegen.with_soft_constraints(soft_constraints)
+    codegen.build().generate_code('default_001.in')
+    code_result = read_from_asp_result('default_001.in')
+    return response.HttpResponse(content=code_result)
+
+@csrf_exempt
 def check_constraints(request):
 
     # grid_objects = request["data"]["grid_objects"]
