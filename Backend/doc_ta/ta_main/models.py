@@ -141,8 +141,15 @@ class LectureClass(models.Model):
                                             ]}
         return asp_manipulators.json_term_to_asp_string(json_data)
 
-    def from_asp(self):
-        return NotImplementedError
+    def from_asp(self,data):
+        self.subject = Subject()
+        self.time_slot = Timeslot()
+        self.room = Room()
+        self.subject.title = data["params"][0]
+        self.room.room_name = data["params"][1]
+        self.time_slot.day = data["params"][2]
+        self.time_slot.hour = data["params"][3]
+        return self
 
 
 
