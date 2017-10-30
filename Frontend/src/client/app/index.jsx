@@ -37,7 +37,7 @@ class App extends React.Component {
   });
   }
 
-  checkTimetable(timetable){
+  checkTimetable(timetable) {
     axios.post('/timetable/check', {
     timetable: timetable
   })
@@ -52,7 +52,7 @@ class App extends React.Component {
 
   generateTimetable() {
     axios.get('/timetable/generate')
-    .then(function (response) {
+    .then((response) => {
         this.fillTable(response);
     })
     .catch(function (error) {
@@ -62,6 +62,10 @@ class App extends React.Component {
   }
 
   fillTable(data) {
+    console.log("data in filltable",data);
+    console.log("state in filltable",this.state);
+    this.setState({timetable:data.data[0]});
+    console.log(this.state);
   }
 
   generateRows(data){
