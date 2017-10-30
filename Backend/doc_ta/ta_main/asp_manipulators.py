@@ -99,6 +99,33 @@ class ASPCodeGenerator():
         self.run_clingo(file_name + '.in', file_name + '.out')
         return self.read_from_asp_result(file_name + '.out')
 
+    def parse_result(self,file_name):
+        data = self.read_from_asp_result(file_name)
+        data_dict = json.loads(data)
+        all_results = data_dict["Call"][0]["Witnesses"]
+
+        tokenized_results = {"results": []}
+        for result in all_results:
+            asp_terms = []
+            for item in result["Value"]:
+                asp_terms.append(tokenize_asp_term(item))
+
+            tokenized_results["results"].append(asp_terms)
+
+        json_solutions = []
+        for solution in tokenized_results["results"]:
+            actual_json = []
+            for lecture_class in solution:
+                actual_json.append(ta_models.LectureClass().from_asp(lecture_class).to_json_for_frontend())
+
+            json_solutions.append(actual_json)
+        # code_result = read_from_asp_result('default_001.in')
+        return json.dumps(json_solutions)
+
+    def get_result_status(self,file_name):
+        data = self.read_from_asp_result(file_name)
+        data_dict = json.loads(data)
+        return data_dict["Result"]
 
 class CodeGeneratorBuilder():
 
