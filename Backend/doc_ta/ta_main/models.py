@@ -64,6 +64,7 @@ admin.site.register(Timeslot,TimeslotAdmin)
 class Subject(models.Model):
     code = models.IntegerField()
     title = models.CharField(max_length=50)
+    title_asp = models.CharField(max_length=50)
     # course_year = models.CharField()  # such as C_BEng1,C_MEng4,JMC_BEng3 and etc
     selection_level = models.CharField(choices=selection_levels_choices, max_length=25)
     hours = models.IntegerField() # number of staff hours needed to be taken
@@ -72,15 +73,22 @@ class Subject(models.Model):
     def __str__(self):
         return str(self.code) + str(self.title)
 
-    def to_json_for_frontend(self):
-        return {"course_code": self.code,
-                "name": self.title,
-                # "course_year": self.course_year,
-                }
+    # def to_json_for_frontend(self):
+    #     return {"course_code": self.code,
+    #             "name": self.title,
+    #             # "course_year": self.course_year,
+    #             }
 
     def to_asp(self):
-        return "subject(" + self.title + "," + str(self.population_estimate) + "," + str(self.hours) + ")"
+        return "subject(" + self.title_asp + "," + str(self.population_estimate) + "," + str(self.hours) + ")"
 
+    def assign_asp_suitable_name(self):
+        self.title_asp = self.title.lower().replace(" ", "")
+
+    # generates the string suitable for asp
+    def save(self, *args, **kwargs):
+        self.assign_asp_suitable_name()
+        super(Subject, self).save(*args, **kwargs)
 
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ['code', 'title', 'hours', 'population_estimate']
@@ -145,7 +153,8 @@ class LectureClass(models.Model):
         self.subject = Subject()
         self.time_slot = Timeslot()
         self.room = Room()
-        self.subject.title = data["params"][0]
+        # TODO: handle uniqueness/not_uniqueness of the title_asp"
+        self.subject.title = Subject.objects.filter(title_asp=data["params"][0]).first().title
         self.room.room_name = data["params"][1]
         self.time_slot.day = data["params"][2]
         self.time_slot.hour = data["params"][3]
