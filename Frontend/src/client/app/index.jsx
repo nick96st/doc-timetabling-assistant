@@ -9,20 +9,39 @@ import axios from 'axios'
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {timetable: [{time: 11, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"}, {time: 12, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
-                              {time: 9, day: "Monday", room: "311", name: "Operations Research", type: "lecture"}, {time: 10, day: "Monday", room: "311", name: "Operations Research", type: "lecture"},
-                              {time: 16, day: "Monday", room: "311", name: "Information and Coding"},{time: 17, day: "Monday", room: "311", name: "Information and Coding"},
-                              {time: 9, day: "Tuesday", room: "311", name: "Robotics", type: "lecture"},{time: 10, day: "Tuesday", room: "311", name: "Robotics", type: "lecture"},
-                              {time: 11, day: "Tuesday", room: "311", name: "Simulation and Modelling", type: "lecture"}, {time: 12, day: "Tuesday", room: "311", name: "Simulation and Modelling", type: "lecture"},
-                              {time: 14, day: "Tuesday", room: "311", name: "Type Systems", type: "lecture"}, {time: 15, day: "Tuesday", room: "311", name: "Type Systems", type: "lecture"},
-                              {time: 16, day: "Tuesday", room: "311", name: "Computer Vision", type: "lecture"}, {time: 17, day: "Tuesday", room: "311", name: "Computer Vision", type: "lecture"},
-                              {time: 9, day: "Thursday", room: "311", name: "Information and Coding", type: "lecture"}, {time: 10, day: "Thursday", room: "311", name: "Information and Coding", type: "lecture"},
-                              {time: 11, day: "Thursday", room: "311", name: "Robotics", type: "lecture"}, {time: 12, day: "Thursday", room: "311", name: "Robotics", type: "lecture"},
-                              {time: 14, day: "Thursday", room: "311", name: "Operations Research"}, {time: 15, day: "Thursday", room: "311", name: "Operations Research"},
-                              {time: 9, day: "Friday", room: "311", name: "Computer Vision", type: "lecture"}, {time: 10, day: "Friday", room: "311", name: "Computer Vison", type: "lecture"},
-                              {time: 11, day: "Friday", room: "311", name: "Simulation and Modelling"}, {time: 12, day: "Friday", room: "311", name: "Simulation and Modelling"},
-                              {time: 14, day: "Friday", room: "311", name: "Type Systems", type: "lecture"}, {time: 15, day: "Friday", room: "311", name: "Type Systems", type: "lecture"},
-                              {time: 16, day: "Friday", room: "311", name: "Advanced Databases", type: "lecture"}, , {time: 17, day: "Friday", room: "311", name: "Advanced Databases", type: "lecture"}]};
+    this.state = {timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
+                                {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
+                                {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
+                                {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
+                                {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},]};
+                              //{time: 11, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
+                              //{time: 12, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
+                             // {time: 9, day: "Monday", room: "311", name: "Operations Research", type: "lecture"},
+                             // {time: 10, day: "Monday", room: "311", name: "Operations Research", type: "lecture"},
+                              //{time: 16, day: "Monday", room: "311", name: "Information and Coding"},
+                              //{time: 17, day: "Monday", room: "311", name: "Information and Coding"},
+                              //{time: 9, day: "Tuesday", room: "311", name: "Robotics", type: "lecture"},
+                              //{time: 10, day: "Tuesday", room: "311", name: "Robotics", type: "lecture"},
+                              //{time: 11, day: "Tuesday", room: "311", name: "Simulation and Modelling", type: "lecture"},
+                              //{time: 12, day: "Tuesday", room: "311", name: "Simulation and Modelling", type: "lecture"},
+                              //{time: 14, day: "Tuesday", room: "311", name: "Type Systems", type: "lecture"},
+                              //{time: 15, day: "Tuesday", room: "311", name: "Type Systems", type: "lecture"},
+                              //{time: 16, day: "Tuesday", room: "311", name: "Computer Vision", type: "lecture"},
+                             // {time: 17, day: "Tuesday", room: "311", name: "Computer Vision", type: "lecture"},
+                             // {time: 9, day: "Thursday", room: "311", name: "Information and Coding", type: "lecture"},
+                             // {time: 10, day: "Thursday", room: "311", name: "Information and Coding", type: "lecture"},
+                             // {time: 11, day: "Thursday", room: "311", name: "Robotics", type: "lecture"},
+                             // {time: 12, day: "Thursday", room: "311", name: "Robotics", type: "lecture"},
+                             // {time: 14, day: "Thursday", room: "311", name: "Operations Research"},
+                             // {time: 15, day: "Thursday", room: "311", name: "Operations Research"},
+                             // {time: 9, day: "Friday", room: "311", name: "Computer Vision", type: "lecture"},
+                             // {time: 10, day: "Friday", room: "311", name: "Computer Vison", type: "lecture"},
+                             // {time: 11, day: "Friday", room: "311", name: "Simulation and Modelling"},
+                             // {time: 12, day: "Friday", room: "311", name: "Simulation and Modelling"},
+                             // {time: 14, day: "Friday", room: "311", name: "Type Systems", type: "lecture"},
+                             // {time: 15, day: "Friday", room: "311", name: "Type Systems", type: "lecture"},
+                             // {time: 16, day: "Friday", room: "311", name: "Advanced Databases", type: "lecture"},
+                             // {time: 17, day: "Friday", room: "311", name: "Advanced Databases", type: "lecture"}]};
   }
 
   saveTimetable(timetable){
