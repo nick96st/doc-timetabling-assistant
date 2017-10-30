@@ -59,11 +59,12 @@ class ASPCodeGenerator():
 
     @staticmethod
     def generate_axiom_constraints():
-
-        return ''
+        return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
+                "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
 
     def generate_hard_constraints(self):
-        return ''
+        return ":- not class_has_enough_hours(T), subject(T,_,_)." + \
+               ":- class(T1,R,D,S), class(T2,R,D,S),room(R,_),T1!=T2."
 
     def generate_soft_constraints(self):
         return ''
@@ -87,6 +88,7 @@ class ASPCodeGenerator():
         code_string += self.generate_axiom_constraints()
         code_string += self.generate_hard_constraints()
         code_string += self.generate_soft_constraints()
+        code_string += "#show class/4."
         fd = open(file_name,'w+')
         fd.write(code_string)
         fd.close()
