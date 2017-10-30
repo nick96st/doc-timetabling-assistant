@@ -45,33 +45,15 @@ def generate_table(request):
     codegen = asp_manipulators.CodeGeneratorBuilder()
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
-    codegen.build().generate_code('default_001.in')
+    generator = codegen.build()
+    generator.generate_code('default_001.in')
     run_clingo('./default_001.in','./default_001.out')
-    data = read_from_asp_result('default_001.out')
-    data_dict = json.loads(data)
-    all_results = data_dict["Call"][0]["Witnesses"]
+    result = generator.parse_result('default_001.out')
 
-    tokenized_results = {"results": []}
-    for result in all_results:
-        asp_terms = []
-        for item in result["Value"]:
-            asp_terms.append(asp_manipulators.tokenize_asp_term(item))
-
-        tokenized_results["results"].append(asp_terms)
-
-    json_solutions = []
-    for solution in tokenized_results["results"]:
-        actual_json = []
-        for lecture_class in solution:
-            actual_json.append(ta_models.LectureClass().from_asp(lecture_class).to_json_for_frontend())
-
-        json_solutions.append(actual_json)
-    # code_result = read_from_asp_result('default_001.in')
-    return response.HttpResponse(content=json.dumps(json_solutions))
+    return response.HttpResponse(content=result)
 
 @csrf_exempt
 def check_constraints(request):
-
     # grid_objects = request["data"]["grid_objects"]
     timetable = json.loads(request.body)["timetable"]
     # hard_constraints = request.data["constraints"]
@@ -91,8 +73,10 @@ def check_constraints(request):
     codegen.with_result_facts(grid_objects)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
-    codegen.build().generate_code('default_001.in')
-    code_result = read_from_asp_result('default_001.in')
+    generator = codegen.build()
+    generator.generate_code('default_001.in')
+    run_clingo('./default_001.in','./default_001.out')
+    code_result = generator.get_result_status('default_001.out')
     return response.HttpResponse(content=code_result)
 
 
