@@ -34,6 +34,7 @@ class ASPCodeGenerator():
         self.result_facts = []
         self.hard_constraints = []
         self.soft_constraints = []
+        self.should_generate = True
 
     def generate_default_object_definitions(self):
         obj_def_string = ''
@@ -59,8 +60,8 @@ class ASPCodeGenerator():
 
     @staticmethod
     def generate_axiom_constraints():
-        return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
-                "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
+         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
+        return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
 
     def generate_hard_constraints(self):
         return ":- not class_has_enough_hours(T), subject(T,_,_)." + \
@@ -85,6 +86,8 @@ class ASPCodeGenerator():
         code_string = ''
         code_string += self.generate_default_object_definitions()
         code_string += self.generate_result_facts()
+        if self.should_generate:
+            code_string += "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)."
         code_string += self.generate_axiom_constraints()
         code_string += self.generate_hard_constraints()
         code_string += self.generate_soft_constraints()
@@ -133,11 +136,13 @@ class CodeGeneratorBuilder():
         self.result_facts = []
         self.hard_constraints = []
         self.soft_constraints = []
+        self.should_generate = True
 
     def with_result_facts(self,result_facts):
         if not result_facts:
             return
         self.result_facts = result_facts
+        self.should_generate = False
         return self
 
     def with_hard_constraints(self, hard_constraints):
@@ -157,4 +162,5 @@ class CodeGeneratorBuilder():
         code_generator.result_facts = [] + self.result_facts
         code_generator.hard_constraints = [] + self.hard_constraints
         code_generator.soft_constraints = [] + self.soft_constraints
+        code_generator.should_generate = self.should_generate
         return code_generator
