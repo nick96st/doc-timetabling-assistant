@@ -47,18 +47,19 @@ class ASPCodeGenerator():
         for subject in ta_models.Subject.objects.all():
             obj_def_string += subject.to_asp() + '.'
 
-        return obj_def_string
+        return obj_def_string.lower()
 
     # pre: LectureClass obj array in result_Facts
     def generate_result_facts(self):
         result_string = ''
         for fact in self.result_facts:
-            result_string += fact.to_asp() + ".\n"
+            result_string += fact.to_asp().lower() + ".\n"
 
-        return result_string
+        return result_string.lower()
 
     @staticmethod
     def generate_axiom_constraints():
+
         return ''
 
     def generate_hard_constraints(self):
