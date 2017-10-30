@@ -39,13 +39,13 @@ class ASPCodeGenerator():
         obj_def_string = ''
         # TODO: does not get all rooms but selected
         for room in ta_models.Room.objects.all():
-            obj_def_string += room.to_asp()
+            obj_def_string += room.to_asp() + '.'
 
         for timeslot in ta_models.Timeslot.objects.all():
-            obj_def_string += timeslot.to_asp()
+            obj_def_string += timeslot.to_asp() + '.'
 
         for subject in ta_models.Subject.objects.all():
-            obj_def_string += subject.to_asp()
+            obj_def_string += subject.to_asp() + '.'
 
         return obj_def_string
 
