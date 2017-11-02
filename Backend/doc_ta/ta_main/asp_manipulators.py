@@ -29,6 +29,8 @@ def json_term_to_asp_string(json_term):
 
 
 class ASPCodeGenerator():
+    # define term 1 as programming, MM, discrete, logic hardware
+    term_1 = [120, 145, 142, 140, 112]
 
     def __init__(self):
         self.result_facts = []
@@ -37,7 +39,7 @@ class ASPCodeGenerator():
         self.should_generate = True
 
     def generate_default_object_definitions(self):
-        obj_def_string = ''
+        obj_def_string = ""
         # TODO: does not get all rooms but selected
         for room in ta_models.Room.objects.all():
             obj_def_string += room.to_asp() + '.'
@@ -46,13 +48,14 @@ class ASPCodeGenerator():
             obj_def_string += timeslot.to_asp() + '.'
 
         for subject in ta_models.Subject.objects.all():
-            obj_def_string += subject.to_asp() + '.'
+            if subject.code in self.term_1:
+                obj_def_string += subject.to_asp() + '.'
 
         return obj_def_string.lower()
 
     # pre: LectureClass obj array in result_Facts
     def generate_result_facts(self):
-        result_string = ''
+        result_string = ""
         for fact in self.result_facts:
             result_string += fact.to_asp().lower() + ".\n"
 
@@ -68,7 +71,7 @@ class ASPCodeGenerator():
                ":- class(T1,R,D,S), class(T2,R,D,S),room(R,_),T1!=T2."
 
     def generate_soft_constraints(self):
-        return ''
+        return ""
 
     @staticmethod
     def read_from_asp_result(result_src):
