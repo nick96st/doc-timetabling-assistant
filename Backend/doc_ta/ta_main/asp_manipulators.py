@@ -1,4 +1,13 @@
 from exceptions import IndexError, KeyError
+import models as ta_models
+import json
+
+def number_of_hours_asp(subject_model):
+    # TODO: refactor to much hardoded dependencies among objects
+    asp_string = "class_has_enough_hours(" + subject_model.title_asp + ') ' + ":- "
+    asp_string += str(subject_model.hours) + "{ class(" + subject_model.title_asp + ",_,_,_) } "
+    asp_string += str(subject_model.hours) + " ."
+    return asp_string
 
 
 def tokenize_asp_term(term):
@@ -61,10 +70,14 @@ class ASPCodeGenerator():
 
         return result_string.lower()
 
-    @staticmethod
-    def generate_axiom_constraints():
-         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
-        return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
+    def generate_axiom_constraints(self):
+        axiom_constraints_string = " "
+        # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
+        for subject in ta_models.Subject.objects.all():
+            if subject.code in self.term_1:
+                axiom_constraints_string += number_of_hours_asp(subject)
+        return axiom_constraints_string
+        # return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
 
     def generate_hard_constraints(self):
         return ":- not class_has_enough_hours(T), subject(T,_,_)." + \
