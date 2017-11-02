@@ -104,7 +104,7 @@ def save_timetable(request):
 
 @csrf_exempt
 def init_timeslots_DoC(request):
-    for i in range(9,19):
+    for i in range(9,18):
         for day in ta_models.days_choices:
             if ta_models.Timeslot.objects.filter(day=day[0], hour=i).first() is None:
                 # return response.HttpResponse(content="does not have item")

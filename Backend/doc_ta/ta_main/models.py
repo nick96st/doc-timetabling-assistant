@@ -31,7 +31,7 @@ admin.site.register(SavedTable, SavedTableAdmin)
 days_choices = [('M','Monday'),
                 ('Tu','Tuesday'),
                 ('W','Wednesday'),
-                ('Th','Thurday'),
+                ('Th','Thursday'),
                 ('F','Friday')]
 
 selection_levels_choices = [('M','Mandatory'),  # eg: 3rd year group project
