@@ -45,7 +45,7 @@ max_six_hour_a_day(D):- 0 { class(_,_,D,_) } 6, day(D).
 :- class(T1,R,D,S), class(T2,R,D,S),room(R,_),T1!=T2.
 
 % Two classes in in different rooms at the same time (assuming we are in just 1 course).
-:- class(T1,R1,D,S), class(T2,R2,D,S),room(R1,_),room(R2,_),T1!=T2, R1!=R2.
+:- class(T,R1,D,S), class(T,R2,D,S),room(R1,_),room(R2,_), R1!=R2.
 
 
 %Students should not have more than six hours in any one day
@@ -53,7 +53,7 @@ max_six_hour_a_day(D):- 0 { class(_,_,D,_) } 6, day(D).
 
 %Same day class of same lecturer maximum 2 hours
 %If the there is a 2 hour class that day make it consecutive
-:- class(T,R,D,S), class(T,D,S+Y), Y=2..15.
+:- class(T,R,D,S), class(T,R,D,S+Y), Y=2..15.
 
 %No three consecutive hour
 %:- class(_,_,D,S), class(_,_,D,S+1), class(_,_,D,S+2), day(D), slot(S).
