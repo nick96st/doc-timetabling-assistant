@@ -142,7 +142,7 @@ class LectureClass(models.Model):
         self.subject = Subject.objects.get(title=json_data['name'])
 
     def to_asp(self):
-        json_data = {"id":"class","params":[self.subject.title,
+        json_data = {"id":"class","params":[self.subject.title_asp,
                                             self.room.room_name,
                                             self.time_slot.hour,
                                             self.time_slot.day,
