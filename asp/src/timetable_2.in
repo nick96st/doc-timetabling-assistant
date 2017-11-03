@@ -30,10 +30,11 @@ subject(reasoning_for_programs,185,5).
 
 %Define
 timeslot(D,S) :- day(D), slot(S).
-0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_), day(D).
+0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_).
 class_has_enough_hours(T):- 5 { class(T,_,_,_) } 5 , subject(T,_,_).
-max_six_hour_a_day(D):- 0 { class(_,_,D,_) } 6, day(D).
-
+max_six_hour_a_day(D):- 0 { class(_,_,D,_) } 6, timeslot(D,S).
+three_hours_consecutive:- class(_,_,D,S), class(_,_,D,S+1), class(_,_,D,S+2), timeslot(D,S).
+unique_timeslot (D,S):- 0 { class(_,_,D,S) } 1, timeslot(D,S).
 %Constraints
 % checks if classes has been allocated properly.
 :- not class_has_enough_hours(T), subject(T,_,_).
@@ -41,22 +42,26 @@ max_six_hour_a_day(D):- 0 { class(_,_,D,_) } 6, day(D).
 % checks if room size is big enough
 %:- class(T,R,D,S), room(R,C0), subject(T,C1,_), C1 < C0.
 
-% Two class in the same room at the same time.
-:- class(T1,R,D,S), class(T2,R,D,S),room(R,_),T1!=T2.
+% % Two classes in the same room at the same time.
+% :- class(T1,R,D,S), class(T2,R,D,S),room(R,_),T1!=T2.
+%
+% % Same class but in two different rooms
+% :- class(T,R1,D,S), class(T,R2,D,S),room(R1,_),room(R2,_), R1!=R2.
+%
+% % Subjects of the same year in the same slot
+% :- class(T1,R1,D,S), class(T2,R2,D,S), timeslot(D,S), T1!=T2, R1!=R2.
 
-% Two classes in in different rooms at the same time (assuming we are in just 1 course).
-:- class(T,R1,D,S), class(T,R2,D,S),room(R1,_),room(R2,_), R1!=R2.
-
-
+%Each timeslot is unique
+:- not unique_timeslot(D,S), timeslot(D,S).
 %Students should not have more than six hours in any one day
-:- not max_six_hour_a_day(D), day(D).
+:- not max_six_hour_a_day(D), timeslot(D,_).
 
 %Same day class of same lecturer maximum 2 hours
 %If the there is a 2 hour class that day make it consecutive
-:- class(T,R,D,S), class(T,R,D,S+Y), Y=2..15.
+:- class(T,R,D,S), class(T,R,D,S+Y), Y=2..8.
 
 %No three consecutive hour
-%:- class(_,_,D,S), class(_,_,D,S+1), class(_,_,D,S+2), day(D), slot(S).
+:- class(_,_,D,S), class(_,_,D,S+1), class(_,_,D,S+2), timeslot(D,S).
 
 %Optimisation
 %Make pack as much lessons of the same course on the same day as possible
