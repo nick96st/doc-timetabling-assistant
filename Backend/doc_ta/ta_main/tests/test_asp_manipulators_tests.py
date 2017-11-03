@@ -133,7 +133,7 @@ def invoke_codegen_sequence_with_facts(grid_objects):
     generator.generate_code('test_001.in')
     input_src = "test_001.in"
     output_src = "test_001.out"
-    command_string = "ls"
+    command_string = "pwd"
     os.system(command_string)
     command_string = "./clingo-4.5.4-linux-x86_64/clingo --outf=2 <" + input_src + ">" + output_src
     os.system(command_string)
