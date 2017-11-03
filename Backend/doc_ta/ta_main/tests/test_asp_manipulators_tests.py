@@ -3,6 +3,7 @@ from ta_main import asp_manipulators
 from ta_main import models as ta_models
 from ta_main import asp_code_generator
 from ta_main import views
+import os
 
 
 def init_t1m3sl0ts_DoC():
@@ -134,7 +135,7 @@ def invoke_codegen_sequence_with_facts(grid_objects):
     output_src = "test_001.out"
     command_string = "./clingo-4.5.4.linux-x86_64/clingo --outf=2 <" + input_src + ">" + output_src
     os.system(command_string)
-    views.run_clingo('./test_001.in','./test_001.out')
+    # views.run_clingo('./test_001.in','./test_001.out')
     code_result = generator.get_result_status('test_001.out')
     return code_result
 
