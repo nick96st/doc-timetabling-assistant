@@ -2,9 +2,16 @@
 from __future__ import unicode_literals
 from django.http import request, response
 from django.template import loader
+import models as ta_models
 from django.shortcuts import render
 import datetime
+import asp_code_generator
 import os
+import json
+from django.views.decorators.csrf import csrf_exempt
+# from rest_framework.decorators import APIView, permission_classes
+# from rest_framework.permissions import AllowAny
+
 
 def read_from_asp_result(result_src):
     f = open(result_src)
@@ -18,15 +25,88 @@ def run_clingo(input_src, output_src):
     os.system(command_string)
 
 
-def test_view(request):
-    input_src = "./asp/src/timetable_2.in"
-    output_src = "result.out"
-    run_clingo(input_src, output_src)
-    data = read_from_asp_result(output_src)
-    return response.HttpResponse(content=data, status=200)
-
-
+# get index page
 def get_index(request):
     template = loader.get_template("index.html")
     context = {}
     return response.HttpResponse(template.render(context,request))
+
+
+# checks if constraints with current table selection succeeds
+
+@csrf_exempt
+def generate_table(request):
+    codegen = asp_code_generator.CodeGeneratorBuilder()
+    # codegen.with_hard_constraints(hard_constraints)
+    # codegen.with_soft_constraints(soft_constraints)
+    generator = codegen.build()
+    generator.generate_code('default_001.in')
+    run_clingo('./default_001.in','./default_001.out')
+    result = generator.parse_result('default_001.out')
+
+    return response.HttpResponse(content=result)
+
+@csrf_exempt
+def check_constraints(request):
+    # grid_objects = request["data"]["grid_objects"]
+    timetable = json.loads(request.body)["timetable"]
+    # hard_constraints = request.data["constraints"]
+    # soft_constraints = request.data[""]
+    if not timetable:
+        return response.HttpResponseBadRequest('No grid objects data given')
+
+    # create models from json
+    grid_objects = []
+    for obj in timetable:
+        model = ta_models.LectureClass()
+        model.init_from_json(obj)
+        grid_objects.append(model)
+
+    # build pattern
+    codegen = asp_code_generator.CodeGeneratorBuilder()
+    codegen.with_result_facts(grid_objects)
+    # codegen.with_hard_constraints(hard_constraints)
+    # codegen.with_soft_constraints(soft_constraints)
+    generator = codegen.build()
+    generator.generate_code('default_001.in')
+    run_clingo('./default_001.in','./default_001.out')
+    code_result = generator.get_result_status('default_001.out')
+    return response.HttpResponse(content=code_result)
+
+
+@csrf_exempt
+def save_timetable(request):
+    # return response.HttpResponse(content=json.loads(request.body)['timetable'],content_type="application/json")
+    timetable = json.loads(request.body)["timetable"]
+    # delete any previous saved data
+    previous_save = ta_models.SavedTable.objects.filter(name="test_timetable").first()
+    if not (previous_save is None):
+        ta_models.LectureClass.objects.filter(save_it_belongs_to=previous_save).delete()
+        previous_save.delete()
+
+    save_id = ta_models.SavedTable()
+    save_id.name = "test_timetable"  # TODO: pass a name of timetable
+    save_id.save()
+    for obj in timetable:
+        model = ta_models.LectureClass()
+        model.init_from_json(obj)
+        model.save_it_belongs_to = save_id
+        model.save()
+
+    return response.HttpResponse(status=200)
+
+
+@csrf_exempt
+def init_timeslots_DoC(request):
+    for i in range(9,18):
+        for day in ta_models.days_choices:
+            if ta_models.Timeslot.objects.filter(day=day[0], hour=i).first() is None:
+                # return response.HttpResponse(content="does not have item")
+                model = ta_models.Timeslot()
+                model.hour = i
+                model.day = day[0]
+                model.save()
+
+    return response.HttpResponse()
+
+
