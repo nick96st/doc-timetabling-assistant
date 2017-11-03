@@ -33,8 +33,9 @@ timeslot(D,S) :- day(D), slot(S).
 0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_).
 class_has_enough_hours(T):- 5 { class(T,_,_,_) } 5 , subject(T,_,_).
 max_six_hour_a_day(D):- 0 { class(_,_,D,_) } 6, timeslot(D,S).
-three_hours_consecutive:- class(_,_,D,S), class(_,_,D,S+1), class(_,_,D,S+2), timeslot(D,S).
 unique_timeslot (D,S):- 0 { class(_,_,D,S) } 1, timeslot(D,S).
+nine_to_eleven_am (T) :- class(T,_,_,S), S= 9..10.
+four_to_six_pm (T) :- class(T,_,_,S), S= 4..5.
 %Constraints
 % checks if classes has been allocated properly.
 :- not class_has_enough_hours(T), subject(T,_,_).
@@ -62,6 +63,9 @@ unique_timeslot (D,S):- 0 { class(_,_,D,S) } 1, timeslot(D,S).
 
 %No three consecutive hour
 :- class(_,_,D,S), class(_,_,D,S+1), class(_,_,D,S+2), timeslot(D,S).
+
+%No 9 to 5
+:- nine_to_eleven_am (T), four_to_six_pm (T).
 
 %Optimisation
 %Make pack as much lessons of the same course on the same day as possible
