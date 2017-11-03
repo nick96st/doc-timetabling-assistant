@@ -25,14 +25,7 @@ def run_clingo(input_src, output_src):
     os.system(command_string)
 
 
-def test_view(request):
-    input_src = "./asp/src/timetable_2.in"
-    output_src = "result.out"
-    run_clingo(input_src, output_src)
-    data = read_from_asp_result(output_src)
-    return response.HttpResponse(content=data, status=200)
-
-
+# get index page
 def get_index(request):
     template = loader.get_template("index.html")
     context = {}
