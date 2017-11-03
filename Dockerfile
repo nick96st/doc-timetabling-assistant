@@ -9,10 +9,8 @@ ADD . /app
 # Install all needed packages in requirements.txt
 RUN pip install -r Backend/requirements.txt
 RUN wget https://netcologne.dl.sourceforge.net/project/potassco/clingo/4.5.4/clingo-4.5.4-linux-x86_64.tar.gz
-RUN tar -xvzf clingo-4.5.4-linux-x86_64.tar.gz
-ADD clingo-4.5.4-linux-x86_64 /app
-RUN ls
-RUN ls
+ADD clingo-4.5.4-linux-x86_64.tar.gz /app
+
 # Expose port 80 for webapp
 EXPOSE 80
 
