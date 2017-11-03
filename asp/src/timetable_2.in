@@ -32,10 +32,11 @@ subject(reasoning_for_programs,185,5).
 timeslot(D,S) :- day(D), slot(S).
 0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_).
 class_has_enough_hours(T):- 5 { class(T,_,_,_) } 5 , subject(T,_,_).
-max_six_hour_a_day(D):- 0 { class(_,_,D,_) } 6, timeslot(D,S).
-unique_timeslot (D,S):- 0 { class(_,_,D,S) } 1, timeslot(D,S).
+max_six_hour_a_day(D):- { class(_,_,D,_) } 6, timeslot(D,S).
+unique_timeslot (D,S):- { class(_,_,D,S) } 1, timeslot(D,S).
 nine_to_eleven_am (T) :- class(T,_,_,S), S= 9..10.
-four_to_six_pm (T) :- class(T,_,_,S), S= 4..5.
+four_to_six_pm (T) :- class(T,_,_,S), S= 16..17.
+max_three_day_a_week (T) :- { day_occupied(D) : class (T,_,D,_)} 3, subject (T).
 %Constraints
 % checks if classes has been allocated properly.
 :- not class_has_enough_hours(T), subject(T,_,_).
@@ -69,8 +70,10 @@ four_to_six_pm (T) :- class(T,_,_,S), S= 4..5.
 :- class(T,R1,D,_), class(T,R2,D,_), R1!=R2.
 
 %No 9 to 5
-:- nine_to_eleven_am (T), four_to_six_pm (T).
+:- four_to_six_pm (T) : nine_to_eleven_am (T).
 
+%Each subject only takes 3 day a week
+:-not max_three_day_a_week(T), subject(T).
 %Optimisation
 %Make pack as much lessons of the same course on the same day as possible
 %#minimize { |D-DD| : add(X,D,S), add(XX,DD,SS) }.
