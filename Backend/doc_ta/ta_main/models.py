@@ -140,12 +140,13 @@ class LectureClass(models.Model):
         self.time_slot = Timeslot.objects.filter(hour=json_data['time'],day=x).first()
         self.room = Room.objects.get(room_name=json_data['room'])
         self.subject = Subject.objects.get(title=json_data['name'])
+        return self
 
     def to_asp(self):
         json_data = {"id":"class","params":[self.subject.title_asp,
                                             self.room.room_name,
-                                            self.time_slot.hour,
                                             self.time_slot.day,
+                                            self.time_slot.hour,
                                             ]}
         return asp_manipulators.json_term_to_asp_string(json_data)
 
