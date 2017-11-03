@@ -3,12 +3,13 @@ FROM python:2.7
 # Set working directory to /app
 WORKDIR /app
 
-# Copy current directory contents into the container at /app
-ADD . /app
-
 # Install all needed packages in requirements.txt
 RUN wget https://netcologne.dl.sourceforge.net/project/potassco/clingo/4.5.4/clingo-4.5.4-linux-x86_64.tar.gz
 RUN tar -xvzf clingo-4.5.4-linux-x86_64.tar.gz
+
+# Copy current directory contents into the container at /app
+ADD . /app
+
 RUN pip install -r Backend/requirements.txt
 RUN ls
 # Expose port 80 for webapp
