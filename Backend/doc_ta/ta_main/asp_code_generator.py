@@ -50,12 +50,23 @@ class ASPCodeGenerator():
         # return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
 
     def generate_hard_constraints(self):
+        # as follows
+        # enough hours,
+        #  at 1 room at a given time exactly 1 course,
+        # no 3 conseuquitive lectures
+        # if 2 lectures in a day they must follow one another
+        # capacity check
+        # same class in 2 different rooms at the same time
         return ":- not class_has_enough_hours(T), subject(T,_,_).\n" + \
-               ":- class(T1,R,D,S), class(T2,R,D,S),room(R,_),T1!=T2.\n"
+               ":- class(T1,R,D,S), class(T2,R,D,S),room(R,_),T1!=T2.\n" + \
+                ":-class(_, _, D, S), class (_, _, D, S+1), class (_, _, D, S+2), timeslot(D, S)." +\
+                ":- class(T,_,D,S), class(T,_,D,S+Y), Y=2..15.\n" + \
+                ":- class(T,R,_,_),room(R,C),subject(T,S,_), C<S." + \
+                ":- class(T,X,D,S),class(T,Y,D,S), X!=Y."
 
     def generate_soft_constraints(self):
         return ""
-
+    
 # Method to read from a asp_solutions
     @staticmethod
     def read_from_asp_result(result_src):
