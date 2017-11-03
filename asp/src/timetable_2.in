@@ -54,15 +54,19 @@ four_to_six_pm (T) :- class(T,_,_,S), S= 4..5.
 
 %Each timeslot is unique
 :- not unique_timeslot(D,S), timeslot(D,S).
+
 %Students should not have more than six hours in any one day
 :- not max_six_hour_a_day(D), timeslot(D,_).
 
 %Same day class of same lecturer maximum 2 hours
 %If the there is a 2 hour class that day make it consecutive
-:- class(T,R,D,S), class(T,R,D,S+Y), Y=2..8.
+:- class(T,_,D,S), class(T,_,D,S+Y), Y=2..8.
 
 %No three consecutive hour
 :- class(_,_,D,S), class(_,_,D,S+1), class(_,_,D,S+2), timeslot(D,S).
+
+%Same day same room
+:- class(T,R1,D,_), class(T,R2,D,_), R1!=R2.
 
 %No 9 to 5
 :- nine_to_eleven_am (T), four_to_six_pm (T).
