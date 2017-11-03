@@ -15,8 +15,8 @@ import {render} from 'react-dom';
     props.rows.forEach(r => {
       console.log(r[11]);
       rowItems.push(<tr><td>{r.day}</td><td>{r[9]}</td><td>{r[10]}</td><td>{r[11]}
-                    </td><td>{r[12]}</td><td>{r[13]}</td><td>{r[14]}</td><td>{r[15]}
-                    </td><td>{r[16]}</td><td>{r[17]}</td></tr>)
+                    </td><td>{r[12]}</td><td>{r[13]}</td><td>{r[14]}</td>
+                    <td>{r[15]}</td><td>{r[16]}</td><td>{r[17]}</td></tr>)
     })
     return rowItems
   }
