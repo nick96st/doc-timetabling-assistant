@@ -15,7 +15,13 @@ import {render} from 'react-dom';
     props.rows.forEach(r => {
       var cols = [<td>{r.day}</td>]
       for (var i = 9; i < 18; i++ ){
-        cols.push(<td>{r[i]}</td>)
+        if (r[i].length === 0){
+          cols.push(<td></td>)
+        }else{
+        r[i].forEach(s => {
+          cols.push(<td>{s.name} <br/> {s.room} </td>)
+        })
+      }
       }
       rowItems.push(<tr>{cols}</tr>)
     })

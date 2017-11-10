@@ -88,16 +88,17 @@ class App extends React.Component {
   }
 
   generateRows(data){
-    var monday = {day: "Monday" }
-    var tuesday = {day: "Tuesday"}
-    var wednesday = {day: "Wednesday"}
-    var thursday = {day: "Thursday"}
-    var friday = {day: "Friday"}
-    data.forEach(d => {if(d.day === "Monday"){ monday[d.time] = d.name + " " + d.room}
-                       if(d.day === "Tuesday"){tuesday[d.time] = d.name + " " + d.room}
-                       if(d.day === "Wednesday"){wednesday[d.time] = d.name + " " + d.room}
-                       if(d.day === "Thursday"){thursday[d.time] = d.name + " " + d.room}
-                       if(d.day === "Friday"){friday[d.time] = d.name + " " + d.room}});
+    var monday = {day: "Monday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+    var tuesday = {day: "Tuesday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+    var wednesday = {day: "Wednesday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+    var thursday = {day: "Thursday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+    var friday = {day: "Friday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+
+    data.forEach(d => {if(d.day === "Monday"){ monday[d.time].push(d)}
+                       if(d.day === "Tuesday"){tuesday[d.time].push(d)}
+                       if(d.day === "Wednesday"){wednesday[d.time].push(d)}
+                       if(d.day === "Thursday"){thursday[d.time].push(d)}
+                       if(d.day === "Friday"){friday[d.time].push(d)}});
     var rows = [monday, tuesday, wednesday, thursday, friday]
     console.log(monday)
     return rows
