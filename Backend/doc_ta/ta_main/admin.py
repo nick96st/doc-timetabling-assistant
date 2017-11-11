@@ -32,14 +32,18 @@ class ClassTermAdmin(admin.ModelAdmin):
 class TermAdmin(admin.ModelAdmin):
     list_display = ["name","number_of_weeks"]
 
+
 class LecturerAdmin(admin.ModelAdmin):
     list_display = ["first_name", "surname"]
+
 
 class TeachesAdmin(admin.ModelAdmin):
     list_display = ["lecturer", "subject"]
 
+
 class CourseYearAdmin(admin.ModelAdmin):
-    list_display = ["mandatory_count", "selective_count", "name"]
+    list_display = ["name"]
+
 
 class SubjectsCoursesAdmin(admin.ModelAdmin):
     list_display = ["courseyear", "subject"]

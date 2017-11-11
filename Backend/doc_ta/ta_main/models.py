@@ -156,9 +156,8 @@ class Teaches(models.Model):
     subject = models.ForeignKey(Subject)
 
 class CourseYear(models.Model):
-    mandatory_count = models.IntegerField()
-    selective_count = models.IntegerField()
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=40, null=False)
+
 
 class SubjectsCourses(models.Model):
     subject = models.ForeignKey(Subject)
