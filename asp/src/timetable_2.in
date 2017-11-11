@@ -32,18 +32,15 @@ subject(reasoning_for_programs,185,3).
 timeslot(D,S) :- day(D), slot(S).
 0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_).
 class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_).
--class_has_enough_hours(T):- not class_has_enough_hours(T), subject(T,_,_).
 max_six_hour_a_day(D):- { class(_,_,D,_) } 6, timeslot(D,S).
--max_six_hour_a_day(D):- not max_six_hour_a_day(D), timeslot(D,S).
 unique_timeslot(D,S):- { class(_,_,D,S) } 1, timeslot(D,S).
--unique_timeslot(D,S):- not unique_timeslot(D,S), timeslot(D,S).
 % nine_to_eleven_am(T) :- class(T,_,_,S), S= 9..10.
 % four_to_six_pm(T) :- class(T,_,_,S), S= 16..17.
-0 { day_occupied(T,D) } 1 :- class(T,_,D,_).
-max_two_day_a_week(T) :- { day_occupied(T,D) } 2, subject(T,_,_), timeslot(D,_).
+1 { day_occupied(T,D) } 1 :- class(T,_,D,_).
+max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).
 %Constraints
 % checks if classes has been allocated properly.
-:- -class_has_enough_hours(T), subject(T,_,_).
+:- not class_has_enough_hours(T), subject(T,_,_).
 % :- not 3 { class(T,_,_,_) } 3, subject(T,_,_).
 
 % checks if room size is big enough
@@ -59,13 +56,13 @@ max_two_day_a_week(T) :- { day_occupied(T,D) } 2, subject(T,_,_), timeslot(D,_).
 % :- class(T1,R1,D,S), class(T2,R2,D,S), timeslot(D,S), T1!=T2, R1!=R2.
 
 %Each subject only takes 2 day a week
-:- -max_two_day_a_week(T), subject(T,_,_).
+:- not max_two_day_a_week(T), subject(T,_,_).
 
 %Each timeslot is unique
-:- -unique_timeslot(D,S), timeslot(D,S).
+:- not unique_timeslot(D,S), timeslot(D,S).
 
 %Students should not have more than six hours in any one day
-:- -max_six_hour_a_day(D), timeslot(D,_).
+:- not max_six_hour_a_day(D), timeslot(D,_).
 
 %Same day class of same lecturer maximum 2 hours
 %If the there is a 2 hour class that day make it consecutive
