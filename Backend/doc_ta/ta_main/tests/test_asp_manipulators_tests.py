@@ -7,7 +7,6 @@ from ta_main.tests import database_inits as DatabaseInits
 
 
 class ASPParseTests(test.SimpleTestCase):
-
     def setUp(self):
         pass
 
@@ -39,11 +38,33 @@ class ASPParseTests(test.SimpleTestCase):
 
         self.assertEquals(expected, result)
 
-def generate_lectureclass_json(name,room,day,hour):
-    return {"time":hour,"name":name,"room":str(room),"day":day}
+
+class TestChangeStringToAspSuitable(test.TestCase):
+    def setUp(self):
+        pass
+
+    def test_removes_spaces(self):
+        data = "adv  db"
+        expected = "advdb"
+        result = asp_manipulators.string_to_asp_suitable(data)
+
+        self.assertEquals(result, expected)
+
+    def test_lowers_letters(self):
+        data = "Adv DB"
+        expected = "advdb"
+        result = asp_manipulators.string_to_asp_suitable(data)
+
+        self.assertEquals(result, expected)
+
+
+def generate_lectureclass_json(name, room, day, hour):
+    return {"time": hour, "name": name, "room": str(room), "day": day}
+
 
 unsatisfiable = "UNSATISFIABLE"
 satisfiable = "SATISFIABLE"
+
 
 def invoke_codegen_sequence_with_facts(grid_objects):
     codegen = asp_code_generator.CodeGeneratorBuilder()
@@ -116,7 +137,3 @@ class HardConstraintsTest(test.TestCase):
 
         code_result = invoke_codegen_sequence_with_facts(facts)
         self.assertEquals(code_result, unsatisfiable)
-
-
-
-

@@ -10,6 +10,10 @@ def number_of_hours_asp(subject_model):
     return asp_string
 
 
+def string_to_asp_suitable(name):
+    return name.lower().replace(" ", "")
+
+
 # Parses a asp term from id(param,param..) format to a json object
 def tokenize_asp_term(term):
     # split to parts before and after opening bracket
