@@ -96,17 +96,10 @@ def save_timetable(request):
     return response.HttpResponse(status=200)
 
 
+import tests.database_inits as DB
 @csrf_exempt
 def init_timeslots_DoC(request):
-    for i in range(9,18):
-        for day in ta_models.days_choices:
-            if ta_models.Timeslot.objects.filter(day=day[0], hour=i).first() is None:
-                # return response.HttpResponse(content="does not have item")
-                model = ta_models.Timeslot()
-                model.hour = i
-                model.day = day[0]
-                model.save()
-
+    DB.generate_all()
     return response.HttpResponse()
 
 
