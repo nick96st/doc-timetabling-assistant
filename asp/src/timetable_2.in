@@ -16,11 +16,11 @@ slot(9..17).
 % timeslot(tu,16).timeslot(w,16).timeslot(th,16).timeslot(f,16).timeslot(m,17).
 % timeslot(tu,17).timeslot(w,17).timeslot(th,17).timeslot(f,17).timeslot(m,18).
 % timeslot(tu,18).timeslot(w,18).timeslot(th,18).timeslot(f,18).
-subject(hardware,145,5).
-subject(mathematical_methods,145,5).
-subject(architecture,185,5).
-subject(databases_i,145,5).
-subject(reasoning_for_programs,185,5).
+subject(hardware,145,3).
+subject(mathematical_methods,145,3).
+subject(architecture,185,3).
+subject(databases_i,145,3).
+subject(reasoning_for_programs,185,3).
 %lecturer(a,6).
 %lecturer(b,6).
 %lecturer(c,6).
@@ -31,15 +31,17 @@ subject(reasoning_for_programs,185,5).
 %Define
 timeslot(D,S) :- day(D), slot(S).
 0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_).
-class_has_enough_hours(T):- 5 { class(T,_,_,_) } 5 , subject(T,_,_).
+class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_).
 max_six_hour_a_day(D):- { class(_,_,D,_) } 6, timeslot(D,S).
-unique_timeslot (D,S):- { class(_,_,D,S) } 1, timeslot(D,S).
-nine_to_eleven_am (T) :- class(T,_,_,S), S= 9..10.
-four_to_six_pm (T) :- class(T,_,_,S), S= 16..17.
-max_three_day_a_week (T) :- { day_occupied(D) : class (T,_,D,_)} 3, subject (T).
+unique_timeslot(D,S):- { class(_,_,D,S) } 1, timeslot(D,S).
+nine_to_eleven_am(T) :- class(T,_,_,S), S= 9..10.
+four_to_six_pm(T) :- class(T,_,_,S), S= 16..17.
+0 { day_occupied(T,D) } 1 :- class(T,_,D,_).
+max_two_day_a_week(T) :- { day_occupied(T,D) } 2, subject(T,_,_), timeslot(D,_).
 %Constraints
 % checks if classes has been allocated properly.
 :- not class_has_enough_hours(T), subject(T,_,_).
+% :- not 3 { class(T,_,_,_) } 3, subject(T,_,_).
 
 % checks if room size is big enough
 %:- class(T,R,D,S), room(R,C0), subject(T,C1,_), C1 < C0.
@@ -52,6 +54,9 @@ max_three_day_a_week (T) :- { day_occupied(D) : class (T,_,D,_)} 3, subject (T).
 %
 % % Subjects of the same year in the same slot
 % :- class(T1,R1,D,S), class(T2,R2,D,S), timeslot(D,S), T1!=T2, R1!=R2.
+
+%Each subject only takes 2 day a week
+:-not max_two_day_a_week(T), subject(T,_,_).
 
 %Each timeslot is unique
 :- not unique_timeslot(D,S), timeslot(D,S).
@@ -70,13 +75,15 @@ max_three_day_a_week (T) :- { day_occupied(D) : class (T,_,D,_)} 3, subject (T).
 :- class(T,R1,D,_), class(T,R2,D,_), R1!=R2.
 
 %No 9 to 5
-:- four_to_six_pm (T) : nine_to_eleven_am (T).
+% :- four_to_six_pm (T) , nine_to_eleven_am (T).
 
-%Each subject only takes 3 day a week
-:-not max_three_day_a_week(T), subject(T).
+
+
 %Optimisation
 %Make pack as much lessons of the same course on the same day as possible
 %#minimize { |D-DD| : add(X,D,S), add(XX,DD,SS) }.
 
+
 #show class/4.
 #show class_has_enough_hours/1.
+% #show day_occupied/2.
