@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.contrib import admin
 import asp_manipulators
 
 # Create your models here.
@@ -19,13 +18,6 @@ class SavedTable(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class SavedTableAdmin(admin.ModelAdmin):
-    list_display = ['name']
-
-
-admin.site.register(SavedTable, SavedTableAdmin)
 
 
 days_choices = [('M','Monday'),
@@ -51,13 +43,6 @@ class Timeslot(models.Model):
 
     def to_asp(self):
         return "timeslot(" + str(self.day) + "," + str(self.hour) + ")"
-
-
-class TimeslotAdmin(admin.ModelAdmin):
-    list_display = ['day', 'hour']
-
-
-admin.site.register(Timeslot,TimeslotAdmin)
 
 
 # Course
@@ -90,12 +75,6 @@ class Subject(models.Model):
         self.assign_asp_suitable_name()
         super(Subject, self).save(*args, **kwargs)
 
-class SubjectAdmin(admin.ModelAdmin):
-    list_display = ['code', 'title', 'hours', 'population_estimate']
-
-
-admin.site.register(Subject, SubjectAdmin)
-
 
 class Room(models.Model):
     room_name = models.CharField(max_length=10)
@@ -109,13 +88,6 @@ class Room(models.Model):
 
     def to_asp(self):
         return "room(" + self.room_name + "," + str(self.room_size) + ")"
-
-
-class RoomAdmin(admin.ModelAdmin):
-    list_display = ['room_name', 'room_size']
-
-
-admin.site.register(Room, RoomAdmin)
 
 
 # Object that will defined saved allocated timeslot-lecture
@@ -162,9 +134,16 @@ class LectureClass(models.Model):
         return self
 
 
+class Term(models.Model):
+    name = models.CharField(max_length=20)
+    number_of_weeks = models.IntegerField()
 
-class LectureClassAdmin(admin.ModelAdmin):
-    list_display = ['room', 'subject', 'time_slot','save_it_belongs_to']
+    def __str__(self):
+        return self.name
 
 
-admin.site.register(LectureClass,LectureClassAdmin)
+class ClassTerm(models.Model):
+    term = models.ForeignKey(Term)
+    subject = models.ForeignKey(Subject)
+
+
