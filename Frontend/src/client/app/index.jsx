@@ -88,17 +88,18 @@ class App extends React.Component {
   }
 
   generateRows(data){
-    var monday = {day: "Monday"}
+    var monday = {day: "Monday" }
     var tuesday = {day: "Tuesday"}
     var wednesday = {day: "Wednesday"}
     var thursday = {day: "Thursday"}
     var friday = {day: "Friday"}
-    data.forEach(d => {if(d.day === "Monday"){ monday[d.time] = d.name}
-                       if(d.day === "Tuesday"){tuesday[d.time] = d.name}
-                       if(d.day === "Wednesday"){wednesday[d.time] = d.name}
-                       if(d.day === "Thursday"){thursday[d.time] = d.name}
-                       if(d.day === "Friday"){friday[d.time] = d.name}});
+    data.forEach(d => {if(d.day === "Monday"){ monday[d.time] = d.name + " " + d.room}
+                       if(d.day === "Tuesday"){tuesday[d.time] = d.name + " " + d.room}
+                       if(d.day === "Wednesday"){wednesday[d.time] = d.name + " " + d.room}
+                       if(d.day === "Thursday"){thursday[d.time] = d.name + " " + d.room}
+                       if(d.day === "Friday"){friday[d.time] = d.name + " " + d.room}});
     var rows = [monday, tuesday, wednesday, thursday, friday]
+    console.log(monday)
     return rows
   }
 

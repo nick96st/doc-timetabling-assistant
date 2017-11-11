@@ -5,12 +5,13 @@ from django.template import loader
 import models as ta_models
 from django.shortcuts import render
 import datetime
-import asp_manipulators
+import asp_code_generator
 import os
 import json
 from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import APIView, permission_classes
 # from rest_framework.permissions import AllowAny
+
 
 def read_from_asp_result(result_src):
     f = open(result_src)
@@ -24,14 +25,7 @@ def run_clingo(input_src, output_src):
     os.system(command_string)
 
 
-def test_view(request):
-    input_src = "./asp/src/timetable_2.in"
-    output_src = "result.out"
-    run_clingo(input_src, output_src)
-    data = read_from_asp_result(output_src)
-    return response.HttpResponse(content=data, status=200)
-
-
+# get index page
 def get_index(request):
     template = loader.get_template("index.html")
     context = {}
@@ -42,7 +36,7 @@ def get_index(request):
 
 @csrf_exempt
 def generate_table(request):
-    codegen = asp_manipulators.CodeGeneratorBuilder()
+    codegen = asp_code_generator.CodeGeneratorBuilder()
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
@@ -69,7 +63,7 @@ def check_constraints(request):
         grid_objects.append(model)
 
     # build pattern
-    codegen = asp_manipulators.CodeGeneratorBuilder()
+    codegen = asp_code_generator.CodeGeneratorBuilder()
     codegen.with_result_facts(grid_objects)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
