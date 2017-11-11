@@ -1,5 +1,6 @@
 import React from 'react'
 import {render} from 'react-dom';
+import TimetableSlot from './TimetableSlot.jsx';
 
   const generateHeader = function() {
     var header = <thead/>
@@ -10,17 +11,26 @@ import {render} from 'react-dom';
     return header;
   }
 
+  const getTime = function(time){
+    console.log(time);
+  }
+
   const generateRows = function(props){
     var rowItems = []
+    var start = props.hours.start
+    var end = props.hours.finish
     props.rows.forEach(r => {
       var cols = [<td>{r.day}</td>]
-      for (var i = 9; i < 18; i++ ){
-        if (r[i].length === 0){
-          cols.push(<td></td>)
+      for (var i = start; i <= end; i++ ){
+        if (r[i].length == 0){
+          const slot = {time: i, day: r.day}
+          cols.push(<td><a onClick = {()=>getTime(slot)}><TimetableSlot name = "" room = ""/></a></td>)
         }else{
+        var courses = []
         r[i].forEach(s => {
-          cols.push(<td>{s.name} <br/> {s.room} </td>)
+          courses.push (<a onClick = {()=>getTime(s.time)}><TimetableSlot name = {s.name} room = {s.room}/></a>)
         })
+        cols.push(<td>{courses}</td>)
       }
       }
       rowItems.push(<tr>{cols}</tr>)
@@ -28,9 +38,9 @@ import {render} from 'react-dom';
     return rowItems
   }
 
+
+
   const Timetable = (props) => {
-    console.log(props.rows)
-    generateRows(props)
     return(
       <table>
        {generateHeader()}

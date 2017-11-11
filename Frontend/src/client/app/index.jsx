@@ -9,7 +9,7 @@ import axios from 'axios'
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
+    this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
@@ -100,13 +100,12 @@ class App extends React.Component {
                        if(d.day === "Thursday"){thursday[d.time].push(d)}
                        if(d.day === "Friday"){friday[d.time].push(d)}});
     var rows = [monday, tuesday, wednesday, thursday, friday]
-    console.log(monday)
     return rows
   }
 
   render () {
     var rows = this.generateRows(this.state.timetable)
-    var timetable = <Timetable rows={rows}/>
+    var timetable = <Timetable rows={rows} hours={this.state.hours}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
