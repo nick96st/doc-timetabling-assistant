@@ -74,9 +74,10 @@ def invoke_codegen_sequence_with_facts(grid_objects):
     generator = codegen.build()
     generator.should_generate = True
     generator.generate_code('test_001.in')
-    views.run_clingo('./test_001.in','./test_001.out')
+    views.run_clingo('./test_001.in', './test_001.out')
     code_result = generator.get_result_status('test_001.out')
     return code_result
+
 
 class HardConstraintsTest(test.TestCase):
     # Note: to test constraints do(look test test_forbid_3_consequitive_hours):
@@ -84,28 +85,27 @@ class HardConstraintsTest(test.TestCase):
     #                           generate_lectureclass_json([course_name],[room],[day],[hour])),"
     # 2) the satisfy/not satisfy result is result = invoke_codegen_sequence_with_facts(facts)
     def setUp(self):
-        DatabaseInits.GenerateFirstYearsDB()  # fills the db
+        DatabaseInits.generate_all()  # fills the db
         pass
 
     def test_forbid_3_consequitive_hours(self):
         facts = [ta_models.LectureClass().init_from_json( \
-                generate_lectureclass_json("Hardware","311","Monday",10)),
+            generate_lectureclass_json("Hardware", "311", "Monday", 10)),
             ta_models.LectureClass().init_from_json( \
                 generate_lectureclass_json("Hardware", "311", "Monday", 11)),
             ta_models.LectureClass().init_from_json( \
                 generate_lectureclass_json("Hardware", "311", "Monday", 12)),
-                ]
+        ]
 
         code_result = invoke_codegen_sequence_with_facts(facts)
         self.assertEquals(code_result, unsatisfiable)
 
-
     def test_forbid_2_subjects_in_same_room_at_a_given_time(self):
         facts = [ta_models.LectureClass().init_from_json( \
-                generate_lectureclass_json("Hardware","311","Monday",10)),
+            generate_lectureclass_json("Hardware", "311", "Monday", 10)),
             ta_models.LectureClass().init_from_json( \
                 generate_lectureclass_json("Descrete", "311", "Monday", 10)),
-                ]
+        ]
 
         code_result = invoke_codegen_sequence_with_facts(facts)
         self.assertEquals(code_result, unsatisfiable)
