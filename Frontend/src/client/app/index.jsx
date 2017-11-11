@@ -2,7 +2,7 @@ import React from 'react';
 import {render} from 'react-dom';
 import Timetable from './Timetable.jsx';
 import axios from 'axios'
-
+import {ReactSelectize, SimpleSelect, MultiSelect} from 'react-selectize';
 
 
 
@@ -103,13 +103,33 @@ class App extends React.Component {
     return rows
   }
 
+  getRooms(data){
+    var rooms = ["201", "202", "203", "204", "205"]
+    return rooms
+  }
+
   render () {
     var rows = this.generateRows(this.state.timetable)
     var timetable = <Timetable rows={rows}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
+    var rooms = this.getRooms(this.state.timetable)
+    // var dropDown = <MultiSelect placeholder="Select a fruit"
+    //                             options = {rooms.map(
+    //                               room => ({label: room, value: room})
+    //                             )}
+    //                             onValueChange = {value => alert(value)}
+    //                />
+    var testdrop = <MultiSelect
+        placeholder = "Select room(s)"
+        theme = "material"
+        options = {rooms.map(
+          fruit => ({label: fruit, value: fruit})
+        )}
+        />
     return( <div>
+            {testdrop}
             {timetable}
             {saveBtn}
             {checkBtn}
