@@ -3,85 +3,8 @@ from ta_main import asp_manipulators
 from ta_main import models as ta_models
 from ta_main import asp_code_generator
 from ta_main import views
+from ta_main.tests import database_inits as DatabaseInits
 
-
-def init_t1m3sl0ts_DoC():
-    for i in range(9,18):
-        for day in ta_models.days_choices:
-            if ta_models.Timeslot.objects.filter(day=day[0], hour=i).first() is None:
-                # return response.HttpResponse(content="does not have item")
-                model = ta_models.Timeslot()
-                model.hour = i
-                model.day = day[0]
-                model.save()
-
-def init_firstYearSubjects(): # NOTE: DONT TOUCH cancer naming style :D
-    subject = ta_models.Subject()
-    subject.title = "Hardware"
-    subject.title_asp = "hardware"
-    subject.hours = 3
-    subject.code = 112
-    subject.population_estimate = 182
-    subject.save()
-
-    subject = ta_models.Subject()
-    subject.title = "Logic"
-    subject.title_asp = "logic"
-    subject.hours = 3
-    subject.code = 140
-    subject.population_estimate = 182
-    subject.save()
-
-
-    subject = ta_models.Subject()
-    subject.title = "Programming I"
-    subject.title_asp = "programmingi"
-    subject.hours = 5
-    subject.code = 120
-    subject.population_estimate = 182
-    subject.save()
-
-
-    subject = ta_models.Subject()
-    subject.title = "Math Methods"
-    subject.title_asp = "mm"
-    subject.hours = 4
-    subject.code = 145
-    subject.population_estimate = 145
-    subject.save()
-
-
-    subject = ta_models.Subject()
-    subject.title = "Descrete"
-    subject.title_asp = "ds"
-    subject.hours = 3
-    subject.code = 142
-    subject.population_estimate = 145
-    subject.save()
-
-
-def in1t_r00ms():
-    room = ta_models.Room()
-    room.room_name = "311"
-    room.room_size = "150"
-    room.save()
-    room = ta_models.Room()
-    room.room_name = "308"
-    room.room_size = "182"
-    room.save()
-    room = ta_models.Room()
-    room.room_name = "145"
-    room.room_size = "100"
-    room.save()
-    room = ta_models.Room()
-    room.room_name = "144"
-    room.room_size = "90"
-    room.save()
-
-def GenerateFirstYearsDB():
-    in1t_r00ms()
-    init_t1m3sl0ts_DoC()
-    init_firstYearSubjects()
 
 class ASPParseTests(test.SimpleTestCase):
 
@@ -140,7 +63,7 @@ class HardConstraintsTest(test.TestCase):
     #                           generate_lectureclass_json([course_name],[room],[day],[hour])),"
     # 2) the satisfy/not satisfy result is result = invoke_codegen_sequence_with_facts(facts)
     def setUp(self):
-        GenerateFirstYearsDB()  # fills the db
+        DatabaseInits.GenerateFirstYearsDB()  # fills the db
         pass
 
     def test_forbid_3_consequitive_hours(self):
