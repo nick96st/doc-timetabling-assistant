@@ -145,16 +145,32 @@ class Term(models.Model):
 class ClassTerm(models.Model):
     term = models.ForeignKey(Term)
     subject = models.ForeignKey(Subject)
+    # Note:doesnt have to_asp since term is disjoint and everything generated will belong to
+    #      exactly 1 term
+
 
 class Lecturer(models.Model):
     first_name = models.CharField(max_length=40)
     surname = models.CharField(max_length=40)
+
+    def __str__(self):
+        return str(self.first_name) + " " + str(self.surname)
 
 
 class Teaches(models.Model):
     lecturer = models.ForeignKey(Lecturer)
     subject = models.ForeignKey(Subject)
 
+    def to_asp(self):
+        json_data = {"id": "teaches",
+                     "params": [asp_manipulators.string_to_asp_suitable(str(self.lecturer)),
+                                self.subject.title_asp],
+                     }
+        # reads: teaches(lecturer,subject)
+        return asp_manipulators.json_term_to_asp_string(json_data)
+
+
+# Note: no need to have asp convter
 class CourseYear(models.Model):
     name = models.CharField(max_length=40, null=False)
 
@@ -162,4 +178,13 @@ class CourseYear(models.Model):
 class SubjectsCourses(models.Model):
     subject = models.ForeignKey(Subject)
     courseyear = models.ForeignKey(CourseYear)
+
+    # reads: subjectincourse(subject_name,course_name)
+    def to_asp(self):
+        json_data = {"id": "subjectincourse",
+                     "params": [self.subject.title_asp,
+                                asp_manipulators.string_to_asp_suitable(self.courseyear),
+                                ]
+                     }
+        return asp_manipulators.json_term_to_asp_string(json_data)
 
