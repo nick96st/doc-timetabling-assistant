@@ -32,6 +32,18 @@ class ClassTermAdmin(admin.ModelAdmin):
 class TermAdmin(admin.ModelAdmin):
     list_display = ["name","number_of_weeks"]
 
+class LecturerAdmin(admin.ModelAdmin):
+    list_display = ["first_name", "surname"]
+
+class TeachesAdmin(admin.ModelAdmin):
+    list_display = ["lecturer", "subject"]
+
+class CourseYearAdmin(admin.ModelAdmin):
+    list_display = ["mandatory_count", "selective_count", "name"]
+
+class SubjectsCoursesAdmin(admin.ModelAdmin):
+    list_display = ["courseyear", "subject"]
+
 
 # Register your models here.
 admin.site.register(ta_models.SavedTable, SavedTableAdmin)
@@ -41,4 +53,8 @@ admin.site.register(ta_models.Room, RoomAdmin)
 admin.site.register(ta_models.LectureClass, LectureClassAdmin)
 admin.site.register(ta_models.Term, TermAdmin)
 admin.site.register(ta_models.ClassTerm, ClassTermAdmin)
+admin.site.register(ta_models.Lecturer, LecturerAdmin)
+admin.site.register(ta_models.Teaches, TeachesAdmin)
+admin.site.register(ta_models.CourseYear, CourseYearAdmin)
+admin.site.register(ta_models.SubjectsCourses, SubjectsCoursesAdmin)
 

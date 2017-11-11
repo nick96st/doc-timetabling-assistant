@@ -146,4 +146,21 @@ class ClassTerm(models.Model):
     term = models.ForeignKey(Term)
     subject = models.ForeignKey(Subject)
 
+class Lecturer(models.Model):
+    first_name = models.CharField(max_length=40)
+    surname = models.CharField(max_length=40)
+
+
+class Teaches(models.Model):
+    lecturer = models.ForeignKey(Lecturer)
+    subject = models.ForeignKey(Subject)
+
+class CourseYear(models.Model):
+    mandatory_count = models.IntegerField()
+    selective_count = models.IntegerField()
+    name = models.CharField(max_length=40)
+
+class SubjectsCourses(models.Model):
+    subject = models.ForeignKey(Subject)
+    courseyear = models.ForeignKey(CourseYear)
 
