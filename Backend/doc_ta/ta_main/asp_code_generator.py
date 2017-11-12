@@ -14,7 +14,8 @@ class ASPCodeGenerator():
     term_1 = [120, 145, 142, 140, 112]
 
     def __init__(self):
-        self.term = ""
+        self.term = ""             # term to be generated on
+        self.subjects = []         # subjects which belong to the term
         self.result_facts = []
         self.hard_constraints = []
         self.soft_constraints = []
@@ -54,8 +55,7 @@ class ASPCodeGenerator():
     def generate_axiom_constraints(self):
         axiom_constraints_string = " "
         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
-        for subject in ta_models.Subject.objects.all():
-            if subject.code in self.term_1:
+        for subject in self.subjects:
                 axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
         return axiom_constraints_string
         # return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
@@ -94,6 +94,16 @@ class ASPCodeGenerator():
 # method which runs the stages of code generation
     def generate_code(self, file_name):
         code_string = ''
+
+        # fetches the model of the term
+        selected_term = ta_models.Term.objects.filter(name=self.term).first()
+        if selected_term is None:
+            raise CodeGeneratorException("Term Does Not Exist")
+
+        subjects_queryset = ta_models.ClassTerm.objects.filter(term=selected_term)
+        for class_term in subjects_queryset:
+            self.subjects.append(class_term.subject)
+
         code_string += self.generate_default_object_definitions()
         code_string += self.generate_result_facts()
         # checks if we need want to generate classes or just check whether current is ok
