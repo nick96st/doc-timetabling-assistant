@@ -6,16 +6,7 @@ room(311,150).
 %room(144,90).timeslot(m,9).
 day(m). day(tu). day(w). day(th). day(f).
 slot(9..17).
-% timeslot(tu,9).timeslot(w,9).timeslot(th,9).timeslot(f,9).timeslot(m,10).
-% timeslot(tu,10).timeslot(w,10).timeslot(th,10).timeslot(f,10).timeslot(m,11).
-% timeslot(tu,11).timeslot(w,11).timeslot(th,11).timeslot(f,11).timeslot(m,12).
-% timeslot(tu,12).timeslot(w,12).timeslot(th,12).timeslot(f,12).timeslot(m,13).
-% timeslot(tu,13).timeslot(w,13).timeslot(th,13).timeslot(f,13).timeslot(m,14).
-% timeslot(tu,14).timeslot(w,14).timeslot(th,14).timeslot(f,14).timeslot(m,15).
-% timeslot(tu,15).timeslot(w,15).timeslot(th,15).timeslot(f,15).timeslot(m,16).
-% timeslot(tu,16).timeslot(w,16).timeslot(th,16).timeslot(f,16).timeslot(m,17).
-% timeslot(tu,17).timeslot(w,17).timeslot(th,17).timeslot(f,17).timeslot(m,18).
-% timeslot(tu,18).timeslot(w,18).timeslot(th,18).timeslot(f,18).
+
 subject(hardware,145,3).
 subject(mathematical_methods,145,3).
 subject(architecture,185,3).
@@ -46,14 +37,6 @@ max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).
 % checks if room size is big enough
 %:- class(T,R,D,S), room(R,C0), subject(T,C1,_), C1 < C0.
 
-% % Two classes in the same room at the same time.
-% :- class(T1,R,D,S), class(T2,R,D,S),room(R,_),T1!=T2.
-%
-% % Same class but in two different rooms
-% :- class(T,R1,D,S), class(T,R2,D,S),room(R1,_),room(R2,_), R1!=R2.
-%
-% % Subjects of the same year in the same slot
-% :- class(T1,R1,D,S), class(T2,R2,D,S), timeslot(D,S), T1!=T2, R1!=R2.
 
 %Each subject only takes 2 day a week
 :- not max_two_day_a_week(T), subject(T,_,_).
