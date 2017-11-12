@@ -14,6 +14,7 @@ class ASPCodeGenerator():
     term_1 = [120, 145, 142, 140, 112]
 
     def __init__(self):
+        self.term = ""
         self.result_facts = []
         self.hard_constraints = []
         self.soft_constraints = []
@@ -29,9 +30,14 @@ class ASPCodeGenerator():
         for timeslot in ta_models.Timeslot.objects.all():
             obj_def_string += timeslot.to_asp() + '.\n'
 
-        for subject in ta_models.Subject.objects.all():
-            if subject.code in self.term_1:
-                obj_def_string += subject.to_asp() + '.\n'
+        # fetches the model of the term
+        selected_term = ta_models.Term.objects.filter(name=self.term).first()
+        if selected_term is None:
+            raise CodeGeneratorException("Term Does Not Exist")
+
+        subjects_in_term = ta_models.ClassTerm.objects.filter(term=selected_term)
+        for class_term in subjects_in_term:
+            obj_def_string += class_term.subject.to_asp() + '.\n'
 
         return obj_def_string.lower()
 
@@ -146,10 +152,15 @@ class ASPCodeGenerator():
 # facts, and object definitions to have
 class CodeGeneratorBuilder():
     def __init__(self):
+        self.selected_term = "Term 1"
         self.result_facts = []
         self.hard_constraints = []
         self.soft_constraints = []
         self.should_generate = True
+
+    def for_term(self,term_name):
+        self.selected_term = term_name
+        return self
 
     def with_result_facts(self, result_facts):
         if not result_facts:
@@ -176,4 +187,5 @@ class CodeGeneratorBuilder():
         code_generator.hard_constraints = [] + self.hard_constraints
         code_generator.soft_constraints = [] + self.soft_constraints
         code_generator.should_generate = self.should_generate
+        code_generator.term = self.selected_term
         return code_generator

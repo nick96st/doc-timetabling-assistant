@@ -36,7 +36,11 @@ def get_index(request):
 
 @csrf_exempt
 def generate_table(request):
+    term_name = json.loads(request.body)["term"]
+    if not term_name:
+        return response.HttpResponseBadRequest("No term field")
     codegen = asp_code_generator.CodeGeneratorBuilder()
+    codegen.for_term(term_name)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
@@ -53,11 +57,13 @@ def generate_table(request):
 def check_constraints(request):
     # grid_objects = request["data"]["grid_objects"]
     timetable = json.loads(request.body)["timetable"]
+    term_name = json.loads(request.body)["term"]
     # hard_constraints = request.data["constraints"]
     # soft_constraints = request.data[""]
     if not timetable:
         return response.HttpResponseBadRequest('No grid objects data given')
-
+    if not term:
+        return response.HttpResponseBadRequest("No term specified")
     # create models from json
     grid_objects = []
     for obj in timetable:
@@ -67,6 +73,7 @@ def check_constraints(request):
 
     # build pattern
     codegen = asp_code_generator.CodeGeneratorBuilder()
+    codegen.for_term(term_name)
     codegen.with_result_facts(grid_objects)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
