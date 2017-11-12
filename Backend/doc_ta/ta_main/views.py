@@ -40,7 +40,10 @@ def generate_table(request):
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
-    generator.generate_code('default_001.in')
+    try:
+        generator.generate_code('default_001.in')
+    except asp_code_generator.CodeGeneratorException:
+        response.HttpResponseServerError()
     run_clingo('./default_001.in','./default_001.out')
     result = generator.parse_result('default_001.out')
 
@@ -68,7 +71,12 @@ def check_constraints(request):
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
-    generator.generate_code('default_001.in')
+    # check if code generator generates without exceptions
+    try:
+        generator.generate_code('default_001.in')
+    except asp_code_generator.CodeGeneratorException:
+        response.HttpResponseServerError()
+    # runs clingo
     run_clingo('./default_001.in','./default_001.out')
     code_result = generator.get_result_status('default_001.out')
     return response.HttpResponse(content=code_result)

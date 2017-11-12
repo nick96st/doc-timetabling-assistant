@@ -1,6 +1,11 @@
 import models as ta_models
 import json
 import asp_manipulators
+from exceptions import TypeError
+
+
+class CodeGeneratorException(Exception):
+    pass
 
 
 # Generates code from specified objects
