@@ -8,6 +8,12 @@ class CodeGeneratorException(Exception):
     pass
 
 
+# PRE: type(current) = string ,
+# PRE: new has to_asp() function
+def append_new_definition(current, new):
+    return current + new.to_asp() + '\n'
+
+
 # Generates code from specified objects
 class ASPCodeGenerator():
     # define term 1 as programming, MM, discrete, logic, hardware
@@ -28,17 +34,22 @@ class ASPCodeGenerator():
         for room in ta_models.Room.objects.all():
             obj_def_string += room.to_asp() + '.\n'
 
+        # TODO: perhaps selectable MxN thing
         for timeslot in ta_models.Timeslot.objects.all():
             obj_def_string += timeslot.to_asp() + '.\n'
 
-        # fetches the model of the term
-        selected_term = ta_models.Term.objects.filter(name=self.term).first()
-        if selected_term is None:
-            raise CodeGeneratorException("Term Does Not Exist")
+        for subject in self.subjects:
+            obj_def_string += subject.to_asp() + '.\n'
 
-        subjects_in_term = ta_models.ClassTerm.objects.filter(term=selected_term)
-        for class_term in subjects_in_term:
-            obj_def_string += class_term.subject.to_asp() + '.\n'
+            # finds all the courses this subject belongs to
+            courses_it_belongs = ta_models.SubjectsCourses.objects.filter(subject=subject)
+            for course in courses_it_belongs:
+                obj_def_string = append_new_definition(obj_def_string, course)
+
+            # find all lecturers that teach the course
+            teachings = ta_models.Teaches.objects.filter(subject=subject)
+            for teaching in teachings:
+                obj_def_string = append_new_definition(obj_def_string, teaching)
 
         return obj_def_string.lower()
 
