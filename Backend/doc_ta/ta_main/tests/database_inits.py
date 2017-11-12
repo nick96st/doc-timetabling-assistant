@@ -144,7 +144,6 @@ def InitThirdYearSelectableCoursesAutumn():
 
     create_subject("Adv Databases", "advdatabases", 3, 572, "S", 100, term_1, course_3)
     create_subject("Operations Research", "operationsresearch", 3, 343, "S", 100, term_1, course_3)
-    create_subject("Operations Research", "operationsresearch", 3, 362, "S", 100, term_1, course_3)
     create_subject("Computer Vision", "computervision", 3, 316, "S", 100, term_1, course_3)
     create_subject("Robotics", "robotics", 3, 333, "S", 100, term_1, course_3)
     create_subject("Coding Theory", "codingtheory", 3, 349, "S", 100, term_1, course_3)
