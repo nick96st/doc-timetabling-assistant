@@ -152,7 +152,7 @@ class ASPCodeGenerator():
 # facts, and object definitions to have
 class CodeGeneratorBuilder():
     def __init__(self):
-        self.selected_term = "Term 1"
+        self.selected_term = ""
         self.result_facts = []
         self.hard_constraints = []
         self.soft_constraints = []
