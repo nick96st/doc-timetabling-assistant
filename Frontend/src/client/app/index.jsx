@@ -125,15 +125,15 @@ class App extends React.Component {
     //                             )}
     //                             onValueChange = {value => alert(value)}
     //                />
-    var testdrop = <MultiSelect
-        placeholder = "Select room(s)"
-        theme = "material"
-        options = {rooms.map(
-          fruit => ({label: fruit, value: fruit})
-        )}
-        />
+    var dropDown = <MultiSelect
+                    placeholder = "Select room(s)"
+                    theme = "material"
+                    options = {rooms.map(
+                      room => ({label: room, value: room})
+                    )}
+                   />
     return( <div>
-            {testdrop}
+            {dropDown}
             {timetable}
             {saveBtn}
             {checkBtn}
