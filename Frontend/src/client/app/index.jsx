@@ -13,35 +13,20 @@ class App extends React.Component {
                                 {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
-                                {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},]};
-                              //{time: 11, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
-                              //{time: 12, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
-                             // {time: 9, day: "Monday", room: "311", name: "Operations Research", type: "lecture"},
-                             // {time: 10, day: "Monday", room: "311", name: "Operations Research", type: "lecture"},
-                              //{time: 16, day: "Monday", room: "311", name: "Information and Coding"},
-                              //{time: 17, day: "Monday", room: "311", name: "Information and Coding"},
-                              //{time: 9, day: "Tuesday", room: "311", name: "Robotics", type: "lecture"},
-                              //{time: 10, day: "Tuesday", room: "311", name: "Robotics", type: "lecture"},
-                              //{time: 11, day: "Tuesday", room: "311", name: "Simulation and Modelling", type: "lecture"},
-                              //{time: 12, day: "Tuesday", room: "311", name: "Simulation and Modelling", type: "lecture"},
-                              //{time: 14, day: "Tuesday", room: "311", name: "Type Systems", type: "lecture"},
-                              //{time: 15, day: "Tuesday", room: "311", name: "Type Systems", type: "lecture"},
-                              //{time: 16, day: "Tuesday", room: "311", name: "Computer Vision", type: "lecture"},
-                             // {time: 17, day: "Tuesday", room: "311", name: "Computer Vision", type: "lecture"},
-                             // {time: 9, day: "Thursday", room: "311", name: "Information and Coding", type: "lecture"},
-                             // {time: 10, day: "Thursday", room: "311", name: "Information and Coding", type: "lecture"},
-                             // {time: 11, day: "Thursday", room: "311", name: "Robotics", type: "lecture"},
-                             // {time: 12, day: "Thursday", room: "311", name: "Robotics", type: "lecture"},
-                             // {time: 14, day: "Thursday", room: "311", name: "Operations Research"},
-                             // {time: 15, day: "Thursday", room: "311", name: "Operations Research"},
-                             // {time: 9, day: "Friday", room: "311", name: "Computer Vision", type: "lecture"},
-                             // {time: 10, day: "Friday", room: "311", name: "Computer Vison", type: "lecture"},
-                             // {time: 11, day: "Friday", room: "311", name: "Simulation and Modelling"},
-                             // {time: 12, day: "Friday", room: "311", name: "Simulation and Modelling"},
-                             // {time: 14, day: "Friday", room: "311", name: "Type Systems", type: "lecture"},
-                             // {time: 15, day: "Friday", room: "311", name: "Type Systems", type: "lecture"},
-                             // {time: 16, day: "Friday", room: "311", name: "Advanced Databases", type: "lecture"},
-                             // {time: 17, day: "Friday", room: "311", name: "Advanced Databases", type: "lecture"}]};
+                                {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},], modalOpen:false};
+    this.openModal=this.openModal.bind(this)
+    this.closeModal=this.closeModal.bind(this)
+  }
+
+  openModal(){
+    var hours = this.state.hours
+    var timetable = this.state.timetable
+    this.setState({modalOpen: true})
+    console.log(this.state)
+  }
+
+  closeModal(){
+    this.setState({modalOpen:false})
   }
 
   saveTimetable(timetable){
@@ -105,10 +90,10 @@ class App extends React.Component {
 
   render () {
     var rows = this.generateRows(this.state.timetable)
-    var timetable = <Timetable rows={rows} hours={this.state.hours}/>
+    var timetable = <Timetable rows={rows} hours={this.state.hours} modalOpen={this.state.modalOpen} openModal={this.openModal} closeModal={this.closeModal}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
-    var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
+    var generateBtn = <button onClick={ () => {this.openModal()}}>Generate</button>
     return( <div>
             {timetable}
             {saveBtn}

@@ -1,6 +1,7 @@
 import React from 'react'
 import {render} from 'react-dom';
 import TimetableSlot from './TimetableSlot.jsx';
+import Modal from 'react-modal';
 
   const generateHeader = function() {
     var header = <thead/>
@@ -11,8 +12,13 @@ import TimetableSlot from './TimetableSlot.jsx';
     return header;
   }
 
-  const getTime = function(time){
-    console.log(time);
+  const addLecture = function(props, time){
+   props.openModal()
+   console.log(time)
+  }
+
+  const closeModal = function(props){
+    props.closeModal()
   }
 
   const generateRows = function(props){
@@ -24,11 +30,11 @@ import TimetableSlot from './TimetableSlot.jsx';
       for (var i = start; i <= end; i++ ){
         if (r[i].length == 0){
           const slot = {time: i, day: r.day}
-          cols.push(<td><a onClick = {()=>getTime(slot)}><TimetableSlot name = "" room = ""/></a></td>)
+          cols.push(<td><a onClick = {()=>addLecture(props, slot)}><TimetableSlot name = "" room = ""/></a></td>)
         }else{
         var courses = []
         r[i].forEach(s => {
-          courses.push (<a onClick = {()=>getTime(s.time)}><TimetableSlot name = {s.name} room = {s.room}/></a>)
+          courses.push (<a onClick = {()=>addLecture(props, slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>)
         })
         cols.push(<td>{courses}</td>)
       }
@@ -42,12 +48,18 @@ import TimetableSlot from './TimetableSlot.jsx';
 
   const Timetable = (props) => {
     return(
+      <div>
+      <Modal isOpen={props.modalOpen}>
+      <input type="text"/>
+      <button onClick={()=>{closeModal(props)}}>Close</button>
+      </Modal>
       <table>
        {generateHeader()}
        <tbody>
        {generateRows(props)}
        </tbody>
        </table>
+       </div>
     );
   }
 
