@@ -7,11 +7,41 @@ room(311,150).
 day(m). day(tu). day(w). day(th). day(f).
 slot(9..17).
 
+course(y1;;y2).
 subject(hardware,145,3).
+subjectincourse(hardware, y1).
+
 subject(mathematical_methods,145,3).
+subjectincourse(mathematical_methods, y1).
+
 subject(architecture,185,3).
+subjectincourse(architecture, y1).
+
 subject(databases_i,145,3).
-subject(reasoning_for_programs,185,3).
+subjectincourse(databases_i, y1).
+
+subject(reasoning_for_program,185,3).
+subjectincourse(reasoning_for_program, y1).
+
+subject(network, 145, 3).
+subjectincourse(network, y2).
+
+subject(operating_systems, 145, 3).
+subjectincourse(operating_systems, y2).
+
+subject(artificial_intelligence, 145, 3).
+subjectincourse(artificial_intelligence, y2).
+
+clash(operating_systems,artificial_intelligence).
+clash(hardware, mathematical_methods).
+clash(hardware, architecture).
+clash(hardware, databases_i).
+clash(hardware, reasoning_for_program).
+clash(mathematical_methods, hardware).
+
+class(hardware,308,w,9).
+class(mathematical_methods,308,w,9).
+
 %lecturer(a,6).
 %lecturer(b,6).
 %lecturer(c,6).
@@ -24,7 +54,9 @@ timeslot(D,S) :- day(D), slot(S).
 0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_).
 class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_).
 max_six_hour_a_day(D):- { class(_,_,D,_) } 6, timeslot(D,S).
-unique_timeslot(D,S):- { class(_,_,D,S) } 1, timeslot(D,S).
+in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y), course(Y).
+class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).
+% unique_timeslot(T,D,S,Y):- { class(T,_,D,S):in_course(Y) } 1, timeslot(D,S), course(Y).
 % nine_to_eleven_am(T) :- class(T,_,_,S), S= 9..10.
 % four_to_six_pm(T) :- class(T,_,_,S), S= 16..17.
 1 { day_occupied(T,D) } 1 :- class(T,_,D,_).
@@ -42,8 +74,8 @@ max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).
 :- not max_two_day_a_week(T), subject(T,_,_).
 
 %Each timeslot is unique
-:- not unique_timeslot(D,S), timeslot(D,S).
-
+% :- not unique_timeslot(T,D,S,Y), timeslot(D,S), course(Y), not clash(T,_) | not clash(_,T).
+:- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).
 %Students should not have more than six hours in any one day
 :- not max_six_hour_a_day(D), timeslot(D,_).
 
@@ -67,6 +99,6 @@ max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).
 %#minimize { |D-DD| : add(X,D,S), add(XX,DD,SS) }.
 
 
-#show class/4.
-#show class_has_enough_hours/1.
-#show max_two_day_a_week/1.
+#show class_with_year/5.
+% #show class_has_enough_hours/1.
+% #show max_two_day_a_week/1.
