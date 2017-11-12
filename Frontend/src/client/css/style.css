@@ -396,6 +396,7 @@ td:last-child {
 }
 .react-selectize.material.root-node .react-selectize-control .react-selectize-placeholder {
   color: rgba(0,0,0,0.3);
+  color: rgba(204, 204, 204,0.7);
   text-indent: 4px;
 }
 .react-selectize.material.dropdown-menu-wrapper.flipped {
