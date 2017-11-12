@@ -104,7 +104,11 @@ class App extends React.Component {
   }
 
   getRooms(data){
-    var rooms = ["201", "202", "203", "204", "205"]
+    var rooms = []
+    data.forEach(d => {if(rooms.indexOf(d.room) === -1) {
+                      rooms.push(d.room);
+                      console.log(rooms);
+                      }});
     return rooms
   }
 
