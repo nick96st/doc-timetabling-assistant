@@ -3,88 +3,10 @@ from ta_main import asp_manipulators
 from ta_main import models as ta_models
 from ta_main import asp_code_generator
 from ta_main import views
+from ta_main.tests import database_inits as DatabaseInits
 
-
-def init_t1m3sl0ts_DoC():
-    for i in range(9,18):
-        for day in ta_models.days_choices:
-            if ta_models.Timeslot.objects.filter(day=day[0], hour=i).first() is None:
-                # return response.HttpResponse(content="does not have item")
-                model = ta_models.Timeslot()
-                model.hour = i
-                model.day = day[0]
-                model.save()
-
-def init_firstYearSubjects(): # NOTE: DONT TOUCH cancer naming style :D
-    subject = ta_models.Subject()
-    subject.title = "Hardware"
-    subject.title_asp = "hardware"
-    subject.hours = 3
-    subject.code = 112
-    subject.population_estimate = 182
-    subject.save()
-
-    subject = ta_models.Subject()
-    subject.title = "Logic"
-    subject.title_asp = "logic"
-    subject.hours = 3
-    subject.code = 140
-    subject.population_estimate = 182
-    subject.save()
-
-
-    subject = ta_models.Subject()
-    subject.title = "Programming I"
-    subject.title_asp = "programmingi"
-    subject.hours = 5
-    subject.code = 120
-    subject.population_estimate = 182
-    subject.save()
-
-
-    subject = ta_models.Subject()
-    subject.title = "Math Methods"
-    subject.title_asp = "mm"
-    subject.hours = 4
-    subject.code = 145
-    subject.population_estimate = 145
-    subject.save()
-
-
-    subject = ta_models.Subject()
-    subject.title = "Descrete"
-    subject.title_asp = "ds"
-    subject.hours = 3
-    subject.code = 142
-    subject.population_estimate = 145
-    subject.save()
-
-
-def in1t_r00ms():
-    room = ta_models.Room()
-    room.room_name = "311"
-    room.room_size = "150"
-    room.save()
-    room = ta_models.Room()
-    room.room_name = "308"
-    room.room_size = "182"
-    room.save()
-    room = ta_models.Room()
-    room.room_name = "145"
-    room.room_size = "100"
-    room.save()
-    room = ta_models.Room()
-    room.room_name = "144"
-    room.room_size = "90"
-    room.save()
-
-def GenerateFirstYearsDB():
-    in1t_r00ms()
-    init_t1m3sl0ts_DoC()
-    init_firstYearSubjects()
 
 class ASPParseTests(test.SimpleTestCase):
-
     def setUp(self):
         pass
 
@@ -116,11 +38,33 @@ class ASPParseTests(test.SimpleTestCase):
 
         self.assertEquals(expected, result)
 
-def generate_lectureclass_json(name,room,day,hour):
-    return {"time":hour,"name":name,"room":str(room),"day":day}
+
+class TestChangeStringToAspSuitable(test.TestCase):
+    def setUp(self):
+        pass
+
+    def test_removes_spaces(self):
+        data = "adv  db"
+        expected = "advdb"
+        result = asp_manipulators.string_to_asp_suitable(data)
+
+        self.assertEquals(result, expected)
+
+    def test_lowers_letters(self):
+        data = "Adv DB"
+        expected = "advdb"
+        result = asp_manipulators.string_to_asp_suitable(data)
+
+        self.assertEquals(result, expected)
+
+
+def generate_lectureclass_json(name, room, day, hour):
+    return {"time": hour, "name": name, "room": str(room), "day": day}
+
 
 unsatisfiable = "UNSATISFIABLE"
 satisfiable = "SATISFIABLE"
+
 
 def invoke_codegen_sequence_with_facts(grid_objects):
     codegen = asp_code_generator.CodeGeneratorBuilder()
@@ -130,9 +74,10 @@ def invoke_codegen_sequence_with_facts(grid_objects):
     generator = codegen.build()
     generator.should_generate = True
     generator.generate_code('test_001.in')
-    views.run_clingo('./test_001.in','./test_001.out')
+    views.run_clingo('./test_001.in', './test_001.out')
     code_result = generator.get_result_status('test_001.out')
     return code_result
+
 
 class HardConstraintsTest(test.TestCase):
     # Note: to test constraints do(look test test_forbid_3_consequitive_hours):
@@ -140,28 +85,27 @@ class HardConstraintsTest(test.TestCase):
     #                           generate_lectureclass_json([course_name],[room],[day],[hour])),"
     # 2) the satisfy/not satisfy result is result = invoke_codegen_sequence_with_facts(facts)
     def setUp(self):
-        GenerateFirstYearsDB()  # fills the db
+        DatabaseInits.generate_all()  # fills the db
         pass
 
     def test_forbid_3_consequitive_hours(self):
         facts = [ta_models.LectureClass().init_from_json( \
-                generate_lectureclass_json("Hardware","311","Monday",10)),
+            generate_lectureclass_json("Hardware", "311", "Monday", 10)),
             ta_models.LectureClass().init_from_json( \
                 generate_lectureclass_json("Hardware", "311", "Monday", 11)),
             ta_models.LectureClass().init_from_json( \
                 generate_lectureclass_json("Hardware", "311", "Monday", 12)),
-                ]
+        ]
 
         code_result = invoke_codegen_sequence_with_facts(facts)
         self.assertEquals(code_result, unsatisfiable)
 
-
     def test_forbid_2_subjects_in_same_room_at_a_given_time(self):
         facts = [ta_models.LectureClass().init_from_json( \
-                generate_lectureclass_json("Hardware","311","Monday",10)),
+            generate_lectureclass_json("Hardware", "311", "Monday", 10)),
             ta_models.LectureClass().init_from_json( \
                 generate_lectureclass_json("Descrete", "311", "Monday", 10)),
-                ]
+        ]
 
         code_result = invoke_codegen_sequence_with_facts(facts)
         self.assertEquals(code_result, unsatisfiable)
@@ -193,7 +137,3 @@ class HardConstraintsTest(test.TestCase):
 
         code_result = invoke_codegen_sequence_with_facts(facts)
         self.assertEquals(code_result, unsatisfiable)
-
-
-
-
