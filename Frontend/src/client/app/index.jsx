@@ -13,9 +13,11 @@ class App extends React.Component {
                                 {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
-                                {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},], modalOpen:false};
+                                {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},], modalOpen:false,
+                  subjects:["Architecture", "Hardware", "Databases I"], rooms:["308", "311"]};
     this.openModal=this.openModal.bind(this)
     this.closeModal=this.closeModal.bind(this)
+    this.addLecture=this.addLecture.bind(this)
   }
 
   openModal(){
@@ -72,6 +74,12 @@ class App extends React.Component {
     console.log(this.state);
   }
 
+  addLecture(lect){
+   var timetable = this.state.timetable
+   timetable.push(lect)
+   console.log(timetable)
+  }
+
   generateRows(data){
     var monday = {day: "Monday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
     var tuesday = {day: "Tuesday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
@@ -90,7 +98,9 @@ class App extends React.Component {
 
   render () {
     var rows = this.generateRows(this.state.timetable)
-    var timetable = <Timetable rows={rows} hours={this.state.hours} modalOpen={this.state.modalOpen} openModal={this.openModal} closeModal={this.closeModal}/>
+    var timetable = <Timetable rows={rows} hours={this.state.hours} modalOpen={this.state.modalOpen}
+                     openModal={this.openModal} closeModal={this.closeModal} subjects={this.state.subjects} rooms={this.state.rooms}
+                    addLecture={this.addLecture}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.openModal()}}>Generate</button>
