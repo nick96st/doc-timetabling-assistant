@@ -36,7 +36,8 @@ def get_index(request):
 
 @csrf_exempt
 def generate_table(request):
-    term_name = json.loads(request.body)["term"]
+    term_name = request.GET.get("term",None)
+    # term_name = json.loads(request.body)["term"]
     if not term_name:
         return response.HttpResponseBadRequest("No term field")
     codegen = asp_code_generator.CodeGeneratorBuilder()
@@ -54,8 +55,10 @@ def generate_table(request):
     # if there are solutions, gets them
     if asp_status == "SATISFIABLE" or asp_status == "OPTIMAL":
         output["solutions"] = generator.parse_result('default_001.out')
-        # output["solutions"] = [[{"time":12, "day":"Monday", "room": "308", "name":"Architecture"},
-        #                         {"time": 13, "day": "Monday", "room": "308", "name": "Architecture"}]]
+
+    # TODO: fix frontend to handle empty arrays adn remove this
+    output["solutions"].append([{"time":12, "day":"Monday", "room": "308", "name":"Architecture"},
+                            {"time": 13, "day": "Monday", "room": "308", "name": "Architecture"}])
     return response.HttpResponse(content=json.dumps(output), content_type="application/json")
 
 @csrf_exempt
@@ -115,14 +118,14 @@ def save_timetable(request):
 
     return response.HttpResponse(status=200)
 
-# @csrf_exempt
-# def get_term_choices(request):
-#     all_terms = ta_models.Term.objects.all()
-#     term_list = []
-#     for term in all_terms:
-#         term_list.append(term.name)
-#
-#     return response.HttpResponse(content=json.dumps(term_list))
+@csrf_exempt
+def get_term_choices(request):
+    all_terms = ta_models.Term.objects.all()
+    term_list = []
+    for term in all_terms:
+        term_list.append(term.name)
+
+    return response.HttpResponse(content=json.dumps(term_list))
 
 @csrf_exempt
 def get_subject_choices(request):

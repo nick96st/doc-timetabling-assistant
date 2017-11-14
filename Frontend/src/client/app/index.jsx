@@ -19,6 +19,9 @@ class App extends React.Component {
     this.openModal=this.openModal.bind(this)
     this.closeModal=this.closeModal.bind(this)
     this.addLecture=this.addLecture.bind(this)
+
+    // fetch terms he can select
+    this.getTerms();
   }
 
   openModal(){
@@ -57,8 +60,12 @@ class App extends React.Component {
 
   }
 
-  generateTimetable() {
-    axios.get('/timetable/generate')
+  generateTimetable(selected_term) {
+    axios.get('/timetable/generate', {
+        params: {
+            term: selected_term
+        }
+    })
     .then((response) => {
         if (response.data.status != "SATISFIABLE" &&
             response.data.status != "OPTIMAL") {
@@ -79,6 +86,23 @@ class App extends React.Component {
     console.log("state in filltable",this.state);
     this.setState({timetable:data[0]});
     console.log(this.state);
+  }
+
+  // fill state.selectable_terms with the terms defined on backend
+  getTerms() {
+    axios.get('/choices/terms').
+    then((response) => {
+        this.setState({selectable_terms: response.data});
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  onSelectedTermChange(e) {
+    console.log(e.value," ",this);
+    this.setState({selected_term:e.value});
+    console.log("selector changed state to ",this.state);
   }
 
   addLecture(lect){
@@ -119,20 +143,38 @@ class App extends React.Component {
                     addLecture={this.addLecture}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
-    var generateBtn = <button onClick={ () => {this.openModal()}}>Generate</button>
+    var generateBtn = <button onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
+    var rooms = this.getRooms(this.state.timetable)
+    // var dropDown = <MultiSelect placeholder="Select a fruit"
+    //                             options = {rooms.map(
+    //                               room => ({label: room, value: room})
+    //                             )}
+    //                             onValueChange = {value => alert(value)}
+    //                />
+    var dropDown = <MultiSelect
+                    placeholder = "Select room(s)"
+                    theme = "material"
+                    options = {rooms.map(
+                      room => ({label: room, value: room})
+                    )}
+                   />
+
+    var selectTermDropdown =  <Dropdown
+                                options={this.state.selectable_terms}
+                                placeholder="Select term"
+                                onChange={(e) => {this.onSelectedTermChange(e);} }
+                                value={this.state.selected_term}
+                               />
     return( <div>
             {dropDown}
             {timetable}
             {saveBtn}
             {checkBtn}
             {generateBtn}
+            {selectTermDropdown}
            </div>)
   }
 
-
-
-
 }
-
 
 render(<App/>, document.getElementById('app'));

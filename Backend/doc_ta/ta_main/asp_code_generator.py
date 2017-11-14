@@ -159,7 +159,7 @@ class ASPCodeGenerator():
 
             json_solutions.append(actual_json)
         # code_result = read_from_asp_result('default_001.in')
-        return json.dumps(json_solutions)
+        return json_solutions
 
 
 # Returns only result status of a asp
