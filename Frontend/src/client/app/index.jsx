@@ -2,7 +2,8 @@ import React from 'react';
 import {render} from 'react-dom';
 import Timetable from './Timetable.jsx';
 import axios from 'axios'
-
+import {ReactSelectize, SimpleSelect, MultiSelect} from 'react-selectize';
+import Dropdown from 'react-dropdown';
 
 
 
@@ -102,6 +103,15 @@ class App extends React.Component {
     return rows
   }
 
+  getRooms(data){
+    var rooms = []
+    data.forEach(d => {if(rooms.indexOf(d.room) === -1) {
+                      rooms.push(d.room);
+                      console.log(rooms);
+                      }});
+    return rooms
+  }
+
   render () {
     var rows = this.generateRows(this.state.timetable)
     var timetable = <Timetable rows={rows} hours={this.state.hours} modalOpen={this.state.modalOpen}
@@ -111,6 +121,7 @@ class App extends React.Component {
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.openModal()}}>Generate</button>
     return( <div>
+            {dropDown}
             {timetable}
             {saveBtn}
             {checkBtn}
