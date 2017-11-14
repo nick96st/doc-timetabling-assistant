@@ -53,7 +53,7 @@ class(mathematical_methods,308,w,9).
 timeslot(D,S) :- day(D), slot(S).
 0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_).
 class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_).
-max_six_hour_a_day(D):- { class(_,_,D,_) } 6, timeslot(D,S).
+max_six_hour_a_day(D,Y):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S), course(Y).
 in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y), course(Y).
 class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).
 % unique_timeslot(T,D,S,Y):- { class(T,_,D,S):in_course(Y) } 1, timeslot(D,S), course(Y).
@@ -77,7 +77,7 @@ max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).
 % :- not unique_timeslot(T,D,S,Y), timeslot(D,S), course(Y), not clash(T,_) | not clash(_,T).
 :- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).
 %Students should not have more than six hours in any one day
-:- not max_six_hour_a_day(D), timeslot(D,_).
+:- not max_six_hour_a_day(D,Y), timeslot(D,_), course(Y).
 
 %Same day class of same lecturer maximum 2 hours
 %If the there is a 2 hour class that day make it consecutive
