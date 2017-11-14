@@ -72,7 +72,13 @@ class App extends React.Component {
   generateTimetable() {
     axios.get('/timetable/generate')
     .then((response) => {
-        this.fillTable(response);
+        if (response.data.status != "SATISFIABLE" &&
+            response.data.status != "OPTIMAL") {
+            console.log("ERROR");
+        }
+        else {
+        this.fillTable(response.data.solutions);
+        }
     })
     .catch(function (error) {
       console.log(error);
@@ -83,7 +89,7 @@ class App extends React.Component {
   fillTable(data) {
     console.log("data in filltable",data);
     console.log("state in filltable",this.state);
-    this.setState({timetable:data.data[0]});
+    this.setState({timetable:data[0]});
     console.log(this.state);
   }
 

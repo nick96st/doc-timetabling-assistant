@@ -49,9 +49,14 @@ def generate_table(request):
     except asp_code_generator.CodeGeneratorException:
         response.HttpResponseServerError()
     run_clingo('./default_001.in','./default_001.out')
-    result = generator.parse_result('default_001.out')
-
-    return response.HttpResponse(content=result)
+    asp_status = generator.get_result_status('./default_001.out')
+    output = {"status":asp_status,"solutions":[]}
+    # if there are solutions, gets them
+    if asp_status == "SATISFIABLE" or asp_status == "OPTIMAL":
+        output["solutions"] = generator.parse_result('default_001.out')
+        # output["solutions"] = [[{"time":12, "day":"Monday", "room": "308", "name":"Architecture"},
+        #                         {"time": 13, "day": "Monday", "room": "308", "name": "Architecture"}]]
+    return response.HttpResponse(content=json.dumps(output), content_type="application/json")
 
 @csrf_exempt
 def check_constraints(request):
