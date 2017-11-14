@@ -1,6 +1,17 @@
 import models as ta_models
 import json
 import asp_manipulators
+from exceptions import TypeError
+
+
+class CodeGeneratorException(Exception):
+    pass
+
+
+# PRE: type(current) = string ,
+# PRE: new has to_asp() function
+def append_new_definition(current, new):
+    return current + new.to_asp() + '\n'
 
 
 # Generates code from specified objects
@@ -9,6 +20,8 @@ class ASPCodeGenerator():
     term_1 = [120, 145, 142, 140, 112]
 
     def __init__(self):
+        self.term = ""             # term to be generated on
+        self.subjects = []         # subjects which belong to the term
         self.result_facts = []
         self.hard_constraints = []
         self.soft_constraints = []
@@ -21,12 +34,22 @@ class ASPCodeGenerator():
         for room in ta_models.Room.objects.all():
             obj_def_string += room.to_asp() + '.\n'
 
+        # TODO: perhaps selectable MxN thing
         for timeslot in ta_models.Timeslot.objects.all():
             obj_def_string += timeslot.to_asp() + '.\n'
 
-        for subject in ta_models.Subject.objects.all():
-            if subject.code in self.term_1:
-                obj_def_string += subject.to_asp() + '.\n'
+        for subject in self.subjects:
+            obj_def_string += subject.to_asp() + '.\n'
+
+            # finds all the courses this subject belongs to
+            courses_it_belongs = ta_models.SubjectsCourses.objects.filter(subject=subject)
+            for course in courses_it_belongs:
+                obj_def_string = append_new_definition(obj_def_string, course)
+
+            # find all lecturers that teach the course
+            teachings = ta_models.Teaches.objects.filter(subject=subject)
+            for teaching in teachings:
+                obj_def_string = append_new_definition(obj_def_string, teaching)
 
         return obj_def_string.lower()
 
@@ -43,8 +66,7 @@ class ASPCodeGenerator():
     def generate_axiom_constraints(self):
         axiom_constraints_string = " "
         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
-        for subject in ta_models.Subject.objects.all():
-            if subject.code in self.term_1:
+        for subject in self.subjects:
                 axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
         return axiom_constraints_string
         # return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
@@ -83,6 +105,16 @@ class ASPCodeGenerator():
 # method which runs the stages of code generation
     def generate_code(self, file_name):
         code_string = ''
+
+        # fetches the model of the term
+        selected_term = ta_models.Term.objects.filter(name=self.term).first()
+        if selected_term is None:
+            raise CodeGeneratorException("Term Does Not Exist")
+
+        subjects_queryset = ta_models.ClassTerm.objects.filter(term=selected_term)
+        for class_term in subjects_queryset:
+            self.subjects.append(class_term.subject)
+
         code_string += self.generate_default_object_definitions()
         code_string += self.generate_result_facts()
         # checks if we need want to generate classes or just check whether current is ok
@@ -141,10 +173,15 @@ class ASPCodeGenerator():
 # facts, and object definitions to have
 class CodeGeneratorBuilder():
     def __init__(self):
+        self.selected_term = ""
         self.result_facts = []
         self.hard_constraints = []
         self.soft_constraints = []
         self.should_generate = True
+
+    def for_term(self,term_name):
+        self.selected_term = term_name
+        return self
 
     def with_result_facts(self, result_facts):
         if not result_facts:
@@ -171,4 +208,5 @@ class CodeGeneratorBuilder():
         code_generator.hard_constraints = [] + self.hard_constraints
         code_generator.soft_constraints = [] + self.soft_constraints
         code_generator.should_generate = self.should_generate
+        code_generator.term = self.selected_term
         return code_generator

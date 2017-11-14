@@ -183,7 +183,7 @@ class SubjectsCourses(models.Model):
     def to_asp(self):
         json_data = {"id": "subjectincourse",
                      "params": [self.subject.title_asp,
-                                asp_manipulators.string_to_asp_suitable(self.courseyear),
+                                asp_manipulators.string_to_asp_suitable(self.courseyear.name),
                                 ]
                      }
         return asp_manipulators.json_term_to_asp_string(json_data)
