@@ -9,39 +9,26 @@ import axios from 'axios'
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
+    this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
-                                {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},]};
-                              //{time: 11, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
-                              //{time: 12, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
-                             // {time: 9, day: "Monday", room: "311", name: "Operations Research", type: "lecture"},
-                             // {time: 10, day: "Monday", room: "311", name: "Operations Research", type: "lecture"},
-                              //{time: 16, day: "Monday", room: "311", name: "Information and Coding"},
-                              //{time: 17, day: "Monday", room: "311", name: "Information and Coding"},
-                              //{time: 9, day: "Tuesday", room: "311", name: "Robotics", type: "lecture"},
-                              //{time: 10, day: "Tuesday", room: "311", name: "Robotics", type: "lecture"},
-                              //{time: 11, day: "Tuesday", room: "311", name: "Simulation and Modelling", type: "lecture"},
-                              //{time: 12, day: "Tuesday", room: "311", name: "Simulation and Modelling", type: "lecture"},
-                              //{time: 14, day: "Tuesday", room: "311", name: "Type Systems", type: "lecture"},
-                              //{time: 15, day: "Tuesday", room: "311", name: "Type Systems", type: "lecture"},
-                              //{time: 16, day: "Tuesday", room: "311", name: "Computer Vision", type: "lecture"},
-                             // {time: 17, day: "Tuesday", room: "311", name: "Computer Vision", type: "lecture"},
-                             // {time: 9, day: "Thursday", room: "311", name: "Information and Coding", type: "lecture"},
-                             // {time: 10, day: "Thursday", room: "311", name: "Information and Coding", type: "lecture"},
-                             // {time: 11, day: "Thursday", room: "311", name: "Robotics", type: "lecture"},
-                             // {time: 12, day: "Thursday", room: "311", name: "Robotics", type: "lecture"},
-                             // {time: 14, day: "Thursday", room: "311", name: "Operations Research"},
-                             // {time: 15, day: "Thursday", room: "311", name: "Operations Research"},
-                             // {time: 9, day: "Friday", room: "311", name: "Computer Vision", type: "lecture"},
-                             // {time: 10, day: "Friday", room: "311", name: "Computer Vison", type: "lecture"},
-                             // {time: 11, day: "Friday", room: "311", name: "Simulation and Modelling"},
-                             // {time: 12, day: "Friday", room: "311", name: "Simulation and Modelling"},
-                             // {time: 14, day: "Friday", room: "311", name: "Type Systems", type: "lecture"},
-                             // {time: 15, day: "Friday", room: "311", name: "Type Systems", type: "lecture"},
-                             // {time: 16, day: "Friday", room: "311", name: "Advanced Databases", type: "lecture"},
-                             // {time: 17, day: "Friday", room: "311", name: "Advanced Databases", type: "lecture"}]};
+                                {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},], modalOpen:false,
+                  subjects:["Architecture", "Hardware", "Databases I"], rooms:["308", "311"]};
+    this.openModal=this.openModal.bind(this)
+    this.closeModal=this.closeModal.bind(this)
+    this.addLecture=this.addLecture.bind(this)
+  }
+
+  openModal(){
+    var hours = this.state.hours
+    var timetable = this.state.timetable
+    this.setState({modalOpen: true})
+    console.log(this.state)
+  }
+
+  closeModal(){
+    this.setState({modalOpen:false})
   }
 
   saveTimetable(timetable){
@@ -93,28 +80,36 @@ class App extends React.Component {
     console.log(this.state);
   }
 
+  addLecture(lect){
+   var timetable = this.state.timetable
+   timetable.push(lect)
+   console.log(timetable)
+  }
+
   generateRows(data){
-    var monday = {day: "Monday" }
-    var tuesday = {day: "Tuesday"}
-    var wednesday = {day: "Wednesday"}
-    var thursday = {day: "Thursday"}
-    var friday = {day: "Friday"}
-    data.forEach(d => {if(d.day === "Monday"){ monday[d.time] = d.name + " " + d.room}
-                       if(d.day === "Tuesday"){tuesday[d.time] = d.name + " " + d.room}
-                       if(d.day === "Wednesday"){wednesday[d.time] = d.name + " " + d.room}
-                       if(d.day === "Thursday"){thursday[d.time] = d.name + " " + d.room}
-                       if(d.day === "Friday"){friday[d.time] = d.name + " " + d.room}});
+    var monday = {day: "Monday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+    var tuesday = {day: "Tuesday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+    var wednesday = {day: "Wednesday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+    var thursday = {day: "Thursday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+    var friday = {day: "Friday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+
+    data.forEach(d => {if(d.day === "Monday"){ monday[d.time].push(d)}
+                       if(d.day === "Tuesday"){tuesday[d.time].push(d)}
+                       if(d.day === "Wednesday"){wednesday[d.time].push(d)}
+                       if(d.day === "Thursday"){thursday[d.time].push(d)}
+                       if(d.day === "Friday"){friday[d.time].push(d)}});
     var rows = [monday, tuesday, wednesday, thursday, friday]
-    console.log(monday)
     return rows
   }
 
   render () {
     var rows = this.generateRows(this.state.timetable)
-    var timetable = <Timetable rows={rows}/>
+    var timetable = <Timetable rows={rows} hours={this.state.hours} modalOpen={this.state.modalOpen}
+                     openModal={this.openModal} closeModal={this.closeModal} subjects={this.state.subjects} rooms={this.state.rooms}
+                    addLecture={this.addLecture}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
-    var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
+    var generateBtn = <button onClick={ () => {this.openModal()}}>Generate</button>
     return( <div>
             {timetable}
             {saveBtn}

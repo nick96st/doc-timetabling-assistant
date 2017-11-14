@@ -1,7 +1,21 @@
 import React from 'react'
 import {render} from 'react-dom';
+import TimetableSlot from './TimetableSlot.jsx';
+import Modal from 'react-modal';
+import Dropdown from 'react-dropdown';
 
-  const generateHeader = function() {
+
+class Timetable extends React.Component{
+
+  constructor(props) {
+    super(props);
+    this.state={}
+    this.lectureChange = this.lectureChange.bind(this);
+    this.roomChange = this.roomChange.bind(this);
+    this.openModal = this.openModal.bind(this);
+  }
+
+ generateHeader() {
     var header = <thead/>
     var headerItems = [<th>Day</th>, <th>9</th>, <th>10</th>, <th>11</th>, <th>12</th> ,<th>13</th>, <th>14</th>, <th>15</th>, <th>16</th> ,<th>17</th>]
     header = <thead>
@@ -10,29 +24,72 @@ import {render} from 'react-dom';
     return header;
   }
 
-  const generateRows = function(props){
+  openModal(slot){
+   this.props.openModal()
+   this.setState({time:slot.time, day:slot.day })
+  }
+
+  closeModal(){
+    this.props.closeModal()
+  }
+
+  generateRows(){
     var rowItems = []
-    props.rows.forEach(r => {
-      console.log(r[11]);
-      rowItems.push(<tr><td>{r.day}</td><td>{r[9]}</td><td>{r[10]}</td><td>{r[11]}
-                    </td><td>{r[12]}</td><td>{r[13]}</td><td>{r[14]}</td>
-                    <td>{r[15]}</td><td>{r[16]}</td><td>{r[17]}</td></tr>)
+    var start = this.props.hours.start
+    var end = this.props.hours.finish
+    this.props.rows.forEach(r => {
+      var cols = [<td>{r.day}</td>]
+      for (var i = start; i <= end; i++ ){
+        if (r[i].length == 0){
+          const slot = {time: i, day: r.day}
+          cols.push(<td><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = "" room = ""/></a></td>)
+        }else{
+        var courses = []
+        r[i].forEach(s => {
+          courses.push (<a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>)
+        })
+        cols.push(<td>{courses}</td>)
+      }
+      }
+      rowItems.push(<tr>{cols}</tr>)
     })
     return rowItems
   }
 
-  const Timetable = (props) => {
-    console.log(props.rows)
-    generateRows(props)
+  lectureChange(e){
+    this.setState({lecture:e.value})
+  }
+
+  roomChange(e){
+    this.setState({room:e.value})
+  }
+
+  addLecture(){
+    var lect = {name: this.state.lecture, room: this.state.room, time:this.state.time, day:this.state.day, type:"lecture"}
+    this.props.addLecture(lect)
+    this.closeModal()
+  }
+
+    render() {
     return(
+      <div>
+      <Modal isOpen={this.props.modalOpen}>
+        <Dropdown options={this.props.subjects} placeholder="Select an option" onChange={this.lectureChange} value={this.state.lecture}/>
+        <Dropdown options={this.props.rooms} placeholder="Select an option" onChange={this.roomChange} value={this.state.room}/>
+        <br/>
+        <button onClick={()=>{this.closeModal()}}>Close</button>
+        <button onClick={()=>{this.addLecture()}}>Add Lecture</button>
+      </Modal>
       <table>
-       {generateHeader()}
+       {this.generateHeader()}
        <tbody>
-       {generateRows(props)}
+       {this.generateRows()}
        </tbody>
        </table>
+       </div>
     );
   }
+}
 
 
 export default Timetable;

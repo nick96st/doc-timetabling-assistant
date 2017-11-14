@@ -115,6 +115,32 @@ def save_timetable(request):
 
     return response.HttpResponse(status=200)
 
+# @csrf_exempt
+# def get_term_choices(request):
+#     all_terms = ta_models.Term.objects.all()
+#     term_list = []
+#     for term in all_terms:
+#         term_list.append(term.name)
+#
+#     return response.HttpResponse(content=json.dumps(term_list))
+
+@csrf_exempt
+def get_subject_choices(request):
+    all_subjects = ta_models.Subject.objects.all()
+    subject_list = []
+    for subject in all_subjects:
+        subject_list.append(subject.title)
+
+    return response.HttpResponse(content=json.dumps(subject_list))
+
+@csrf_exempt
+def get_room_choices(request):
+    all_rooms = ta_models.Room.objects.all()
+    room_list = []
+    for room in all_rooms:
+        room_list.append(room.room_name)
+
+    return response.HttpResponse(content=json.dumps(room_list))
 
 import tests.database_inits as DB
 @csrf_exempt
