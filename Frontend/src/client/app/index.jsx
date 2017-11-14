@@ -19,6 +19,7 @@ class App extends React.Component {
     this.openModal=this.openModal.bind(this)
     this.closeModal=this.closeModal.bind(this)
     this.addLecture=this.addLecture.bind(this)
+    this.removeLecture=this.removeLecture.bind(this)
 
     // fetch terms he can select
     this.getTerms();
@@ -111,6 +112,17 @@ class App extends React.Component {
    console.log(timetable)
   }
 
+  removeLecture(lect){
+
+    var timetable = this.state.timetable
+    console.log(timetable)
+    var i = timetable.indexOf(lect);
+    if (i> -1){
+      timetable.splice(i, 1)
+    }
+    this.setState({timetable:timetable})
+  }
+
   generateRows(data){
     var monday = {day: "Monday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
     var tuesday = {day: "Tuesday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
@@ -140,7 +152,7 @@ class App extends React.Component {
     var rows = this.generateRows(this.state.timetable)
     var timetable = <Timetable rows={rows} hours={this.state.hours} modalOpen={this.state.modalOpen}
                      openModal={this.openModal} closeModal={this.closeModal} subjects={this.state.subjects} rooms={this.state.rooms}
-                    addLecture={this.addLecture}/>
+                    addLecture={this.addLecture} removeLecture={this.removeLecture}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>

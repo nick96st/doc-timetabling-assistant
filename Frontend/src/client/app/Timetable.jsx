@@ -33,6 +33,10 @@ class Timetable extends React.Component{
     this.props.closeModal()
   }
 
+  deleteLecture(lect){
+    this.props.removeLecture(lect);
+  }
+
   generateRows(){
     var rowItems = []
     var start = this.props.hours.start
@@ -46,7 +50,10 @@ class Timetable extends React.Component{
         }else{
         var courses = []
         r[i].forEach(s => {
-          courses.push (<a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>)
+          const slot = {time:s.time, day:s.day};
+          const lect = s
+          courses.push (<div><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
+                        <button onClick={()=>this.deleteLecture(lect)}> Delete </button></div>)
         })
         cols.push(<td>{courses}</td>)
       }
