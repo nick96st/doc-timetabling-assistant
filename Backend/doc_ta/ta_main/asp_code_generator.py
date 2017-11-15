@@ -12,7 +12,7 @@ class CodeGeneratorException(Exception):
 # PRE: type(current) = string ,
 # PRE: new has to_asp() function
 def append_new_definition(current, new):
-    return current + new.to_asp() + '\n'
+    return current + new.to_asp() + '.\n'
 
 
 # Generates code from specified objects
@@ -175,7 +175,7 @@ class ASPCodeGenerator():
         code_string += self.generate_hard_constraints()
         code_string += self.generate_soft_constraints()
         # generate result we are interested in(class objects)
-        code_string += "#show /4."
+        code_string += "#show class_with_year/5."
         # writes the code to file
         fd = open(file_name,'w+')
         fd.write(code_string)
