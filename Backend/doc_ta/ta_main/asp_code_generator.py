@@ -97,8 +97,7 @@ class ASPCodeGenerator():
         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
         for subject in self.subjects:
                 axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
-        axiom_constraints_string += ""
-                                    "max_six_hour_a_day(D,Y):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S), course(Y).\n" +/
+        axiom_constraints_string += "max_six_hour_a_day(D,Y):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S), course(Y).\n" +/
                                     "in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y), course(Y).\n" +/
                                     "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" +/
                                     "1 { day_occupied(T,D) } 1 :- class(T,_,D,_).\n" +/
