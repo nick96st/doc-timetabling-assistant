@@ -36,7 +36,8 @@ def get_index(request):
 
 @csrf_exempt
 def generate_table(request):
-    term_name = json.loads(request.body)["term"]
+    term_name = request.GET.get("term",None)
+    # term_name = json.loads(request.body)["term"]
     if not term_name:
         return response.HttpResponseBadRequest("No term field")
     codegen = asp_code_generator.CodeGeneratorBuilder()
@@ -49,9 +50,16 @@ def generate_table(request):
     except asp_code_generator.CodeGeneratorException:
         response.HttpResponseServerError()
     run_clingo('./default_001.in','./default_001.out')
-    result = generator.parse_result('default_001.out')
+    asp_status = generator.get_result_status('./default_001.out')
+    output = {"status":asp_status,"solutions":[]}
+    # if there are solutions, gets them
+    if asp_status == "SATISFIABLE" or asp_status == "OPTIMAL":
+        output["solutions"] = generator.parse_result('default_001.out')
 
-    return response.HttpResponse(content=result)
+    # TODO: fix frontend to handle empty arrays adn remove this
+    output["solutions"].append([{"time":12, "day":"Monday", "room": "308", "name":"Architecture"},
+                            {"time": 13, "day": "Monday", "room": "308", "name": "Architecture"}])
+    return response.HttpResponse(content=json.dumps(output), content_type="application/json")
 
 @csrf_exempt
 def check_constraints(request):
@@ -110,6 +118,32 @@ def save_timetable(request):
 
     return response.HttpResponse(status=200)
 
+@csrf_exempt
+def get_term_choices(request):
+    all_terms = ta_models.Term.objects.all()
+    term_list = []
+    for term in all_terms:
+        term_list.append(term.name)
+
+    return response.HttpResponse(content=json.dumps(term_list))
+
+@csrf_exempt
+def get_subject_choices(request):
+    all_subjects = ta_models.Subject.objects.all()
+    subject_list = []
+    for subject in all_subjects:
+        subject_list.append(subject.title)
+
+    return response.HttpResponse(content=json.dumps(subject_list))
+
+@csrf_exempt
+def get_room_choices(request):
+    all_rooms = ta_models.Room.objects.all()
+    room_list = []
+    for room in all_rooms:
+        room_list.append(room.room_name)
+
+    return response.HttpResponse(content=json.dumps(room_list))
 
 import tests.database_inits as DB
 @csrf_exempt

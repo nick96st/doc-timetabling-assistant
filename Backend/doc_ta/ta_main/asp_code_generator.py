@@ -1,7 +1,7 @@
 import models as ta_models
 import json
 import asp_manipulators
-import asp_constraints
+from asp_constraints import basic_constraint as constraint
 from exceptions import TypeError
 
 
@@ -67,6 +67,9 @@ class ASPCodeGenerator():
         for timeslot in ta_models.Timeslot.objects.all():
             obj_def_string += timeslot.to_asp() + '.\n'
 
+        for course in ta_models.CourseYear.objects.all():
+            obj_def_string += course.to_asp();
+
         for subject in self.subjects:
             obj_def_string += subject.to_asp() + '.\n'
 
@@ -97,11 +100,11 @@ class ASPCodeGenerator():
         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
         for subject in self.subjects:
                 axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
-        axiom_constraints_string += "max_six_hour_a_day(D,Y):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S), subjectincourse(_,Y).\n" +/
-                                    "in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y).\n" +/
-                                    "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" +/
-                                    "1 { day_occupied(T,D) } 1 :- class(T,_,D,_).\n" +/
-                                    "max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).\n" +/
+        axiom_constraints_string += "max_six_hour_a_day(D,Y):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S), course(Y).\n" + \
+                                    "in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y), course(Y).\n" + \
+                                    "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
+                                    "1 { day_occupied(T,D) } 1 :- class(T,_,D,_).\n" + \
+                                    "max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).\n"
         return axiom_constraints_string
         # return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
 
@@ -120,7 +123,7 @@ class ASPCodeGenerator():
         # # class should not clash if not allowed
         # constraint no_clashes = constraint(":- class(A,_,D,S),class(B,_,D,S), A!=B.")
         result = ""
-        constraints_list = constraint_dictionary.values()
+        constraints_list = self.constraint_dictionary.values()
         for c in constraints_list:
             result += c.get_constraint() + "\n"
 
@@ -206,7 +209,7 @@ class ASPCodeGenerator():
 
             json_solutions.append(actual_json)
         # code_result = read_from_asp_result('default_001.in')
-        return json.dumps(json_solutions)
+        return json_solutions
 
 
 # Returns only result status of a asp

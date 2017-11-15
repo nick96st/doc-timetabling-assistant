@@ -170,10 +170,11 @@ class Teaches(models.Model):
         return asp_manipulators.json_term_to_asp_string(json_data)
 
 
-# Note: no need to have asp convter
 class CourseYear(models.Model):
     name = models.CharField(max_length=40, null=False)
 
+    def to_asp(self):
+        return "course(" + str(self.name) + ")."
 
 class SubjectsCourses(models.Model):
     subject = models.ForeignKey(Subject)
