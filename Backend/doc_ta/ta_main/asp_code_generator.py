@@ -33,7 +33,7 @@ class ASPCodeGenerator():
     # unique timeslot for each year, allow clashes if stated
     constraint unique_timeslot_unless_allowed = constraint(":- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).")
     # Students have maximum 6 hours a days
-    constraint max_six_hour_a_day = constraint(":- not max_six_hour_a_day(D), timeslot(D,_).")
+    constraint max_six_hour_a_day = constraint(":- not max_six_hour_a_day(D,Y), timeslot(D,_), course(Y).")
     # Each room is used for one lecture each timeslot
     constraint unique_room = constraint(":- class(T,R1,D,_), class(T,R2,D,_), R1!=R2.")
 
@@ -97,7 +97,8 @@ class ASPCodeGenerator():
         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
         for subject in self.subjects:
                 axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
-        axiom_constraints_string += "max_six_hour_a_day(D):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S).\n" +/
+        axiom_constraints_string += ""
+                                    "max_six_hour_a_day(D,Y):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S), course(Y).\n" +/
                                     "in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y), course(Y).\n" +/
                                     "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" +/
                                     "1 { day_occupied(T,D) } 1 :- class(T,_,D,_).\n" +/
