@@ -67,6 +67,9 @@ class ASPCodeGenerator():
         for timeslot in ta_models.Timeslot.objects.all():
             obj_def_string += timeslot.to_asp() + '.\n'
 
+        for course in ta_models.CourseYear.objects.all():
+            obj_def_string += course.to_asp();
+
         for subject in self.subjects:
             obj_def_string += subject.to_asp() + '.\n'
 
