@@ -23,11 +23,11 @@ class ASPCodeGenerator():
     # enough hours
     enough_hour = constraint(":- not class_has_enough_hours(T), subject(T,_,_).")
     # no 3 conseuquitive lectures
-    no_three_consecutive_lectures = constraint(":- class(_, _, D, S), class (_, _, D, S+1), class (_, _, D, S+2), timeslot(D, S).")
+    no_three_consecutive_lectures = constraint(":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).")
     # if 2 lectures in a day they must follow one another
-    two_hour_slot = constraint(":- class(T,_,D,S), class(T,_,D,S+Y), Y=2..15.")
+    two_hour_slot = constraint(":- class_with_year(T,_,D,S,Y), class_with_year(T,_,D,S+X,Y), X=2..8.")
     # capacity check
-    room_capacity = constraint(":- class(T,R,_,_),room(R,C),subject(T,S,_), C<S.")
+    room_capacity = constraint(":- class_with_year(T,R,_,_,_),room(R,C),subject(T,S,_), C<S.")
     # limit 2 days a week to form 2hour time_slot
     max_two_day_a_week = constraint(":- not max_two_day_a_week(T), subject(T,_,_).")
     # unique timeslot for each year, allow clashes if stated
@@ -35,7 +35,7 @@ class ASPCodeGenerator():
     # Students have maximum 6 hours a days
     max_six_hour_a_day = constraint(":- not max_six_hour_a_day(D,Y), timeslot(D,_), course(Y).")
     # Each room is used for one lecture each timeslot
-    unique_room = constraint(":- class(T,R1,D,_), class(T,R2,D,_), R1!=R2.")
+    unique_room = constraint(":- class_with_year(T,R1,D,_,_), class_with_year(T,R2,D,_,_), R1!=R2.")
 
     constraint_dictionary = { "Each class has enough hour per week" : enough_hour
                             , "No three consecutive lectures" : no_three_consecutive_lectures
@@ -100,11 +100,12 @@ class ASPCodeGenerator():
         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
         for subject in self.subjects:
                 axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
-        axiom_constraints_string += "max_six_hour_a_day(D,Y):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S), course(Y).\n" + \
-                                    "in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y), course(Y).\n" + \
+        axiom_constraints_string += "class_has_enough_hours(T):- H { class_with_year(T,_,_,_,_) } H , subject(T,_,H)." + \
+                                    "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y)." + \
+                                    "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n" + \
                                     "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
-                                    "1 { day_occupied(T,D) } 1 :- class(T,_,D,_).\n" + \
-                                    "max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).\n"
+                                    "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n" + \
+                                    "force_2_hour_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
         return axiom_constraints_string
         # return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
 
