@@ -15,7 +15,7 @@ class App extends React.Component {
                                 {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},],
-                              value: []};
+                              roomsFilter: [], coursesFilter: []};
                               //{time: 11, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
                               //{time: 12, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
                              // {time: 9, day: "Monday", room: "311", name: "Operations Research", type: "lecture"},
@@ -105,25 +105,41 @@ class App extends React.Component {
     return rows
   }
 
-  getRooms(data){
+  getRooms(){
     var rooms = []
-    data.forEach(d => {if(rooms.indexOf(d.room) === -1) {
+    this.state.timetable.forEach(d => {if(rooms.indexOf(d.room) === -1) {
                       rooms.push(d.room);
                       console.log(rooms);
                       }});
     return rooms
   }
 
-  filterTable(data, rooms){
-    var rs = []
-    rooms.forEach(r => {rs.push(r.value)})
+  getCourses(){
+    var courses = []
+    this.state.timetable.forEach(d => {if(courses.indexOf(d.name) === -1) {
+                      courses.push(d.name);
+                      console.log(courses);
+                      }});
+    return courses
+  }
+
+  filterTable(data, allRooms, allCourses){
+    var rooms = []
+    var courses = []
+    if(this.state.roomsFilter.length == 0) {
+      rooms = allRooms
+    }
+    if(this.state.coursesFilter.length == 0) {
+      courses = allCourses
+    }
+    this.state.roomsFilter.forEach(r => {rooms.push(r.value)})
+    this.state.coursesFilter.forEach(c => {courses.push(c.value)})
     var monday = {day: "Monday" }
     var tuesday = {day: "Tuesday"}
     var wednesday = {day: "Wednesday"}
     var thursday = {day: "Thursday"}
     var friday = {day: "Friday"}
-    console.log("rs is " + rs);
-    data.forEach(d => {if(rs.indexOf(d.room) !== -1){
+    data.forEach(d => {if(rooms.indexOf(d.room) !== -1 && courses.indexOf(d.name) !== -1){
                          if(d.day === "Monday"){monday[d.time] = d.name + " " + d.room}
                          if(d.day === "Tuesday"){tuesday[d.time] = d.name + " " + d.room}
                          if(d.day === "Wednesday"){wednesday[d.time] = d.name + " " + d.room}
@@ -140,41 +156,27 @@ class App extends React.Component {
   render () {
     var rows
     var timetable
-    console.log("GETHERE ??????1st")
-    console.log(this.state.value)
-    if(this.state.value.length == 0) {
-      rows = this.generateRows(this.state.timetable)
+    var rooms = this.getRooms()
+    var courses = this.getCourses()
+      rows = this.filterTable(this.state.timetable, rooms, courses)
       timetable = <Timetable rows={rows}/>
-    } else {
-      rows = this.filterTable(this.state.timetable, this.state.value)
-      timetable = <Timetable rows={rows}/>
-      console.log("NONEMPTY ??????")
-    }
-
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
-    var refreshBtn = <button onClick={ () => {}}>Refresh</button>
-    var rooms = this.getRooms(this.state.timetable)
-    // var dropDown = <MultiSelect placeholder="Select a fruit"
-    //                             options = {rooms.map(
-    //                               room => ({label: room, value: room})
-    //                             )}
-    //                             onValueChange = {value => alert(value)}
-    //                />
 
-    var dropDown = <MultiSelect
+    var dropDownRooms = <MultiSelect
                     placeholder = "Select room(s)"
                     theme = "material"
                     options = {rooms.map(
                       room => ({label: room, value: room})
                     )}
-                    onValuesChange = {value => {console.log("timetable CHANGEEEE" + value)
-                                                console.log(value)
-                                                console.log("BEFORE " + this.statevalue)
-                                                this.setState({value : value})
+                    onValuesChange = {value => {
+                                                // console.log("timetable CHANGEEEE" + value)
+                                                // console.log(value)
+                                                // console.log("BEFORE " + this.statevalue)
+                                                this.setState({roomsFilter : value})
                                                 // this.forceUpdate();
-                                                console.log("AFTER " + this.state.value)
+                                                // console.log("AFTER " + this.state.value)
                                                 // var newRows = this.filterTable(this.state.timetable, value)
                                                 // var filteredTimetable = <Timetable rows={newRows}/>
                                                 // console.log(filteredTimetable)
@@ -184,13 +186,21 @@ class App extends React.Component {
 
                                                 }}
                    />
+    var dropDownCourses = <MultiSelect
+                          placeholder = "Select Course(s)"
+                          theme = "material"
+                          options = {courses.map(
+                            course => ({label: course, value: course})
+                          )}
+                          onValuesChange = {value =>{this.setState({coursesFilter: value})}}
+                          />
     return( <div>
-            {dropDown}
+            {dropDownRooms}
+            {dropDownCourses}
             {timetable}
             {saveBtn}
             {checkBtn}
             {generateBtn}
-            {refreshBtn}
            </div>)
   }
 
