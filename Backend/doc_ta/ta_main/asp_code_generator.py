@@ -1,7 +1,7 @@
 import models as ta_models
 import json
 import asp_manipulators
-import asp_constraints
+from asp_constraints import basic_constraint as constraint
 from exceptions import TypeError
 
 
@@ -21,21 +21,21 @@ class ASPCodeGenerator():
     term_1 = [120, 145, 142, 140, 112]
 
     # enough hours
-    constraint enough_hour = constraint(":- not class_has_enough_hours(T), subject(T,_,_).")
+    enough_hour = constraint(":- not class_has_enough_hours(T), subject(T,_,_).")
     # no 3 conseuquitive lectures
-    constraint no_three_consecutive_lectures = constraint(":- class(_, _, D, S), class (_, _, D, S+1), class (_, _, D, S+2), timeslot(D, S).")
+    no_three_consecutive_lectures = constraint(":- class(_, _, D, S), class (_, _, D, S+1), class (_, _, D, S+2), timeslot(D, S).")
     # if 2 lectures in a day they must follow one another
-    constraint two_hour_slot = constraint(":- class(T,_,D,S), class(T,_,D,S+Y), Y=2..15.")
+    two_hour_slot = constraint(":- class(T,_,D,S), class(T,_,D,S+Y), Y=2..15.")
     # capacity check
-    constraint room_capacity = constraint(":- class(T,R,_,_),room(R,C),subject(T,S,_), C<S.")
+    room_capacity = constraint(":- class(T,R,_,_),room(R,C),subject(T,S,_), C<S.")
     # limit 2 days a week to form 2hour time_slot
-    constraint max_two_day_a_week = constraint(":- not max_two_day_a_week(T), subject(T,_,_).")
+    max_two_day_a_week = constraint(":- not max_two_day_a_week(T), subject(T,_,_).")
     # unique timeslot for each year, allow clashes if stated
-    constraint unique_timeslot_unless_allowed = constraint(":- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).")
+    unique_timeslot_unless_allowed = constraint(":- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).")
     # Students have maximum 6 hours a days
-    constraint max_six_hour_a_day = constraint(":- not max_six_hour_a_day(D), timeslot(D,_).")
+    max_six_hour_a_day = constraint(":- not max_six_hour_a_day(D), timeslot(D,_).")
     # Each room is used for one lecture each timeslot
-    constraint unique_room = constraint(":- class(T,R1,D,_), class(T,R2,D,_), R1!=R2.")
+    unique_room = constraint(":- class(T,R1,D,_), class(T,R2,D,_), R1!=R2.")
 
     constraint_dictionary = { "Each class has enough hour per week" : enough_hour
                             , "No three consecutive lectures" : no_three_consecutive_lectures
@@ -97,11 +97,11 @@ class ASPCodeGenerator():
         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
         for subject in self.subjects:
                 axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
-        axiom_constraints_string += "max_six_hour_a_day(D):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S).\n" +/
-                                    "in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y), course(Y).\n" +/
-                                    "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" +/
-                                    "1 { day_occupied(T,D) } 1 :- class(T,_,D,_).\n" +/
-                                    "max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).\n" +/
+        axiom_constraints_string += "max_six_hour_a_day(D,Y):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S), course(Y).\n" + \
+                                    "in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y), course(Y).\n" + \
+                                    "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
+                                    "1 { day_occupied(T,D) } 1 :- class(T,_,D,_).\n" + \
+                                    "max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).\n"
         return axiom_constraints_string
         # return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
 
@@ -120,7 +120,7 @@ class ASPCodeGenerator():
         # # class should not clash if not allowed
         # constraint no_clashes = constraint(":- class(A,_,D,S),class(B,_,D,S), A!=B.")
         result = ""
-        constraints_list = constraint_dictionary.values()
+        constraints_list = self.constraint_dictionary.values()
         for c in constraints_list:
             result += c.get_constraint() + "\n"
 
