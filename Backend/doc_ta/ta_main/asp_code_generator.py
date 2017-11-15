@@ -12,7 +12,7 @@ class CodeGeneratorException(Exception):
 # PRE: type(current) = string ,
 # PRE: new has to_asp() function
 def append_new_definition(current, new):
-    return current + new.to_asp() + '\n'
+    return current + new.to_asp() + '.\n'
 
 
 # Generates code from specified objects
@@ -33,7 +33,7 @@ class ASPCodeGenerator():
     # unique timeslot for each year, allow clashes if stated
     unique_timeslot_unless_allowed = constraint(":- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).")
     # Students have maximum 6 hours a days
-    max_six_hour_a_day = constraint(":- not max_six_hour_a_day(D), timeslot(D,_).")
+    max_six_hour_a_day = constraint(":- not max_six_hour_a_day(D,Y), timeslot(D,_), course(Y).")
     # Each room is used for one lecture each timeslot
     unique_room = constraint(":- class(T,R1,D,_), class(T,R2,D,_), R1!=R2.")
 
@@ -174,7 +174,7 @@ class ASPCodeGenerator():
         code_string += self.generate_hard_constraints()
         code_string += self.generate_soft_constraints()
         # generate result we are interested in(class objects)
-        code_string += "#show /4."
+        code_string += "#show class_with_year/5."
         # writes the code to file
         fd = open(file_name,'w+')
         fd.write(code_string)
