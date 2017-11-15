@@ -52,7 +52,7 @@ class(mathematical_methods,308,w,9).
 %Define
 timeslot(D,S) :- day(D), slot(S).
 0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_).
-class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_).
+class_has_enough_hours(T):- H { class(T,_,_,_) } H , subject(T,_,H).
 max_six_hour_a_day(D,Y):- { class_with_year(_,_,D,_,Y) } 6, timeslot(D,S), course(Y).
 in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y), course(Y).
 class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).
@@ -60,7 +60,7 @@ class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).
 % nine_to_eleven_am(T) :- class(T,_,_,S), S= 9..10.
 % four_to_six_pm(T) :- class(T,_,_,S), S= 16..17.
 1 { day_occupied(T,D) } 1 :- class(T,_,D,_).
-max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).
+force_2_hour_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).
 %Constraints
 % checks if classes has been allocated properly.
 :- not class_has_enough_hours(T), subject(T,_,_).
@@ -71,7 +71,7 @@ max_two_day_a_week(T) :- { day_occupied(T,_) } 2, subject(T,_,_).
 
 
 %Each subject only takes 2 day a week
-:- not max_two_day_a_week(T), subject(T,_,_).
+:- not force_2_hour_slot(T), subject(T,_,_).
 
 %Each timeslot is unique
 % :- not unique_timeslot(T,D,S,Y), timeslot(D,S), course(Y), not clash(T,_) | not clash(_,T).
