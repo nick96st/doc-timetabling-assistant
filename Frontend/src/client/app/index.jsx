@@ -122,7 +122,7 @@ class App extends React.Component {
                       }});
     return courses
   }
-
+  //generate table with appropriate filters
   filterTable(data, allRooms, allCourses){
     var rooms = []
     var courses = []
@@ -156,10 +156,10 @@ class App extends React.Component {
   render () {
     var rows
     var timetable
-    var rooms = this.getRooms()
-    var courses = this.getCourses()
-      rows = this.filterTable(this.state.timetable, rooms, courses)
-      timetable = <Timetable rows={rows}/>
+    var allRooms = this.getRooms()
+    var allCourses = this.getCourses()
+    rows = this.filterTable(this.state.timetable, allRooms, allCourses)
+    timetable = <Timetable rows={rows}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
@@ -167,7 +167,7 @@ class App extends React.Component {
     var dropDownRooms = <MultiSelect
                     placeholder = "Select room(s)"
                     theme = "material"
-                    options = {rooms.map(
+                    options = {allRooms.map(
                       room => ({label: room, value: room})
                     )}
                     onValuesChange = {value => {
@@ -189,14 +189,17 @@ class App extends React.Component {
     var dropDownCourses = <MultiSelect
                           placeholder = "Select Course(s)"
                           theme = "material"
-                          options = {courses.map(
+                          options = {allCourses.map(
                             course => ({label: course, value: course})
                           )}
                           onValuesChange = {value =>{this.setState({coursesFilter: value})}}
                           />
     return( <div>
-            {dropDownRooms}
-            {dropDownCourses}
+              <div className ='rows'>
+                <div>{dropDownRooms}</div>
+                <div style={{padding : 5 + 'px'}}></div>
+                <div>{dropDownCourses}</div>
+              </div>
             {timetable}
             {saveBtn}
             {checkBtn}

@@ -37,6 +37,35 @@ td:last-child {
   border-right: 0px;
 }
 
+.rows .row {
+   /*display: inline-block;*/
+   display:inline
+}
+
+button {
+    background-color: #555555;
+    border: none;
+    /*border-radius: 8px;*/
+    margin: 10px;
+    color: white;
+    /*padding: 10px 25px;*/
+    width: 100px;
+    height: 30px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+}
+
+button:hover {
+    background-color: white;
+    color: #555555;
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
 .react-selectize {
   color: #000;
 }
@@ -379,6 +408,7 @@ td:last-child {
 }
 .react-selectize.material.root-node.open .react-selectize-control:after {
   transform: scaleX(1);
+  background-color: #fff;
 }
 .react-selectize.material.root-node .react-selectize-control {
   border-bottom: 1px solid rgba(0,0,0,0.3);
@@ -396,8 +426,10 @@ td:last-child {
 }
 .react-selectize.material.root-node .react-selectize-control .react-selectize-placeholder {
   color: rgba(0,0,0,0.3);
-  color: rgba(204, 204, 204,0.7);
+  color: rgba(204, 204, 204,1);
   text-indent: 4px;
+  font-weight: lighter;
+  text-shadow: 0 1px 0 #38678f;
 }
 .react-selectize.material.dropdown-menu-wrapper.flipped {
   margin-bottom: 8px;
@@ -492,10 +524,13 @@ td:last-child {
   text-shadow: 0px 1px 0px #fff;
 }
 .multi-select.react-selectize.material.root-node .simple-value span {
-  padding: 0px;
+  padding: 4px;
+  background: #efefef;
+  border-radius: 4px;
+  color: #333;
 }
 .multi-select.react-selectize.material.root-node .simple-value span:after {
-  content: ",";
+  content: "";
 }
 .simple-select.react-selectize.material.root-node .simple-value {
   margin: 4px 3px 3px 2px;
