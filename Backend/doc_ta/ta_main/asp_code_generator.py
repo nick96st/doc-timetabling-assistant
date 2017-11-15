@@ -29,7 +29,7 @@ class ASPCodeGenerator():
     # capacity check
     room_capacity = constraint(":- class_with_year(T,R,_,_,_),room(R,C),subject(T,S,_), C<S.")
     # limit 2 days a week to form 2hour time_slot
-    max_two_day_a_week = constraint(":- not max_two_day_a_week(T), subject(T,_,_).")
+    max_two_day_a_week = constraint(":- not force_2_hour_slot(T), subject(T,_,_).")
     # unique timeslot for each year, allow clashes if stated
     unique_timeslot_unless_allowed = constraint(":- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).")
     # Students have maximum 6 hours a days
@@ -98,8 +98,8 @@ class ASPCodeGenerator():
     def generate_axiom_constraints(self):
         axiom_constraints_string = " "
         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
-        for subject in self.subjects:
-                axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
+        # for subject in self.subjects:
+        #         axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
         axiom_constraints_string += "class_has_enough_hours(T):- H { class_with_year(T,_,_,_,_) } H , subject(T,_,H)." + \
                                     "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y)." + \
                                     "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n" + \
