@@ -15,7 +15,7 @@ class App extends React.Component {
                                 {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},],
-                              value: null};
+                              value: []};
                               //{time: 11, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
                               //{time: 12, day: "Monday", room: "311", name: "Advanced Databases", type: "lecture"},
                              // {time: 9, day: "Monday", room: "311", name: "Operations Research", type: "lecture"},
@@ -141,13 +141,14 @@ class App extends React.Component {
     var rows
     var timetable
     console.log("GETHERE ??????1st")
-    if(this.state.value == null) {
+    console.log(this.state.value)
+    if(this.state.value.length == 0) {
       rows = this.generateRows(this.state.timetable)
       timetable = <Timetable rows={rows}/>
     } else {
       rows = this.filterTable(this.state.timetable, this.state.value)
       timetable = <Timetable rows={rows}/>
-      console.log("GETHERE ??????")
+      console.log("NONEMPTY ??????")
     }
 
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
