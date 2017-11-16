@@ -23,6 +23,8 @@ class App extends React.Component {
 
     // fetch terms he can select
     this.getTerms();
+    this.getSubjects();
+    this.getRooms();
   }
 
   openModal(){
@@ -98,6 +100,26 @@ class App extends React.Component {
     .catch(function (error) {
       console.log(error);
     });
+  }
+
+  getSubjects(){
+    axios.get('choices/subjects').
+    then((response)=>{
+      this.setState({subjects: response.data})
+    })
+    .catch(function(error){
+      console.log(error)
+    })
+  }
+
+  getRooms(){
+    axios.get('choices/rooms').
+    then((response)=>{
+      this.setState({rooms: response.data})
+    })
+    .catch(function(error){
+      console.log(error)
+    })
   }
 
   onSelectedTermChange(e) {
