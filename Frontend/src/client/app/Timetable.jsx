@@ -45,18 +45,17 @@ class Timetable extends React.Component{
     this.props.rows.forEach(r => {
       var cols = [<td>{r.day}</td>]
       for (var i = start; i <= end; i++ ){
+        const slot = {time: i, day: r.day}
         if (r[i].length == 0){
-          const slot = {time: i, day: r.day}
-          cols.push(<td><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = "" room = ""/></a></td>)
+          cols.push(<td><a onClick = {()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome><TimetableSlot name = "" room = ""/></a></td>)
         }else{
         var courses = []
         r[i].forEach(s => {
-          const slot = {time:s.time, day:s.day};
           const lect = s
           courses.push (<div><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
                         <button onClick={()=>this.deleteLecture(lect)}> Delete </button></div>)
         })
-        cols.push(<td>{courses}<a onClick={()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome></a></td>)
+        cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome></button></td>)
       }
       }
       rowItems.push(<tr>{cols}</tr>)

@@ -7,6 +7,7 @@ import Dropdown from 'react-dropdown';
 
 
 
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -15,7 +16,7 @@ class App extends React.Component {
                                 {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},], modalOpen:false,
-                  subjects:["Architecture", "Hardware", "Databases I"], rooms:["308", "311"]};
+                  subjects:["Architecture", "Hardware", "Databases I"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: []};
     this.openModal=this.openModal.bind(this)
     this.closeModal=this.closeModal.bind(this)
     this.addLecture=this.addLecture.bind(this)
@@ -38,6 +39,7 @@ class App extends React.Component {
 
   closeModal(){
     this.setState({modalOpen:false})
+
   }
 
   saveTimetable(timetable){
@@ -163,50 +165,97 @@ class App extends React.Component {
     return rows
   }
 
-  getRooms(data){
+  getRooms(){
     var rooms = []
-    data.forEach(d => {if(rooms.indexOf(d.room) === -1) {
+    this.state.timetable.forEach(d => {if(rooms.indexOf(d.room) === -1) {
                       rooms.push(d.room);
                       console.log(rooms);
                       }});
     return rooms
   }
 
+  getCourses(){
+    var courses = []
+    this.state.timetable.forEach(d => {if(courses.indexOf(d.name) === -1) {
+                      courses.push(d.name);
+                      console.log(courses);
+                      }});
+    return courses
+  }
+
+  emptyFilter(){
+    this.setState({roomsFilter:[]})
+  }
+
+  //generate table with appropriate filters
+  filterTable(data, allRooms, allCourses){
+    var rooms = [];
+    var courses = [];
+    if(this.state.roomsFilter.length == 0) {
+      rooms = allRooms;
+    }
+    if(this.state.coursesFilter.length == 0) {
+      courses = allCourses;
+    }
+    this.state.roomsFilter.forEach(r => {rooms.push(r.value)});
+    this.state.coursesFilter.forEach(c => {courses.push(c.value)});
+    var timetable = this.state.timetable;
+    var filteredTimetable = [];
+    timetable.forEach(lect => {
+      if (rooms.indexOf(lect.room) != -1 && courses.indexOf(lect.name) != -1){
+        filteredTimetable.push(lect);
+      }
+    })
+    return filteredTimetable
+}
+
   render () {
-    var rows = this.generateRows(this.state.timetable)
-    var timetable = <Timetable rows={rows} hours={this.state.hours} modalOpen={this.state.modalOpen}
-                     openModal={this.openModal} closeModal={this.closeModal} subjects={this.state.subjects} rooms={this.state.rooms}
-                    addLecture={this.addLecture} removeLecture={this.removeLecture}/>
+    var timetable
+    var allRooms = this.getRooms()
+    var allCourses = this.getCourses()
+    var ftable = this.filterTable(this.state.timetable, allRooms, allCourses)
+    var rows = this.generateRows(ftable)
+    timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
+                 removeLecture={this.removeLecture} openModal={this.openModal} closeModal={this.closeModal}
+                 modalOpen={this.state.modalOpen}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
-    var generateBtn = <button onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
-    var rooms = this.getRooms(this.state.timetable)
-    // var dropDown = <MultiSelect placeholder="Select a fruit"
-    //                             options = {rooms.map(
-    //                               room => ({label: room, value: room})
-    //                             )}
-    //                             onValueChange = {value => alert(value)}
-    //                />
-    var dropDown = <MultiSelect
+    var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
+    var emptyFilterBtn = <button onClick={() => {this.emptyFilter()}}>Empty Filter</button>
+
+    var dropDownRooms = <MultiSelect
                     placeholder = "Select room(s)"
                     theme = "material"
-                    options = {rooms.map(
+                    options = {allRooms.map(
                       room => ({label: room, value: room})
                     )}
+                    onValuesChange = {value => {this.setState({roomsFilter : value})}}
                    />
-
+    var dropDownCourses = <MultiSelect
+                          placeholder = "Select Course(s)"
+                          theme = "material"
+                          options = {allCourses.map(
+                            course => ({label: course, value: course})
+                          )}
+                          onValuesChange = {value =>{this.setState({coursesFilter: value})}}
+                          />
     var selectTermDropdown =  <Dropdown
-                                options={this.state.selectable_terms}
-                                placeholder="Select term"
-                                onChange={(e) => {this.onSelectedTermChange(e);} }
-                                value={this.state.selected_term}
-                               />
+                              options={this.state.selectable_terms}
+                              placeholder="Select term"
+                              onChange={(e) => {this.onSelectedTermChange(e);} }
+                              value={this.state.selected_term}
+                             />
     return( <div>
-            {dropDown}
+              <div className ='rows'>
+                <div>{dropDownRooms}</div>
+                <div style={{padding : 5 + 'px'}}></div>
+                <div>{dropDownCourses}</div>
+              </div>
             {timetable}
             {saveBtn}
             {checkBtn}
             {generateBtn}
+            {emptyFilterBtn}
             {selectTermDropdown}
            </div>)
   }
