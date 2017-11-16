@@ -173,6 +173,9 @@ class Teaches(models.Model):
 class CourseYear(models.Model):
     name = models.CharField(max_length=40, null=False)
 
+    def __str__(self):
+        return self.name
+
     def to_asp(self):
         return "course(" + str(self.name) + ")."
 
@@ -203,8 +206,8 @@ class Clash(models.Model):
                                self.subject2.title_asp,
                                ]}
         json_data_inverse = {"id":"clash",
-                             "params":[self.subject.title_asp,
-                                       self.subject2.title_asp,
+                             "params":[self.subject2.title_asp,
+                                       self.subject.title_asp,
                                       ]}
-        return asp_manipulators.json_term_to_asp_string(json_data) + \
+        return asp_manipulators.json_term_to_asp_string(json_data) + '.\n' + \
             asp_manipulators.json_term_to_asp_string(json_data_inverse)

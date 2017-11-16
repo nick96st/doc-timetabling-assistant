@@ -83,6 +83,10 @@ class ASPCodeGenerator():
             for teaching in teachings:
                 obj_def_string = append_new_definition(obj_def_string, teaching)
 
+        # generate clashes
+        for clash in ta_models.Clash.objects.all():
+                obj_def_string = append_new_definition(obj_def_string, clash)
+
         return obj_def_string.lower()
 
 # Optional step which is used when you want to define that some
