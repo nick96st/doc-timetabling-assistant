@@ -3,6 +3,7 @@ import {render} from 'react-dom';
 import TimetableSlot from './TimetableSlot.jsx';
 import Modal from 'react-modal';
 import Dropdown from 'react-dropdown';
+import FontAwesome from 'react-fontawesome';
 
 
 class Timetable extends React.Component{
@@ -55,7 +56,7 @@ class Timetable extends React.Component{
           courses.push (<div><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
                         <button onClick={()=>this.deleteLecture(lect)}> Delete </button></div>)
         })
-        cols.push(<td>{courses}</td>)
+        cols.push(<td>{courses}<a onClick={()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome></a></td>)
       }
       }
       rowItems.push(<tr>{cols}</tr>)
