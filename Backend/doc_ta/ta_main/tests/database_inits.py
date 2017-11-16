@@ -183,7 +183,7 @@ def Generate4thYearCourses():
 
 def InitFourthYearSelectableCoursesAutumn():
     term_1 = ta_models.Term.objects.filter(name="Term 1").first()
-    course_4 = ta_models.CourseYear.objects.filter(name="ComputingY3").first()
+    course_4 = ta_models.CourseYear.objects.filter(name="ComputingY4").first()
 
     create_subject("Separation Logic","seplogic",3,404, "S",50,term_1, course_4)
     create_subject("Concurrent Processes","concurentproc",3,406, "S",50,term_1, course_4)
