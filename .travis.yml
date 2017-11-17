@@ -10,4 +10,4 @@ before_install:
 
 script:
   - docker-compose run web python Backend/doc_ta/manage.py migrate
-  - docker-compose run web python Backend/doc_ta/manage.py test
+  - docker-compose run web python Backend/doc_ta/manage.py test ta_main.tests_no_asp
