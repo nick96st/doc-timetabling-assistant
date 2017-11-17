@@ -34,8 +34,10 @@ class ASPCodeGenerator():
     unique_timeslot_unless_allowed = constraint(":- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).")
     # Students have maximum 6 hours a days
     max_six_hour_a_day = constraint(":- not max_six_hour_a_day(D,Y), timeslot(D,_), course(Y).")
-    # Each room is used for one lecture each timeslot
-    unique_room = constraint(":- class_with_year(T,R1,D,_,_), class_with_year(T,R2,D,_,_), R1!=R2.")
+    # Lectures on the same day must be in the same room(OR even hour)
+    unique_room_lecture = constraint(":- class_with_year(T,R1,D,_,_), class_with_year(T,R2,D,_,_), R1!=R2.")
+    # Every room can have 1 lecture at a time
+    unique_room = constraint(":- class_with_year(T,R,D,S,_), class_with_year(Q,R,D,S,_), T!=Q.\n")
 
     constraint_dictionary = { "Each class has enough hour per week" : enough_hour
                             , "No three consecutive lectures" : no_three_consecutive_lectures
@@ -45,6 +47,7 @@ class ASPCodeGenerator():
                             , "Room should not have clashes" : unique_room
                             , "Only allow clashes of timeslot if stated" : unique_timeslot_unless_allowed
                             , "Students have max 6 hour a day" : max_six_hour_a_day
+                            , "Lecture is in exactly one room at a day": unique_room_lecture
                             }
 
 
@@ -104,8 +107,8 @@ class ASPCodeGenerator():
         # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
         # for subject in self.subjects:
         #         axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
-        axiom_constraints_string += "class_has_enough_hours(T):- H { class_with_year(T,_,_,_,_) } H , subject(T,_,H)." + \
-                                    "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y)." + \
+        axiom_constraints_string += "class_has_enough_hours(T):- H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n" + \
+                                    "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
                                     "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n" + \
                                     "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
                                     "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n" + \
