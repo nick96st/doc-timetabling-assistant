@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.contrib import admin
 import asp_manipulators
 
 # Create your models here.
@@ -19,13 +18,6 @@ class SavedTable(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class SavedTableAdmin(admin.ModelAdmin):
-    list_display = ['name']
-
-
-admin.site.register(SavedTable, SavedTableAdmin)
 
 
 days_choices = [('M','Monday'),
@@ -51,13 +43,6 @@ class Timeslot(models.Model):
 
     def to_asp(self):
         return "timeslot(" + str(self.day) + "," + str(self.hour) + ")"
-
-
-class TimeslotAdmin(admin.ModelAdmin):
-    list_display = ['day', 'hour']
-
-
-admin.site.register(Timeslot,TimeslotAdmin)
 
 
 # Course
@@ -90,12 +75,6 @@ class Subject(models.Model):
         self.assign_asp_suitable_name()
         super(Subject, self).save(*args, **kwargs)
 
-class SubjectAdmin(admin.ModelAdmin):
-    list_display = ['code', 'title', 'hours', 'population_estimate']
-
-
-admin.site.register(Subject, SubjectAdmin)
-
 
 class Room(models.Model):
     room_name = models.CharField(max_length=10)
@@ -109,13 +88,6 @@ class Room(models.Model):
 
     def to_asp(self):
         return "room(" + self.room_name + "," + str(self.room_size) + ")"
-
-
-class RoomAdmin(admin.ModelAdmin):
-    list_display = ['room_name', 'room_size']
-
-
-admin.site.register(Room, RoomAdmin)
 
 
 # Object that will defined saved allocated timeslot-lecture
@@ -162,9 +134,80 @@ class LectureClass(models.Model):
         return self
 
 
+class Term(models.Model):
+    name = models.CharField(max_length=20)
+    number_of_weeks = models.IntegerField()
 
-class LectureClassAdmin(admin.ModelAdmin):
-    list_display = ['room', 'subject', 'time_slot','save_it_belongs_to']
+    def __str__(self):
+        return self.name
 
 
-admin.site.register(LectureClass,LectureClassAdmin)
+class ClassTerm(models.Model):
+    term = models.ForeignKey(Term)
+    subject = models.ForeignKey(Subject)
+    # Note:doesnt have to_asp since term is disjoint and everything generated will belong to
+    #      exactly 1 term
+
+
+class Lecturer(models.Model):
+    first_name = models.CharField(max_length=40)
+    surname = models.CharField(max_length=40)
+
+    def __str__(self):
+        return str(self.first_name) + " " + str(self.surname)
+
+
+class Teaches(models.Model):
+    lecturer = models.ForeignKey(Lecturer)
+    subject = models.ForeignKey(Subject)
+
+    def to_asp(self):
+        json_data = {"id": "teaches",
+                     "params": [asp_manipulators.string_to_asp_suitable(str(self.lecturer)),
+                                self.subject.title_asp],
+                     }
+        # reads: teaches(lecturer,subject)
+        return asp_manipulators.json_term_to_asp_string(json_data)
+
+
+class CourseYear(models.Model):
+    name = models.CharField(max_length=40, null=False)
+
+    def __str__(self):
+        return self.name
+
+    def to_asp(self):
+        return "course(" + str(self.name) + ")."
+
+class SubjectsCourses(models.Model):
+    subject = models.ForeignKey(Subject)
+    courseyear = models.ForeignKey(CourseYear)
+
+    # reads: subjectincourse(subject_name,course_name)
+    def to_asp(self):
+        json_data = {"id": "subjectincourse",
+                     "params": [self.subject.title_asp,
+                                asp_manipulators.string_to_asp_suitable(self.courseyear.name),
+                                ]
+                     }
+        return asp_manipulators.json_term_to_asp_string(json_data)
+
+
+class Clash(models.Model):
+    subject  = models.ForeignKey(Subject, related_name="subject1")
+    subject2 = models.ForeignKey(Subject, related_name="subject2")
+
+    def __str__(self):
+        return str(self.subject) + " can clash with " + str(self.subject2)
+
+    def to_asp(self):
+        json_data = {"id":"clash",
+                     "params":[self.subject.title_asp,
+                               self.subject2.title_asp,
+                               ]}
+        json_data_inverse = {"id":"clash",
+                             "params":[self.subject2.title_asp,
+                                       self.subject.title_asp,
+                                      ]}
+        return asp_manipulators.json_term_to_asp_string(json_data) + '.\n' + \
+            asp_manipulators.json_term_to_asp_string(json_data_inverse)

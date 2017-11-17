@@ -36,25 +36,42 @@ def get_index(request):
 
 @csrf_exempt
 def generate_table(request):
+    term_name = request.GET.get("term",None)
+    # term_name = json.loads(request.body)["term"]
+    if not term_name:
+        return response.HttpResponseBadRequest("No term field")
     codegen = asp_code_generator.CodeGeneratorBuilder()
+    codegen.for_term(term_name)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
-    generator.generate_code('default_001.in')
+    try:
+        generator.generate_code('default_001.in')
+    except asp_code_generator.CodeGeneratorException:
+        response.HttpResponseServerError()
     run_clingo('./default_001.in','./default_001.out')
-    result = generator.parse_result('default_001.out')
+    asp_status = generator.get_result_status('./default_001.out')
+    output = {"status":asp_status,"solutions":[]}
+    # if there are solutions, gets them
+    if asp_status == "SATISFIABLE" or asp_status == "OPTIMAL":
+        output["solutions"] = generator.parse_result('default_001.out')
 
-    return response.HttpResponse(content=result)
+    # TODO: fix frontend to handle empty arrays adn remove this
+    output["solutions"].append([{"time":12, "day":"Monday", "room": "308", "name":"Architecture"},
+                            {"time": 13, "day": "Monday", "room": "308", "name": "Architecture"}])
+    return response.HttpResponse(content=json.dumps(output), content_type="application/json")
 
 @csrf_exempt
 def check_constraints(request):
     # grid_objects = request["data"]["grid_objects"]
     timetable = json.loads(request.body)["timetable"]
+    term_name = json.loads(request.body)["term"]
     # hard_constraints = request.data["constraints"]
     # soft_constraints = request.data[""]
     if not timetable:
         return response.HttpResponseBadRequest('No grid objects data given')
-
+    if not term:
+        return response.HttpResponseBadRequest("No term specified")
     # create models from json
     grid_objects = []
     for obj in timetable:
@@ -64,11 +81,17 @@ def check_constraints(request):
 
     # build pattern
     codegen = asp_code_generator.CodeGeneratorBuilder()
+    codegen.for_term(term_name)
     codegen.with_result_facts(grid_objects)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
-    generator.generate_code('default_001.in')
+    # check if code generator generates without exceptions
+    try:
+        generator.generate_code('default_001.in')
+    except asp_code_generator.CodeGeneratorException:
+        response.HttpResponseServerError()
+    # runs clingo
     run_clingo('./default_001.in','./default_001.out')
     code_result = generator.get_result_status('default_001.out')
     return response.HttpResponse(content=code_result)
@@ -95,18 +118,37 @@ def save_timetable(request):
 
     return response.HttpResponse(status=200)
 
+@csrf_exempt
+def get_term_choices(request):
+    all_terms = ta_models.Term.objects.all()
+    term_list = []
+    for term in all_terms:
+        term_list.append(term.name)
+
+    return response.HttpResponse(content=json.dumps(term_list))
 
 @csrf_exempt
-def init_timeslots_DoC(request):
-    for i in range(9,18):
-        for day in ta_models.days_choices:
-            if ta_models.Timeslot.objects.filter(day=day[0], hour=i).first() is None:
-                # return response.HttpResponse(content="does not have item")
-                model = ta_models.Timeslot()
-                model.hour = i
-                model.day = day[0]
-                model.save()
+def get_subject_choices(request):
+    all_subjects = ta_models.Subject.objects.all()
+    subject_list = []
+    for subject in all_subjects:
+        subject_list.append(subject.title)
 
+    return response.HttpResponse(content=json.dumps(subject_list))
+
+@csrf_exempt
+def get_room_choices(request):
+    all_rooms = ta_models.Room.objects.all()
+    room_list = []
+    for room in all_rooms:
+        room_list.append(room.room_name)
+
+    return response.HttpResponse(content=json.dumps(room_list))
+
+import tests.database_inits as DB
+@csrf_exempt
+def init_timeslots_DoC(request):
+    DB.generate_all()
     return response.HttpResponse()
 
 
