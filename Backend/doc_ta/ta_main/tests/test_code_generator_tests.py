@@ -17,15 +17,16 @@ class TestCodeGeneratorCases(test.TestCase):
         return codegen.build()
 
     def test_selects_only_proper_term_subjects(self):
-        generator = self.code_gen_build()
-        generator.selected_term = "Term 1"
-
+        generator = asp_code_generator.CodeGeneratorBuilder()
+        generator.for_term("Term 1")
+        generator = generator.build()
         # Note currently only first year term 1 should be init
         expected = ["hardware","logic", "programmingi","mathmethods","descrete"]
+        generator.select_subjects_from_term()
         result = generator.generate_default_object_definitions()
 
         for subject in expected:
-            self.assertEquals(subject in result, True)
+            self.assertEquals(subject in result, True,msg=result)
 
     def test_generates_timeslots(self):
         pass
