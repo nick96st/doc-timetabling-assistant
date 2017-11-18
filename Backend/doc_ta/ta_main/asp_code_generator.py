@@ -17,9 +17,6 @@ def append_new_definition(current, new):
 
 # Generates code from specified objects
 class ASPCodeGenerator():
-    # define term 1 as programming, MM, discrete, logic, hardware
-    term_1 = [120, 145, 142, 140, 112]
-
     # enough hours
     enough_hour = constraint(":- not class_has_enough_hours(T), subject(T,_,_).")
     # no 3 conseuquitive lectures
@@ -44,12 +41,11 @@ class ASPCodeGenerator():
                             , "Force two-hour slot" : two_hour_slot
                             , "Check room capacity" : room_capacity
                             , "Each subject two day a week" : max_two_day_a_week
-                            , "Room should not have clashes" : unique_room
+                            , "Forbid 2 lectures in the same room" : unique_room
                             , "Only allow clashes of timeslot if stated" : unique_timeslot_unless_allowed
                             , "Students have max 6 hour a day" : max_six_hour_a_day
                             , "Lecture is in exactly one room at a day": unique_room_lecture
                             }
-
 
     def __init__(self):
         self.term = ""             # term to be generated on
@@ -160,10 +156,7 @@ class ASPCodeGenerator():
         command_string = "./asp/clingo --outf=2 <" + input_src + ">" + output_src
         os.system(command_string)
 
-# method which runs the stages of code generation
-    def generate_code(self, file_name):
-        code_string = ''
-
+    def select_subjects_from_term(self):
         # fetches the model of the term
         selected_term = ta_models.Term.objects.filter(name=self.term).first()
         if selected_term is None:
@@ -173,6 +166,10 @@ class ASPCodeGenerator():
         for class_term in subjects_queryset:
             self.subjects.append(class_term.subject)
 
+# method which runs the stages of code generation
+    def generate_code(self, file_name):
+        code_string = ''
+        self.select_subjects_from_term()
         code_string += self.generate_default_object_definitions()
         code_string += self.generate_result_facts()
         # checks if we need want to generate classes or just check whether current is ok
