@@ -100,9 +100,6 @@ class ASPCodeGenerator():
 
     def generate_axiom_constraints(self):
         axiom_constraints_string = " "
-        # return "0 { class(T,R,D,S) } 1 :- room(R,_), timeslot(D,S),subject(T,_,_)." + \
-        # for subject in self.subjects:
-        #         axiom_constraints_string += asp_manipulators.number_of_hours_asp(subject)
         axiom_constraints_string += "class_has_enough_hours(T):- H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n" + \
                                     "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
                                     "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n" + \
@@ -110,33 +107,12 @@ class ASPCodeGenerator():
                                     "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n" + \
                                     "force_2_hour_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
         return axiom_constraints_string
-        # return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
 
     def generate_hard_constraints(self):
-        # as follows
-        # enough hours
-        # constraint enough_hour = constraint(":- not class_has_enough_hours(T), subject(T,_,_).")
-        # #  at 1 room at a given time exactly 1 course
-        #
-        # # no 3 conseuquitive lectures
-        # constraint no_three_consecutive_lectures = constraint(":- class(_, _, D, S), class (_, _, D, S+1), class (_, _, D, S+2), timeslot(D, S).")
-        # # if 2 lectures in a day they must follow one another
-        # constraint two_hour_slot = constraint(":- class(T,_,D,S), class(T,_,D,S+Y), Y=2..15.")
-        # # capacity check
-        # constraint room_capacity = constraint(":- class(T,R,_,_),room(R,C),subject(T,S,_), C<S.")
-        # # class should not clash if not allowed
-        # constraint no_clashes = constraint(":- class(A,_,D,S),class(B,_,D,S), A!=B.")
         result = ""
         constraints_list = self.constraint_dictionary.values()
         for c in constraints_list:
             result += c.get_constraint() + "\n"
-
-        # return ":- not class_has_enough_hours(T), subject(T,_,_).\n" + \
-        #        ":- class(T1,R,D,S), class(T2,R,D,S),room(R,_),T1!=T2.\n" + \
-        #         ":- class(_, _, D, S), class (_, _, D, S+1), class (_, _, D, S+2), timeslot(D, S)." +\
-        #         ":- class(T,_,D,S), class(T,_,D,S+Y), Y=2..15.\n" + \
-        #         ":- class(T,R,_,_),room(R,C),subject(T,S,_), C<S." + \
-        #         ":- class(T,X,D,S),class(T,Y,D,S), X!=Y."
 
         return result
 
