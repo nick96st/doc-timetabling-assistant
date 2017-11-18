@@ -70,7 +70,7 @@ def check_constraints(request):
     # soft_constraints = request.data[""]
     if not timetable:
         return response.HttpResponseBadRequest('No grid objects data given')
-    if not term:
+    if not term_name:
         return response.HttpResponseBadRequest("No term specified")
     # create models from json
     grid_objects = []
