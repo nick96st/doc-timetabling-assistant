@@ -54,6 +54,7 @@ class ASPCodeGenerator():
         self.hard_constraints = []
         self.soft_constraints = []
         self.should_generate = True
+        self.status = ""
 
 # define base objects like lectures, timeslots and etc
     def generate_default_object_definitions(self):
@@ -209,9 +210,14 @@ class CodeGeneratorBuilder():
         self.hard_constraints = []
         self.soft_constraints = []
         self.should_generate = True
+        self.status = ""
 
     def for_term(self,term_name):
         self.selected_term = term_name
+        return self
+
+    def perform(self,action_name):
+        self.status = action_name
         return self
 
     def with_result_facts(self, result_facts):
@@ -240,4 +246,5 @@ class CodeGeneratorBuilder():
         code_generator.soft_constraints = [] + self.soft_constraints
         code_generator.should_generate = self.should_generate
         code_generator.term = self.selected_term
+        code_generator.status = self.status
         return code_generator

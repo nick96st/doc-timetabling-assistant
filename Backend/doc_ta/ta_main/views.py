@@ -41,7 +41,7 @@ def generate_table(request):
     if not term_name:
         return response.HttpResponseBadRequest("No term field")
     codegen = asp_code_generator.CodeGeneratorBuilder()
-    codegen.for_term(term_name)
+    codegen.for_term(term_name).perform("GENERATE")
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
@@ -81,7 +81,7 @@ def check_constraints(request):
 
     # build pattern
     codegen = asp_code_generator.CodeGeneratorBuilder()
-    codegen.for_term(term_name)
+    codegen.for_term(term_name).perform("CHECK")
     codegen.with_result_facts(grid_objects)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
