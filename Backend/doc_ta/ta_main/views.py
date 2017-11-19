@@ -50,12 +50,12 @@ def generate_table(request):
     except asp_code_generator.CodeGeneratorException:
         response.HttpResponseServerError()
     run_clingo('./default_001.in','./default_001.out')
-    asp_status = generator.get_result_status('./default_001.out')
-    output = {"status":asp_status,"solutions":[]}
+    success, result = generator.parse_result('./default_001.out')
+    output = {"status":"","solutions":[]}
     # if there are solutions, gets them
-    if asp_status == "SATISFIABLE" or asp_status == "OPTIMAL":
-        output["solutions"] = generator.parse_result('default_001.out')
-
+    if success:
+        output["solutions"] = result
+        output["status"] = generator.get_result_status('./default_001.out')
     # TODO: fix frontend to handle empty arrays adn remove this
     output["solutions"].append([{"time":12, "day":"Monday", "room": "308", "name":"Architecture"},
                             {"time": 13, "day": "Monday", "room": "308", "name": "Architecture"}])
@@ -64,21 +64,27 @@ def generate_table(request):
 @csrf_exempt
 def check_constraints(request):
     # grid_objects = request["data"]["grid_objects"]
-    timetable = json.loads(request.body)["timetable"]
-    term_name = json.loads(request.body)["term"]
+
+    try:
+        timetable = json.loads(request.body)['timetable']
+        if not timetable:
+            return response.HttpResponseBadRequest("No timetable specified")
+    except ValueError:
+        return response.HttpResponseBadRequest("No timetable specified")
+    try:
+        term_name = json.loads(request.body)["term"]
+        if not term_name:
+            return response.HttpResponseBadRequest("No term specified")
+    except ValueError:
+        return response.HttpResponseBadRequest("No term specified")
     # hard_constraints = request.data["constraints"]
     # soft_constraints = request.data[""]
-    if not timetable:
-        return response.HttpResponseBadRequest('No grid objects data given')
-    if not term_name:
-        return response.HttpResponseBadRequest("No term specified")
     # create models from json
     grid_objects = []
     for obj in timetable:
         model = ta_models.LectureClass()
         model.init_from_json(obj)
         grid_objects.append(model)
-
     # build pattern
     codegen = asp_code_generator.CodeGeneratorBuilder()
     codegen.for_term(term_name).perform("CHECK")
@@ -90,12 +96,16 @@ def check_constraints(request):
     try:
         generator.generate_code('default_001.in')
     except asp_code_generator.CodeGeneratorException:
-        response.HttpResponseServerError()
+        response.HttpResponseServerError("Code generator failed")
     # runs clingo
     run_clingo('./default_001.in','./default_001.out')
-    code_result = generator.get_result_status('default_001.out')
-    return response.HttpResponse(content=code_result)
-
+    success, violations = generator.parse_result('default_001.out')
+    # if success then send the list of violations
+    if success:
+        return response.HttpResponse(content=violations)
+    # if not success then something has gone wrong since it asp result should be SATISFIABLE(no hard constraints)
+    else:
+        return response.HttpResponseServerError("ASP result is not satisfiable")
 
 @csrf_exempt
 def save_timetable(request):

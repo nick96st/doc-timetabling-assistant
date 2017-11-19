@@ -170,28 +170,56 @@ class ASPCodeGenerator():
 
 
 # Parses json result as list of solutions in json format suitable for frontend display
+# Returns: (success, array of solutions if generating/array of violations if checking)
     def parse_result(self,file_name):
         data = self.read_from_asp_result(file_name)
         data_dict = json.loads(data)
+        # check if there are solutions
+        result_status = data_dict["Result"]
+        if result_status == "UNSATISFIABLE" or result_status == "UNKNOWN":
+            return False, []
+
         all_results = data_dict["Call"][0]["Witnesses"]
 
-        tokenized_results = {"results": []}
+        # gets from string to json format of id and params for each solution
+        tokenized_results = []
         for result in all_results:
             asp_terms = []
             for item in result["Value"]:
                 asp_terms.append(asp_manipulators.tokenize_asp_term(item))
 
-            tokenized_results["results"].append(asp_terms)
+            tokenized_results.append(asp_terms)
 
-        json_solutions = []
-        for solution in tokenized_results["results"]:
-            actual_json = []
-            for lecture_class in solution:
-                actual_json.append(ta_models.LectureClass().from_asp(lecture_class).to_json_for_frontend())
+        # IF IT IS CHECKER ONLY NEED TO SEE IF GENERATED CONSTRAINTS
+        if self.status == "CHECK":
+            json_solutions = []
+            constraint_violations = []
+            for solution in tokenized_results:
+                # for every solution parse
+                for lecture_class in solution:
+                    if lecture_class["id"] != "class_with_year":
+                        constraint_violations.append(lecture_class)
+                # parses to readable string the violations the checker has generated
+                parsed_violations = []
+                if len(constraint_violations) != 0:
+                    parsed_violations = self.parse_violations(constraint_violations)
 
-            json_solutions.append(actual_json)
-        # code_result = read_from_asp_result('default_001.in')
-        return json_solutions
+                json_solutions.append({"violations":parsed_violations})
+
+            return True, json_solutions
+
+        # IF IT IS GENERATING NO NEED TO CHECK FOR CONSTRAINTS
+        elif self.status == "GENERATE":
+            json_solutions = []
+            for solution in tokenized_results:
+                result_array = []
+                # for every solution parse
+                for lecture_class in solution:
+                        result_array.append(ta_models.LectureClass().from_asp(lecture_class).to_json_for_frontend())
+
+                json_solutions.append(result_array)
+            # code_result = read_from_asp_result('default_001.in')
+            return True, json_solutions
 
 
 # Returns only result status of a asp
