@@ -57,6 +57,7 @@ class ASPCodeGenerator():
         self.soft_constraints = []
         self.should_generate = True
         self.status = ""
+        self.file_name = "default_001"
 
 # define base objects like lectures, timeslots and etc
     def generate_default_object_definitions(self):
@@ -141,9 +142,14 @@ class ASPCodeGenerator():
         f.close()
         return data
 
-    @staticmethod
-    def run_clingo(input_src, output_src):
-        command_string = "./asp/clingo --outf=2 <" + input_src + ">" + output_src
+    def run_clingo(self,input_src=None,output_src=None):
+        if input_src is None:
+            input_src = self.file_name+'.in'
+        # takes inputs source and gets the name before "." for the out file
+        if output_src is None:
+            output_src = str(input_src).split('.')[0] + '.out'
+
+        command_string = "./asp/clingo --outf=2 <" + './' + input_src + ">" + './' + output_src
         os.system(command_string)
 
     def select_subjects_from_term(self):
@@ -157,7 +163,11 @@ class ASPCodeGenerator():
             self.subjects.append(class_term.subject)
 
 # method which runs the stages of code generation
-    def generate_code(self, file_name):
+    def generate_code(self, file_name=None):
+        # if call does not specify the file use the filed defined on creation
+        if file_name is None:
+            file_name = self.file_name + '.in'
+
         code_string = ''
         self.select_subjects_from_term()
         code_string += self.generate_default_object_definitions()
@@ -180,15 +190,18 @@ class ASPCodeGenerator():
         fd.close()
 
     def run(self,file_name='default_001'):
-        self.generate_code(file_name)
+        self.generate_code()
         # TODO: make run_clingo function call async with cancellation token
         self.run_clingo(file_name + '.in', file_name + '.out')
-        return self.read_from_asp_result(file_name + '.out')
+        # return self.read_from_asp_result(file_name + '.out')
 
 
 # Parses json result as list of solutions in json format suitable for frontend display
 # Returns: (success, array of solutions if generating/array of violations if checking)
-    def parse_result(self,file_name):
+    def parse_result(self,file_name=None):
+        # if call does not specify the file use the filed defined on creation
+        if file_name is None:
+            file_name = self.file_name + '.out'
         data = self.read_from_asp_result(file_name)
         data_dict = json.loads(data)
         # check if there are solutions
@@ -240,7 +253,9 @@ class ASPCodeGenerator():
 
 
 # Returns only result status of a asp
-    def get_result_status(self,file_name):
+    def get_result_status(self,file_name=None):
+        if file_name is None:
+            file_name = self.file_name + '.out'
         data = self.read_from_asp_result(file_name)
         data_dict = json.loads(data)
         return data_dict["Result"]

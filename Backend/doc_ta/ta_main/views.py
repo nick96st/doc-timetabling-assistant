@@ -29,16 +29,16 @@ def generate_table(request):
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
     try:
-        generator.generate_code('default_001.in')
+        generator.generate_code()
     except asp_code_generator.CodeGeneratorException:
         response.HttpResponseServerError()
-    generator.run_clingo('./default_001.in','./default_001.out')
-    success, result = generator.parse_result('./default_001.out')
+    generator.run_clingo()
+    success, result = generator.parse_result()
     output = {"status":"","solutions":[]}
     # if there are solutions, gets them
     if success:
         output["solutions"] = result
-        output["status"] = generator.get_result_status('./default_001.out')
+        output["status"] = generator.get_result_status()
     # TODO: fix frontend to handle empty arrays adn remove this
     output["solutions"].append([{"time":12, "day":"Monday", "room": "308", "name":"Architecture"},
                             {"time": 13, "day": "Monday", "room": "308", "name": "Architecture"}])
@@ -78,12 +78,12 @@ def check_constraints(request):
     generator = codegen.build()
     # check if code generator generates without exceptions
     try:
-        generator.generate_code('default_001.in')
+        generator.generate_code()
     except asp_code_generator.CodeGeneratorException:
         response.HttpResponseServerError("Code generator failed")
     # runs clingo
-    generator.run_clingo('./default_001.in','./default_001.out')
-    success, violations = generator.parse_result('default_001.out')
+    generator.run_clingo()
+    success, violations = generator.parse_result()
     # if success then send the list of violations
     if success:
         return response.HttpResponse(content=violations)
