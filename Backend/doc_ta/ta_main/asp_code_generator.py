@@ -102,23 +102,32 @@ class ASPCodeGenerator():
 
     def generate_axiom_constraints(self):
         axiom_constraints_string = " "
-        axiom_constraints_string += "class_has_enough_hours(T):- not H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n" + \
-                                    "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
+        for constraint in self.hard_constraints:
+            axiom_constraints_string += Constraints.constraint_creator(constraint)
+
+        axiom_constraints_string += "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
                                     "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n" + \
                                     "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
                                     "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n" + \
                                     "force_2_hour_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
+                                    #"class_has_enough_hours(T):- not H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n"
+
         return axiom_constraints_string
 
     def generate_hard_constraints(self):
 
-        result = ""
+        result_string = ""
+        # generate hard constraint negators if generating
         if self.status == "GENERATE":
-            constraints_list = self.constraint_dictionary.values()
-            for c in constraints_list:
-                result += c.get_constraint() + "\n"
+            for constraint in self.hard_constraints:
+                result_string += Constraints.constraint_negator(constraint)
 
-        return result
+        # TODO: Comment this out when all the constraints are parsed into new format
+        constraints_list = self.constraint_dictionary.values()
+        for c in constraints_list:
+            result_string += c.get_constraint() + "\n"
+
+        return result_string
 
     def generate_soft_constraints(self):
         return ""
@@ -160,7 +169,7 @@ class ASPCodeGenerator():
         code_string += self.generate_soft_constraints()
         # generate result we are interested in(class objects)
         code_string += "#show class_with_year/5."
-        self.hard_constraints.append("Each class to have enough hours.")
+        # ask to display facts generated from violations when checking
         if self.status == "CHECK":
             for constraint in self.hard_constraints:
                 code_string += Constraints.constraint_show(constraint)
@@ -243,13 +252,15 @@ class ASPCodeGenerator():
 
         return notification_list
 
+
 # Build pattern for the code generator to define which constraints
 # facts, and object definitions to have
 class CodeGeneratorBuilder():
     def __init__(self):
         self.selected_term = ""
         self.result_facts = []
-        self.hard_constraints = []
+        # Default hard constraints are all the defined keys in the verbose map table
+        self.hard_constraints = Constraints.constraint_table_parse_verbose.keys()
         self.soft_constraints = []
         self.should_generate = True
         self.status = ""
