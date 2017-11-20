@@ -2,7 +2,6 @@ from django import test
 from ta_main import asp_manipulators
 from ta_main import models as ta_models
 from ta_main import asp_code_generator
-from ta_main import views
 from ta_main.tests import database_inits as DatabaseInits
 
 
@@ -23,7 +22,7 @@ def invoke_codegen_sequence_with_facts(grid_objects,term="Term 1"):
     generator = codegen.build()
     generator.should_generate = True
     generator.generate_code('test_001.in')
-    views.run_clingo('./test_001.in', './test_001.out')
+    generator.run_clingo('./test_001.in', './test_001.out')
     code_result = generator.get_result_status('test_001.out')
     return code_result
 
