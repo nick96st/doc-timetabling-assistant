@@ -18,7 +18,7 @@ def append_new_definition(current, new):
 # Generates code from specified objects
 class ASPCodeGenerator():
     # enough hours
-    enough_hour = constraint(":- not class_has_enough_hours(T), subject(T,_,_).")
+    # enough_hour = constraint(":- not class_has_enough_hours(T), subject(T,_,_).")
     # no 3 conseuquitive lectures
     no_three_consecutive_lectures = constraint(":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).")
     # if 2 lectures in a day they must follow one another
