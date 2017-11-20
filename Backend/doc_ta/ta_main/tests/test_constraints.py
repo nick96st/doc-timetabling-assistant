@@ -14,9 +14,9 @@ unsatisfiable = "UNSATISFIABLE"
 satisfiable = "SATISFIABLE"
 
 
-def invoke_codegen_sequence_with_facts(grid_objects):
+def invoke_codegen_sequence_with_facts(grid_objects,term="Term 1"):
     codegen = asp_code_generator.CodeGeneratorBuilder()
-    codegen.for_term("Term 1")
+    codegen.for_term(term).perform("GENERATE")
     codegen.with_result_facts(grid_objects)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
@@ -39,7 +39,29 @@ class HardConstraintsTest(test.TestCase):
         pass
 
     def each_class_has_enough_hours_per_week(self):
-        pass
+        # creates a single subject in the empty Term 3 to easy test
+        term_3 = ta_models.Term.objects.filter(name="Term 3").first()
+        course_1 = ta_models.CourseYear.objects.filter(name="ComputingY1").first()
+        DatabaseInits.create_subject("Test subject","testsubject", 2,1337,"M",100, term_3, course_1)
+
+        facts_less = [ta_models.LectureClass().init_from_json(
+            generate_lectureclass_json("Test subject", "308", "Monday", 10)),]
+        result = invoke_codegen_sequence_with_facts(facts_less,term="Term 3")
+        self.assertEquals(result, unsatisfiable, msg="DOESNT CATCH IF LESS")
+        facts_enough = [ta_models.LectureClass().init_from_json(
+            generate_lectureclass_json("Test subject", "308", "Monday", 10)),
+            ta_models.LectureClass().init_from_json(
+                generate_lectureclass_json("Test subject", "308", "Monday", 11)),]
+        result = invoke_codegen_sequence_with_facts(facts_enough,term="Term 3")
+        self.assertEquals(result, satisfiable, msg="THINKS ENOUGH HOURS ARE UNSATISFIABLE")
+        facts_more = [ta_models.LectureClass().init_from_json(
+            generate_lectureclass_json("Test subject", "308", "Monday", 10)),
+            ta_models.LectureClass().init_from_json(
+                generate_lectureclass_json("Test subject", "308", "Monday", 11)),
+            ta_models.LectureClass().init_from_json(
+                generate_lectureclass_json("Test subject", "308", "Tuesday", 10)),]
+        result = invoke_codegen_sequence_with_facts(facts_more,term="Term 3")
+        self.assertEquals(result, unsatisfiable,msg= "DOESNT CATCH IF MORE THAN EXACT NEEDED")
 
     def test_no_3_consequitive_lectures(self):
         facts = [ta_models.LectureClass().init_from_json( \
