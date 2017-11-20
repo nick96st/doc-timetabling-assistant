@@ -3,7 +3,7 @@ import json
 import asp_manipulators
 from asp_constraints import basic_constraint as constraint
 from exceptions import TypeError
-
+from asp_constraints import ConstraintHandler as Constraints
 
 class CodeGeneratorException(Exception):
     pass
@@ -36,8 +36,9 @@ class ASPCodeGenerator():
     # Every room can have 1 lecture at a time
     unique_room = constraint(":- class_with_year(T,R,D,S,_), class_with_year(Q,R,D,S,_), T!=Q.\n")
 
-    constraint_dictionary = { "Each class has enough hour per week" : enough_hour
-                            , "No three consecutive lectures" : no_three_consecutive_lectures
+    constraint_dictionary = {
+                            # "Each class has enough hour per week" : enough_hour,
+                             "No three consecutive lectures" : no_three_consecutive_lectures
                             , "Force two-hour slot" : two_hour_slot
                             , "Check room capacity" : room_capacity
                             , "Each subject two day a week" : max_two_day_a_week
@@ -101,7 +102,7 @@ class ASPCodeGenerator():
 
     def generate_axiom_constraints(self):
         axiom_constraints_string = " "
-        axiom_constraints_string += "class_has_enough_hours(T):- H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n" + \
+        axiom_constraints_string += "class_has_enough_hours(T):- not H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n" + \
                                     "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
                                     "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n" + \
                                     "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
@@ -110,10 +111,12 @@ class ASPCodeGenerator():
         return axiom_constraints_string
 
     def generate_hard_constraints(self):
+
         result = ""
-        constraints_list = self.constraint_dictionary.values()
-        for c in constraints_list:
-            result += c.get_constraint() + "\n"
+        if self.status == "GENERATE":
+            constraints_list = self.constraint_dictionary.values()
+            for c in constraints_list:
+                result += c.get_constraint() + "\n"
 
         return result
 
@@ -157,6 +160,10 @@ class ASPCodeGenerator():
         code_string += self.generate_soft_constraints()
         # generate result we are interested in(class objects)
         code_string += "#show class_with_year/5."
+        self.hard_constraints.append("Each class to have enough hours.")
+        if self.status == "CHECK":
+            for constraint in self.hard_constraints:
+                code_string += Constraints.constraint_show(constraint)
         # writes the code to file
         fd = open(file_name,'w+')
         fd.write(code_string)
@@ -228,6 +235,13 @@ class ASPCodeGenerator():
         data_dict = json.loads(data)
         return data_dict["Result"]
 
+    def parse_violations(self,violation_terms):
+        notification_list = []
+
+        for violation in violation_terms:
+            notification_list.append(Constraints.constraint_parse(violation["id"], violation["params"]))
+
+        return notification_list
 
 # Build pattern for the code generator to define which constraints
 # facts, and object definitions to have

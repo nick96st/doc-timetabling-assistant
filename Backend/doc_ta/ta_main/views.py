@@ -75,7 +75,7 @@ def check_constraints(request):
         term_name = json.loads(request.body)["term"]
         if not term_name:
             return response.HttpResponseBadRequest("No term specified")
-    except ValueError:
+    except KeyError:
         return response.HttpResponseBadRequest("No term specified")
     # hard_constraints = request.data["constraints"]
     # soft_constraints = request.data[""]

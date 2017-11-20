@@ -72,7 +72,7 @@ class TestCodeGeneratorIntegrationCases(test.TestCase):
                                    content_type="application/json"
                                    )
 
-        self.assertEquals(response.status_code, success_code, msg= response.content)
+        self.assertEquals(response.status_code, success_code, msg=response.content)
         pass
 
     def test_check_table_no_request_param_timetable(self):
