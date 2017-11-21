@@ -35,7 +35,7 @@ class ASPCodeGenerator():
     # Lectures on the same day must be in the same room(OR even hour)
     unique_room_lecture = constraint(":- class_with_year(T,R1,D,_,_), class_with_year(T,R2,D,_,_), R1!=R2.")
     # Every room can have 1 lecture at a time
-    unique_room = constraint(":- class_with_year(T,R,D,S,_), class_with_year(Q,R,D,S,_), T!=Q.\n")
+    # unique_room = constraint(":- class_with_year(T,R,D,S,_), class_with_year(Q,R,D,S,_), T!=Q.\n")
 
     constraint_dictionary = {
                             # "Each class has enough hour per week" : enough_hour,
@@ -43,8 +43,8 @@ class ASPCodeGenerator():
                             # "Force two-hour slot" : two_hour_slot
                             # "Check room capacity" : room_capacity
                             # "Each subject two day a week" : max_two_day_a_week
-                              "Forbid 2 lectures in the same room" : unique_room
-                            , "Only allow clashes of timeslot if stated" : unique_timeslot_unless_allowed
+                            #  "Forbid 2 lectures in the same room" : unique_room
+                              "Only allow clashes of timeslot if stated" : unique_timeslot_unless_allowed
                             , "Students have max 6 hour a day" : max_six_hour_a_day
                             , "Lecture is in exactly one room at a day": unique_room_lecture
                             }

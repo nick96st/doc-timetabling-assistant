@@ -36,6 +36,7 @@ class HasEnoughHoursConstraint():
         return "class_has_enough_hours(T):- not H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n"
 
     def get_negator(self):
+        #why is this not NOT?
         return ":- class_has_enough_hours(T), subject(T,_,_).\n"
 
 
@@ -91,7 +92,15 @@ class ForceTwoHourSlot():
     def constraint_parse(self,param):
         return ""
 
-
+class UniqueRoom():
+    def get_creator(self):
+        return ""
+    def get_negator(self):
+        return ":- class_with_year(T,R,D,S,_), class_with_year(Q,R,D,S,_), T!=Q.\n"
+    def get_show_string(self):
+        return ""
+    def constraint_parse(self,param):
+        return ""
 class ConstraintHandler():
     # static fields
     constraint_table = {
@@ -99,7 +108,8 @@ class ConstraintHandler():
         "no_three_consecutive_lecture" : NoThreeConsecutiveLecture(),
         "two_hour_slot":TwoHourSlot(),
         "check_room_capacity" : CheckRoomCapacity(),
-        "force_2_hour_slot":ForceTwoHourSlot()
+        "force_2_hour_slot":ForceTwoHourSlot(),
+        "unique_room" : UniqueRoom()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "class_has_enough_hours",
@@ -107,7 +117,8 @@ class ConstraintHandler():
         "Force two-hour slot" : "two_hour_slot",
         "Check Room Capacity" : "check_room_capacity",
         #force_2_hour_slot? a bit condusing makesure this is right please
-        "Max_two_day_a_week": "force_2_hour_slot"
+        "Max_two_day_a_week": "force_2_hour_slot",
+        "Forbid 2 lecturers in the same room" : "unique_room"
 
     }
 
