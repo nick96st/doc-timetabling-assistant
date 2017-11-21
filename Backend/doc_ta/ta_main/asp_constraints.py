@@ -101,6 +101,37 @@ class UniqueRoom():
         return ""
     def constraint_parse(self,param):
         return ""
+
+class UniqueTimeslotUnlessAllowed():
+    def get_creator(self):
+        return ""
+    def get_negator(self):
+        return ":- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).\n"
+    def get_show_string(self):
+        return ""
+    def constraint_parse(self,param):
+        return ""
+
+class MaxSixHourADay():
+    def get_creator(self):
+        return "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n"
+    def get_negator(self):
+        return ":- not max_six_hour_a_day(D,Y), timeslot(D,_), course(Y).\n"
+    def get_show_string(self):
+        return "show max_six_hour_a_day/2.\n"
+    def constraint_parse(self,param):
+        return ""
+
+class UniqueRoomLecturer():
+    def get_creator(self):
+        return ""
+    def get_negator(self):
+        return ":-  class_with_year(T,R1,D,_,_), class_with_year(T,R2,D,_,_), R1!=R2. \n"
+    def get_show_string(self):
+        return ""
+    def constraint_parse(self,param):
+        return ""
+
 class ConstraintHandler():
     # static fields
     constraint_table = {
@@ -109,17 +140,24 @@ class ConstraintHandler():
         "two_hour_slot":TwoHourSlot(),
         "check_room_capacity" : CheckRoomCapacity(),
         "force_2_hour_slot":ForceTwoHourSlot(),
-        "unique_room" : UniqueRoom()
+        "unique_room" : UniqueRoom(),
+        "unique_timeslot_unless_allowed" : UniqueTimeslotUnlessAllowed(),
+        "max_six_hour_a_day" : MaxSixHourADay(),
+        "unique_room_lecture" : UniqueRoomLecturer()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "class_has_enough_hours",
         "No three consecutive lecture" : "no_three_consecutive_lecture",
         "Force two-hour slot" : "two_hour_slot",
         "Check Room Capacity" : "check_room_capacity",
-        #force_2_hour_slot? a bit condusing makesure this is right please
-        "Max_two_day_a_week": "force_2_hour_slot",
-        "Forbid 2 lecturers in the same room" : "unique_room"
 
+        #force_2_hour_slot? a bit confusing makesure this is right please
+        "Max_two_day_a_week": "force_2_hour_slot",
+
+        "Forbid 2 lecturers in the same room" : "unique_room",
+        "only allow clashes of time slot if stated" : "unique_timeslot_unless_allowed",
+        "Students have max 6 hours a day" : "max_six_hour_a_day",
+        "Lecture is exactly one room at a day" : "unique_room_lecture"
     }
 
     @staticmethod
