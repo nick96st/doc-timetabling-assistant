@@ -21,7 +21,7 @@ class ASPCodeGenerator():
     # enough hours
     # enough_hour = constraint(":- not class_has_enough_hours(T), subject(T,_,_).")
     # no 3 conseuquitive lectures
-    no_three_consecutive_lectures = constraint(":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).")
+    # no_three_consecutive_lectures = constraint(":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).")
     # if 2 lectures in a day they must follow one another
     two_hour_slot = constraint(":- class_with_year(T,_,D,S,Y), class_with_year(T,_,D,S+X,Y), X=2..8.")
     # capacity check
@@ -39,8 +39,8 @@ class ASPCodeGenerator():
 
     constraint_dictionary = {
                             # "Each class has enough hour per week" : enough_hour,
-                             "No three consecutive lectures" : no_three_consecutive_lectures
-                            , "Force two-hour slot" : two_hour_slot
+                            # "No three consecutive lectures" : no_three_consecutive_lectures
+                              "Force two-hour slot" : two_hour_slot
                             , "Check room capacity" : room_capacity
                             , "Each subject two day a week" : max_two_day_a_week
                             , "Forbid 2 lectures in the same room" : unique_room

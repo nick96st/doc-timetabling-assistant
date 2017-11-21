@@ -38,6 +38,8 @@ class HasEnoughHoursConstraint():
     def get_negator(self):
         return ":- class_has_enough_hours(T), subject(T,_,_)."
 
+
+
     def get_show_string(self):
         return "#show class_has_enough_hours/1."
 
@@ -45,15 +47,28 @@ class HasEnoughHoursConstraint():
         subject_obj = ta_models.Subject.objects.filter(title_asp=params[0]).first()
         return 'Class ' + str(subject_obj.title) + " does not have " + str(subject_obj.hours) + "hours per week."
 
+class NoThreeConsecutiveLecture():
+    def get_creator(self):
+        #no axiom generator
+        return ""
+    def get_negator(self):
+        return ":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y)."
+    def get_show_string(self):
+        #no axiom generate therefore no show function
+        return ""
+    def constraint_parse(self,params):
+        return ""
+
 
 class ConstraintHandler():
     # static fields
     constraint_table = {
-        "class_has_enough_hours": HasEnoughHoursConstraint()
-
+        "class_has_enough_hours": HasEnoughHoursConstraint(),
+        "no_three_consecutive_lecture" : NoThreeConsecutiveLecture()
     }
     constraint_table_parse_verbose = {
-        "Each class to have enough hours.": "class_has_enough_hours"
+        "Each class to have enough hours.": "class_has_enough_hours",
+        "No three consecutive lecture" : "no_three_consecutive_lecture"
     }
 
     @staticmethod
