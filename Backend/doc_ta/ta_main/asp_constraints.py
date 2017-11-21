@@ -51,6 +51,7 @@ class HasEnoughHoursConstraint():
 class NoThreeConsecutiveLecture():
     def get_creator(self):
         #no axiom generator
+        #(Do we leave it blank or we can generate an axiom for all those that dont have one)
         return ""
     def get_negator(self):
         return ":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).\n"
@@ -58,6 +59,8 @@ class NoThreeConsecutiveLecture():
         #no axiom generate therefore no show function
         return ""
     def constraint_parse(self,params):
+        #Yotov please add in the constraint_parse implementations
+        #I am not sure about the structure and dont want to mess it up
         return ""
 
 class TwoHourSlot():
