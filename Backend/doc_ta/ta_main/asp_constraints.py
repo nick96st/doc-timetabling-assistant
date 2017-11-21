@@ -36,12 +36,12 @@ class HasEnoughHoursConstraint():
         return "class_has_enough_hours(T):- not H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n"
 
     def get_negator(self):
-        return ":- class_has_enough_hours(T), subject(T,_,_)."
+        return ":- class_has_enough_hours(T), subject(T,_,_).\n"
 
 
 
     def get_show_string(self):
-        return "#show class_has_enough_hours/1."
+        return "#show class_has_enough_hours/1.\n"
 
     def constraint_parse(self, params):
         subject_obj = ta_models.Subject.objects.filter(title_asp=params[0]).first()
@@ -52,7 +52,7 @@ class NoThreeConsecutiveLecture():
         #no axiom generator
         return ""
     def get_negator(self):
-        return ":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y)."
+        return ":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).\n"
     def get_show_string(self):
         #no axiom generate therefore no show function
         return ""
@@ -64,24 +64,51 @@ class TwoHourSlot():
         #no axiom generator
         return ""
     def get_negator(self):
-        return ":- class_with_year(T,_,D,S,Y), class_with_year(T,_,D,S+X,Y), X=2..8."
+        return ":- class_with_year(T,_,D,S,Y), class_with_year(T,_,D,S+X,Y), X=2..8.\n"
     def get_show_string(self):
         #no axiom generate therefore no show string
         return ""
     def constraint_parse(self,params):
         return ""
 
+class CheckRoomCapacity():
+    def get_creator(self):
+        return ""
+    def get_negator(self):
+        return ":- class_with_year(T,R,_,_,_),room(R,C),subject(T,S,_), C<S. \n"
+    def get_show_string(self):
+        return ""
+    def constaint_parse(self,param):
+        return ""
+
+class ForceTwoHourSlot():
+    def get_creator(self):
+        return "force_2_hour_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
+    def get_negator(self):
+        return ":- not force_2_hour_slot(T), subject(T,_,_).\n"
+    def get_show_string(self):
+        return "#show force_2_hour_slot/1.\n"
+    def constraint_parse(self,param):
+        return ""
+
+
 class ConstraintHandler():
     # static fields
     constraint_table = {
         "class_has_enough_hours": HasEnoughHoursConstraint(),
         "no_three_consecutive_lecture" : NoThreeConsecutiveLecture(),
-        "two_hour_slot":TwoHourSlot()
+        "two_hour_slot":TwoHourSlot(),
+        "check_room_capacity" : CheckRoomCapacity(),
+        "force_2_hour_slot":ForceTwoHourSlot()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "class_has_enough_hours",
         "No three consecutive lecture" : "no_three_consecutive_lecture",
-        "Force two-hour slot" : "two_hour_slot"
+        "Force two-hour slot" : "two_hour_slot",
+        "Check Room Capacity" : "check_room_capacity",
+        #force_2_hour_slot? a bit condusing makesure this is right please
+        "Max_two_day_a_week": "force_2_hour_slot"
+
     }
 
     @staticmethod
