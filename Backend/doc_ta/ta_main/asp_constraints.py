@@ -85,13 +85,13 @@ class CheckRoomCapacity():
     def constaint_parse(self,param):
         return ""
 
-class ForceTwoHourSlot():
+class LimitDayToFormTwohourSlot():
     def get_creator(self):
-        return "force_2_hour_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
+        return "limit_day_to_form_2h_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
     def get_negator(self):
-        return ":- not force_2_hour_slot(T), subject(T,_,_).\n"
+        return ":- not limit_day_to_form_2h_slot(T), subject(T,_,_).\n"
     def get_show_string(self):
-        return "#show force_2_hour_slot/1.\n"
+        return "#show limit_day_to_form_2h_slot/1.\n"
     def constraint_parse(self,param):
         return ""
 
@@ -142,7 +142,7 @@ class ConstraintHandler():
         "no_three_consecutive_lecture" : NoThreeConsecutiveLecture(),
         "two_hour_slot":TwoHourSlot(),
         "check_room_capacity" : CheckRoomCapacity(),
-        "force_2_hour_slot":ForceTwoHourSlot(),
+        "limit_day_to_form_2h_slot":LimitDayToFormTwohourSlot(),
         "unique_room" : UniqueRoom(),
         "unique_timeslot_unless_allowed" : UniqueTimeslotUnlessAllowed(),
         "max_six_hour_a_day" : MaxSixHourADay(),
@@ -154,8 +154,8 @@ class ConstraintHandler():
         "Force two-hour slot" : "two_hour_slot",
         "Check Room Capacity" : "check_room_capacity",
 
-        #force_2_hour_slot? a bit confusing makesure this is right please
-        "Max_two_day_a_week": "force_2_hour_slot",
+        #limit_day_to_form_2h_slot? a bit confusing makesure this is right please
+        "Limit the number of days have a subject to form 2h slot": "limit_day_to_form_2h_slot",
 
         "Forbid 2 lecturers in the same room" : "unique_room",
         "only allow clashes of time slot if stated" : "unique_timeslot_unless_allowed",
@@ -178,5 +178,3 @@ class ConstraintHandler():
     @staticmethod
     def constraint_show(name):
         return ConstraintHandler.constraint_table[ConstraintHandler.constraint_table_parse_verbose[name]].get_show_string()
-
-
