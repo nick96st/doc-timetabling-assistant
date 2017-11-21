@@ -122,7 +122,7 @@ class ASPCodeGenerator():
         # generate hard constraint negators if generating
         if self.status == "GENERATE":
             for constraint in self.hard_constraints:
-                result_string += Constraints.constraint_negator(constraint)
+                result_string += Constraints.constraint_negator(constraint) + "\n"
 
         # TODO: Comment this out when all the constraints are parsed into new format
         constraints_list = self.constraint_dictionary.values()
