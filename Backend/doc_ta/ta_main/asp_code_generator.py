@@ -107,6 +107,7 @@ class ASPCodeGenerator():
         for constraint in self.hard_constraints:
             axiom_constraints_string += Constraints.constraint_creator(constraint)
 
+        ######## do we leave the rest of the generators here while some of the other are put in class?
         axiom_constraints_string += "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
                                     "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
                                     "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n"
