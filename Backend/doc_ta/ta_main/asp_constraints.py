@@ -59,16 +59,29 @@ class NoThreeConsecutiveLecture():
     def constraint_parse(self,params):
         return ""
 
+class TwoHourSlot():
+    def get_creator(self):
+        #no axiom generator
+        return ""
+    def get_negator(self):
+        return ":- class_with_year(T,_,D,S,Y), class_with_year(T,_,D,S+X,Y), X=2..8."
+    def get_show_string(self):
+        #no axiom generate therefore no show string
+        return ""
+    def constraint_parse(self,params):
+        return ""
 
 class ConstraintHandler():
     # static fields
     constraint_table = {
         "class_has_enough_hours": HasEnoughHoursConstraint(),
-        "no_three_consecutive_lecture" : NoThreeConsecutiveLecture()
+        "no_three_consecutive_lecture" : NoThreeConsecutiveLecture(),
+        "two_hour_slot":TwoHourSlot()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "class_has_enough_hours",
-        "No three consecutive lecture" : "no_three_consecutive_lecture"
+        "No three consecutive lecture" : "no_three_consecutive_lecture",
+        "Force two-hour slot" : "two_hour_slot"
     }
 
     @staticmethod
