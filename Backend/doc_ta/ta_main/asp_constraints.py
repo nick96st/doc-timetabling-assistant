@@ -162,11 +162,11 @@ class UniqueRoomLecture():
 
 class ReserveSlot():
     #reserve slots (now only for horizon (first three line) and horizon year in europe(below first three lines))
-    reserved = [["tu",16,"computingy1"],["tu",16,"computingy1"],
+    reserved = [["tu",16,"computingy1"],["tu",17,"computingy1"],
                 ["m",16,"computingy2"], ["m",17,"computingy2"],
                 ["th",16,"computingy3"],["th",17,"computingy3"],["th",16,"computingy4"],["th",17, "computingy4"],
                 ["f",12,"computingy1"],["f",13,"computingy1"],["f",12,"computingy2"],["f",13, "computingy2"]]
-    
+
     def reserve(self,slot):
         #to add reserved slot
         self.reserved.append(slot)
@@ -196,7 +196,7 @@ class ConstraintHandler():
         "check_room_capacity": CheckRoomCapacity(),
         "force_2_hour_slot":ForceTwoHourSlot(),
         "not_unique_room": UniqueRoom(),
-        #"clash_when_not_allowed": UniqueTimeslotUnlessAllowed(),
+        "clash_when_not_allowed": UniqueTimeslotUnlessAllowed(),
         "max_six_hour_a_day": MaxSixHourADay(),
         "not_unique_room_lecture": UniqueRoomLecture(),
         "reserve_slot" : ReserveSlot()
@@ -208,7 +208,7 @@ class ConstraintHandler():
         "Check Room Capacity": "check_room_capacity",
         "Max_two_day_a_week": "force_2_hour_slot",
         "Forbid 2 lectures in the same room": "not_unique_room",
-        #"Only allow clashes of time slot if stated": "clash_when_not_allowed",
+        "Only allow clashes of time slot if stated": "clash_when_not_allowed",
         "Students have max 6 hours a day": "max_six_hour_a_day",
         "Lecture is exactly one room at a day": "not_unique_room_lecture",
         "Reserve slot for specific year" : "reserve_slot"
