@@ -135,6 +135,16 @@ class UniqueRoomLecturer():
     def constraint_parse(self,param):
         return ""
 
+class LecturerClash():
+    def get_creator(self):
+        return "lecturer_clash(L) :- class_with_year(T1,_,D,S,_), class_with_year(T2,_,D,S,_), teaches(L,T1), teaches(L,T2), lecturer(L).\n"
+    def get_negator(self):
+        return ":- lecturer_clash(L). \n"
+    def get_show_string(self):
+        return ""
+    def constraint_parse(self,param):
+        return ""
+
 class ConstraintHandler():
     # static fields
     constraint_table = {
