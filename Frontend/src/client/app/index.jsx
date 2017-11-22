@@ -123,7 +123,7 @@ class App extends React.Component {
 
 
   //generate table with appropriate filters
-  filterTable(data){
+  filterTable(timetable){
     var rooms = [];
     var courses = [];
     if(this.state.roomsFilter.length == 0) {
@@ -134,7 +134,6 @@ class App extends React.Component {
     }
     this.state.roomsFilter.forEach(r => {rooms.push(r.value)});
     this.state.coursesFilter.forEach(c => {courses.push(c.value)});
-    var timetable = data;
     var filteredTimetable = [];
 
     timetable.forEach(lect => {
@@ -142,7 +141,6 @@ class App extends React.Component {
         filteredTimetable.push(lect);
       }
     })
-    console.log(filteredTimetable)
     return filteredTimetable
 }
 
