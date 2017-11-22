@@ -9,7 +9,7 @@ import asp_manipulators
 
 # compares lowerized since we use choices first lowerized as asp code
 def get_verbose_of_choice(current, choices):
-    x = [x[1] for x in choices if x[0].lower() == current][0]
+    x = [x[1] for x in choices if x[0].lower() == current.lower()][0]
     return x
 
 

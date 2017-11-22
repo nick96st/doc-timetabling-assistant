@@ -115,6 +115,33 @@ def save_timetable(request):
 
 
 @csrf_exempt
+def get_load_choices(request):
+
+    all_saves = ta_models.SavedTable.objects.all()
+    saves = []
+
+    for save in all_saves:
+        saves.append({"id":save.id, "name":save.name})
+
+    return response.HttpResponse(content=json.dumps(saves),content_type="application/json")
+
+@csrf_exempt
+def load_save(request):
+    save_id = request.GET.get("save_id", None)
+
+    if not save_id:
+        response.HttpResponseBadRequest("No save identifier given.")
+
+    save_obj = ta_models.SavedTable.objects.get(id=save_id)
+    saved_data = ta_models.LectureClass.objects.filter(save_it_belongs_to=save_obj)
+
+    result = []
+    for item in saved_data:
+        result.append(item.to_json_for_frontend())
+
+    return response.HttpResponse(content=json.dumps(result))
+
+@csrf_exempt
 def get_term_choices(request):
     all_terms = ta_models.Term.objects.all()
     term_list = []
