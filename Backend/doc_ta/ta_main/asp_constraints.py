@@ -166,9 +166,11 @@ class ReserveSlot():
                 ["m",16,"computingy2"], ["m",17,"computingy2"],
                 ["th",16,"computingy3"],["th",17,"computingy3"],["th",16,"computingy4"],["th",17, "computingy4"],
                 ["f",12,"computingy1"],["f",13,"computingy1"],["f",12,"computingy2"],["f",13, "computingy2"]]
+    
     def reserve(self,slot):
         #to add reserved slot
         self.reserved.append(slot)
+
     def get_creator(self):
         result = ""
         for i in self.reserved:
