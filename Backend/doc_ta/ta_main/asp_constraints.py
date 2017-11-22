@@ -167,6 +167,16 @@ class LecturerClash():
     def constraint_parse(self,param):
         return 'Lecturer ' + param[0] + 'has clashes on ' + parse_timeslot(param[1], param[2]) + '.\n'
 
+class MaxFourHourADayLecturer():
+    def get_creator(self):
+        return "max_four_hour_a_day(L,D) :- not { slot_teaches(L,D,_) } 4, timeslot(D,_), lecturer(L). \n"
+    def get_negator(self):
+        return ":- max_four_hour_a_day(L,D). \n"
+    def get_show_string(self):
+        return "#show max_four_hour_a_day/2. \n"
+    def constraint_parse(self,param):
+        return 'Lecturer ' + param[0] + 'has more than four hour on ' + param[1] + "."
+
 class ConstraintHandler():
     # static fields
     constraint_table = {
@@ -178,7 +188,9 @@ class ConstraintHandler():
         "unique_room" : UniqueRoom(),
         "unique_timeslot_unless_allowed" : UniqueTimeslotUnlessAllowed(),
         "max_six_hour_a_day" : MaxSixHourADay(),
-        "unique_room_lecture" : UniqueRoomLecture()
+        "unique_room_lecture" : UniqueRoomLecture(),
+        "lecturer_clash" : LecturerClash(),
+        "max_four_hour_a_day_lecturer" : MaxFourHourADayLecturer()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "class_has_enough_hours",
@@ -192,7 +204,9 @@ class ConstraintHandler():
         "Forbid 2 lecturers in the same room" : "unique_room",
         "only allow clashes of time slot if stated" : "unique_timeslot_unless_allowed",
         "Students have max 6 hours a day" : "max_six_hour_a_day",
-        "Lecture is exactly one room at a day" : "unique_room_lecture"
+        "Lecture is exactly one room at a day" : "unique_room_lecture",
+        "Lecturer can only teach one subject at a time" : "lecturer_clash",
+        "Lecturer teaches max 4 hour a day" : "max_four_hour_a_day_lecturer"
     }
 
     @staticmethod
