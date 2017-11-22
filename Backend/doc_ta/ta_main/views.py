@@ -4,6 +4,7 @@ from django.http import response
 from django.template import loader
 import models as ta_models
 import asp_code_generator
+from asp_constraints import ConstraintHandler as Constraints
 import json
 from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import APIView, permission_classes
@@ -195,6 +196,12 @@ def get_room_choices(request):
         room_list.append(room.room_name)
 
     return response.HttpResponse(content=json.dumps(room_list))
+
+
+@csrf_exempt
+def get_constraint_choices(request):
+    constraints = Constraints.constraint_table_parse_verbose.keys()
+    return response.HttpResponse(content=json.dumps(constraints))
 
 
 import tests.database_inits as DB
