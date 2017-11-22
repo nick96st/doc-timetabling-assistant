@@ -160,6 +160,31 @@ class UniqueRoomLecture():
     def constraint_parse(self,param):
         return 'Lecture ' + parse_subject(param[0]) + ' is not in the same room on ' + ta_models.get_verbose_of_choice(param[1], ta_models.days_choices) + "."
 
+class ReserveSlot():
+    #reserve slots (now only for horizon (first three line) and horizon year in europe(below first three lines))
+    reserved = [["tu",16,"computingy1"],["tu",16,"computingy1"],
+                ["m",16,"computingy2"], ["m",17,"computingy2"],
+                ["th",16,"computingy3"],["th",17,"computingy3"],["th",16,"computingy4"],["th",17, "computingy4"],
+                ["f",12,"computingy1"],["f",13,"computingy1"],["f",12,"computingy2"],["f",13, "computingy2"]]
+    def reserve(self,slot):
+        #to add reserved slot
+        self.reserved.append(slot)
+    def get_creator(self):
+        result = ""
+        for i in self.reserved:
+            result += "reserve(%s,%d,%s). \n" % (i[0],i[1],i[2])
+        result += "reserved_not_in_use(D,S,Y) :- reserve(D,S,Y),class_with_year(_,_,D,S,Y).\n"
+        return result
+
+    def get_negator(self):
+        return ":- reserved_not_in_use(_,_,_).\n"
+
+    def get_show_string(self):
+        return "#show reserved_not_in_use/3.\n"
+
+    def constraint_parse(self,param):
+        return ""
+
 class ConstraintHandler():
     # static fields
     constraint_table = {
@@ -169,9 +194,10 @@ class ConstraintHandler():
         "check_room_capacity": CheckRoomCapacity(),
         "force_2_hour_slot":ForceTwoHourSlot(),
         "not_unique_room": UniqueRoom(),
-        "clash_when_not_allowed": UniqueTimeslotUnlessAllowed(),
+        #"clash_when_not_allowed": UniqueTimeslotUnlessAllowed(),
         "max_six_hour_a_day": MaxSixHourADay(),
-        "not_unique_room_lecture": UniqueRoomLecture()
+        "not_unique_room_lecture": UniqueRoomLecture(),
+        "reserve_slot" : ReserveSlot()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "not_class_has_enough_hours",
@@ -180,9 +206,10 @@ class ConstraintHandler():
         "Check Room Capacity": "check_room_capacity",
         "Max_two_day_a_week": "force_2_hour_slot",
         "Forbid 2 lectures in the same room": "not_unique_room",
-        "Only allow clashes of time slot if stated": "clash_when_not_allowed",
+        #"Only allow clashes of time slot if stated": "clash_when_not_allowed",
         "Students have max 6 hours a day": "max_six_hour_a_day",
-        "Lecture is exactly one room at a day": "not_unique_room_lecture"
+        "Lecture is exactly one room at a day": "not_unique_room_lecture",
+        "Reserve slot for specific year" : "reserve_slot"
     }
 
     @staticmethod
