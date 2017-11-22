@@ -60,6 +60,8 @@ timeslot(D,S) :- day(D), slot(S).
 class_has_enough_hours(T):- H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).
 1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).
 max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).
+slot_teaches(L,D,S) :- class_with_year(T,_,D,S,_), teaches(L,T).
+
 lecturer_clash(L,D,S) :- class_with_year(T1,_,D,S,_), class_with_year(T2,_,D,S,_), T1!=T2, teaches(L,T1), teaches(L,T2), lecturer(L).
 % in_course(Y) :- class(T,R,D,S), timeslot(D,S), room(R,_), subject(T,_,_), subjectincourse(T,Y), course(Y).
 % class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).

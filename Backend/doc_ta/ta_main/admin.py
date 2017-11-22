@@ -50,7 +50,7 @@ class SubjectsCoursesAdmin(admin.ModelAdmin):
 
 
 class ClashAdmin(admin.ModelAdmin):
-    list_display = ["subject","subject2"]
+    list_display = ["subject1","subject2"]
 
 
 # Register your models here.

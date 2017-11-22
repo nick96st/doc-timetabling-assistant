@@ -178,7 +178,7 @@ class ConstraintHandler():
         "unique_room" : UniqueRoom(),
         "unique_timeslot_unless_allowed" : UniqueTimeslotUnlessAllowed(),
         "max_six_hour_a_day" : MaxSixHourADay(),
-        "unique_room_lecture" : UniqueRoomLecturer()
+        "unique_room_lecture" : UniqueRoomLecture()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "class_has_enough_hours",
