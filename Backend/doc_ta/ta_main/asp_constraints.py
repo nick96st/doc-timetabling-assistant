@@ -159,13 +159,13 @@ class UniqueRoomLecture():
 
 class LecturerClash():
     def get_creator(self):
-        return "lecturer_clash(L) :- class_with_year(T1,_,D,S,_), class_with_year(T2,_,D,S,_), T1!=T2, teaches(L,T1), teaches(L,T2), lecturer(L).\n"
+        return "lecturer_clash(L,D,S) :- class_with_year(T1,_,D,S,_), class_with_year(T2,_,D,S,_), T1!=T2, teaches(L,T1), teaches(L,T2), lecturer(L).\n"
     def get_negator(self):
-        return ":- lecturer_clash(L). \n"
+        return ":- lecturer_clash(L,D,S). \n"
     def get_show_string(self):
-        return ""
+        return "#show lecturer_clash/3. \n"
     def constraint_parse(self,param):
-        return ""
+        return 'Lecturer ' + param[0] + 'has clashes on ' + parse_timeslot(param[1], param[2]) + '.\n'
 
 class ConstraintHandler():
     # static fields
