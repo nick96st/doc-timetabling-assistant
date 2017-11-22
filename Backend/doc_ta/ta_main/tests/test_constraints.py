@@ -161,14 +161,18 @@ class HardConstraintsTest(test.TestCase):
         lecturer = ta_models.Lecturer()
         lecturer.first_name = "Tony"
         lecturer.surname = "Field"
+        lecturer.save()
 
         #assign lecturer to subjects
         teaches1 = ta_models.Teaches()
         teaches1.lecturer = lecturer
         teaches1.subject = ta_models.Subject.objects.get(title="Hardware")
+        teaches1.save()
+
         teaches2 = ta_models.Teaches()
         teaches2.lecturer = lecturer
         teaches2.subject = ta_models.Subject.objects.get(title="Logic")
+        teaches2.save()
 
         #allow subject to clash
         clash1 = ta_models.Clash()
