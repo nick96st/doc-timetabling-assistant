@@ -45,7 +45,7 @@ class_with_year(hardware,308,w,9,y1).
 class_with_year(architecture,311,w,9,y1).
 lecturer(tony).
 teaches(tony, hardware).
-teaches(tony, operating_systems).
+teaches(tony, architecture).
 %lecturer(a,6).
 %lecturer(b,6).
 %lecturer(c,6).

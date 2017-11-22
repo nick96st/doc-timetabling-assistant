@@ -13,6 +13,17 @@ class basic_constraint():
         return self.constraint_string
 
 
+def parse_timeslot(day, hour):
+    return ' at ' + hour + " on " + ta_models.get_verbose_of_choice(day, ta_models.days_choices) + ' '
+
+
+# TODO:
+def parse_year(course):
+    return str(course)
+
+
+def parse_subject(subject):
+    return str(ta_models.Subject.objects.filter(title_asp=subject).first().title)
 # TEMPLATE
 # class BasicCatchableConstraint():
 #
@@ -33,57 +44,56 @@ class basic_constraint():
 
 class HasEnoughHoursConstraint():
     def get_creator(self):
-        return "class_has_enough_hours(T):- not H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n"
+        return "not_class_has_enough_hours(T):- not H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n"
 
     def get_negator(self):
-        #why is this not NOT?
-        return ":- class_has_enough_hours(T), subject(T,_,_).\n"
-
-
+        return ":- not_class_has_enough_hours(T), subject(T,_,_).\n"
 
     def get_show_string(self):
-        return "#show class_has_enough_hours/1.\n"
+        return "#show not_class_has_enough_hours/1.\n"
 
     def constraint_parse(self, params):
         subject_obj = ta_models.Subject.objects.filter(title_asp=params[0]).first()
-        return 'Class ' + str(subject_obj.title) + " does not have " + str(subject_obj.hours) + "hours per week."
+        return 'Class ' + str(subject_obj.title) + " does not have " + str(subject_obj.hours) + " hours per week."
 
 class NoThreeConsecutiveLecture():
     def get_creator(self):
-        #no axiom generator
-        #(Do we leave it blank or we can generate an axiom for all those that dont have one)
-        return ""
+        return "no_three_lectures_in_row(Y,D,S) :- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).\n"
+
     def get_negator(self):
-        return ":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).\n"
+        return ":- no_three_lectures_in_row(_,_,_).\n"
+
     def get_show_string(self):
-        #no axiom generate therefore no show function
-        return ""
+        return "#show no_three_lectures_in_row/3.\n"
+
     def constraint_parse(self,params):
-        #Yotov please add in the constraint_parse implementations
-        #I am not sure about the structure and dont want to mess it up
-        return ""
+        return parse_year(params[0]) + " has 3 or more consequitive hours of lectures starting" + parse_timeslot(params[1],params[2])
 
 class TwoHourSlot():
     def get_creator(self):
-        #no axiom generator
-        return ""
+        return "two_hour_slot(T,D,S):- class_with_year(T,_,D,S,Y), class_with_year(T,_,D,S+X,Y), X=2..8.\n"
+
     def get_negator(self):
-        return ":- class_with_year(T,_,D,S,Y), class_with_year(T,_,D,S+X,Y), X=2..8.\n"
+        return ":- two_hour_slot(_,_,_).\n"
+
     def get_show_string(self):
-        #no axiom generate therefore no show string
-        return ""
+        return "#show two_hour_slot/3.\n"
+
     def constraint_parse(self,params):
-        return ""
+        return 'Subject ' + parse_subject(params[0]) + parse_timeslot(params[1],params[2]) + "violates has lectures not in 2 hours slots."
 
 class CheckRoomCapacity():
     def get_creator(self):
-        return ""
+        return "check_room_capacity(R,D,A):- class_with_year(T,R,D,A,_),room(R,C),subject(T,S,_), C<S. \n"
+
     def get_negator(self):
-        return ":- class_with_year(T,R,_,_,_),room(R,C),subject(T,S,_), C<S. \n"
+        return ":-check_room_capacity(_,_,_). \n"
+
     def get_show_string(self):
-        return ""
+        return "#show check_room_capacity/3.\n "
+
     def constaint_parse(self,param):
-        return ""
+        return 'Room ' + param[0] + "does not have enough capacity for subject at time " + param[2] + " " + param[1] + "."
 
 class LimitDayToFormTwohourSlot():
     def get_creator(self):
@@ -93,47 +103,59 @@ class LimitDayToFormTwohourSlot():
     def get_show_string(self):
         return "#show limit_day_to_form_2h_slot/1.\n"
     def constraint_parse(self,param):
-        return ""
+        return 'Subject ' + parse_subject(param[0]) + " is not in 2 hour daily slots."
 
 class UniqueRoom():
     def get_creator(self):
-        return ""
+        return "not_unique_room(R,D,S) :- class_with_year(T,R,D,S,_), class_with_year(Q,R,D,S,_), T!=Q.\n"
+
     def get_negator(self):
-        return ":- class_with_year(T,R,D,S,_), class_with_year(Q,R,D,S,_), T!=Q.\n"
+        return ":- not_unique_room(_,_,_).\n"
+
     def get_show_string(self):
-        return ""
+        return "#show not_unique_room/3.\n"
+
     def constraint_parse(self,param):
-        return ""
+        return 'Room ' + param[0] + " has multiple classes at time " + param[2] + " " + param[1] + "."
 
 class UniqueTimeslotUnlessAllowed():
     def get_creator(self):
-        return ""
+        return "clash_when_not_allowed(A,B,D,S) :- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).\n"
+
     def get_negator(self):
-        return ":- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).\n"
+        return ":- clash_when_not_allowed(_,_,_,_).\n"
+
     def get_show_string(self):
-        return ""
+        return "#show clash_when_not_allowed/4.\n"
+
     def constraint_parse(self,param):
-        return ""
+        return 'Clashes between subjects' + parse_timeslot(param[2], param[3]) + '.'
 
 class MaxSixHourADay():
     def get_creator(self):
-        return "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n"
-    def get_negator(self):
-        return ":- not max_six_hour_a_day(D,Y), timeslot(D,_), course(Y).\n"
-    def get_show_string(self):
-        return "show max_six_hour_a_day/2.\n"
-    def constraint_parse(self,param):
-        return ""
+        return "max_six_hour_a_day(D,Y):- not { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n"
 
-class UniqueRoomLecturer():
-    def get_creator(self):
-        return ""
     def get_negator(self):
-        return ":-  class_with_year(T,R1,D,_,_), class_with_year(T,R2,D,_,_), R1!=R2. \n"
+        return ":- max_six_hour_a_day(D,Y), timeslot(D,_), course(Y).\n"
+
     def get_show_string(self):
-        return ""
+        return "#show max_six_hour_a_day/2.\n"
+
     def constraint_parse(self,param):
-        return ""
+        return 'Course ' + param[1] + " has more than 6 hours a day on " + param[0] + "."
+
+class UniqueRoomLecture():
+    def get_creator(self):
+        return "not_unique_room_lecture(T,D) :- class_with_year(T,R1,D,_,_), class_with_year(T,R2,D,_,_), R1!=R2.\n"
+
+    def get_negator(self):
+        return ":- not_unique_room_lecture(T,D),subject(T,_,_),timeslot(D,_). \n"
+
+    def get_show_string(self):
+        return "#show not_unique_room_lecture/2.\n"
+
+    def constraint_parse(self,param):
+        return 'Lecture ' + parse_subject(param[0]) + ' is not in the same room on ' + ta_models.get_verbose_of_choice(param[1], ta_models.days_choices) + "."
 
 class LecturerClash():
     def get_creator(self):
@@ -148,8 +170,8 @@ class LecturerClash():
 class ConstraintHandler():
     # static fields
     constraint_table = {
-        "class_has_enough_hours": HasEnoughHoursConstraint(),
-        "no_three_consecutive_lecture" : NoThreeConsecutiveLecture(),
+        "not_class_has_enough_hours": HasEnoughHoursConstraint(),
+        "no_three_lectures_in_row": NoThreeConsecutiveLecture(),
         "two_hour_slot":TwoHourSlot(),
         "check_room_capacity" : CheckRoomCapacity(),
         "limit_day_to_form_2h_slot":LimitDayToFormTwohourSlot(),
