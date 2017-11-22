@@ -38,6 +38,7 @@ class Timetable extends React.Component{
     this.props.removeLecture(lect);
   }
 
+
   generateRows(){
     var rowItems = []
     var start = this.props.hours.start
