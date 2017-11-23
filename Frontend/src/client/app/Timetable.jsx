@@ -18,7 +18,7 @@ class Timetable extends React.Component{
 
  generateHeader() {
     var header = <thead/>
-    var headerItems = [<th>Day</th>, <th>9</th>, <th>10</th>, <th>11</th>, <th>12</th> ,<th>13</th>, <th>14</th>, <th>15</th>, <th>16</th> ,<th>17</th>]
+    var headerItems = [<th></th>, <th>Monday</th>, <th>Tuesday</th>, <th>Wednesday</th>, <th>Thursday</th> ,<th>Friday</th>]
     header = <thead>
               <tr>{headerItems}</tr>
             </thead>
@@ -43,24 +43,25 @@ class Timetable extends React.Component{
     var rowItems = []
     var start = this.props.hours.start
     var end = this.props.hours.finish
-    this.props.rows.forEach(r => {
-      var cols = [<td>{r.day}</td>]
-      for (var i = start; i <= end; i++ ){
-        const slot = {time: i, day: r.day}
+    for (var i = start; i<= end; i++){
+      var cols = [<td>{i}</td>]
+      this.props.rows.forEach(r =>{
+        const slot = {time: i, day:r.day}
         if (r[i].length == 0){
           cols.push(<td><a onClick = {()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome><TimetableSlot name = "" room = ""/></a></td>)
         }else{
-        var courses = []
-        r[i].forEach(s => {
-          const lect = s
-          courses.push (<div><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
-                        <button onClick={()=>this.deleteLecture(lect)}> Delete </button></div>)
-        })
-        cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome></button></td>)
-      }
-      }
+          var courses =[]
+          r[i].forEach(s=>{
+            const lect = s
+            courses.push (<div><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
+            <button onClick={()=>this.deleteLecture(lect)}> Delete </button></div>)
+          })
+          cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome></button></td>)
+        }
+
+      })
       rowItems.push(<tr>{cols}</tr>)
-    })
+    }
     return rowItems
   }
 
