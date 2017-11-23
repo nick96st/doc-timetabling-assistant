@@ -1,28 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.http import request, response
+from django.http import response
 from django.template import loader
 import models as ta_models
-from django.shortcuts import render
-import datetime
 import asp_code_generator
-import os
 import json
 from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import APIView, permission_classes
 # from rest_framework.permissions import AllowAny
-
-
-def read_from_asp_result(result_src):
-    f = open(result_src)
-    data = f.read()
-    f.close()
-    return data
-
-
-def run_clingo(input_src, output_src):
-    command_string = "./asp/clingo --outf=2 <" + input_src + ">" + output_src
-    os.system(command_string)
 
 
 # get index page
@@ -32,8 +17,6 @@ def get_index(request):
     return response.HttpResponse(template.render(context,request))
 
 
-# checks if constraints with current table selection succeeds
-
 @csrf_exempt
 def generate_table(request):
     term_name = request.GET.get("term",None)
@@ -41,60 +24,72 @@ def generate_table(request):
     if not term_name:
         return response.HttpResponseBadRequest("No term field")
     codegen = asp_code_generator.CodeGeneratorBuilder()
-    codegen.for_term(term_name)
+    codegen.for_term(term_name).perform("GENERATE")
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
     try:
-        generator.generate_code('default_001.in')
+        generator.generate_code()
     except asp_code_generator.CodeGeneratorException:
         response.HttpResponseServerError()
-    run_clingo('./default_001.in','./default_001.out')
-    asp_status = generator.get_result_status('./default_001.out')
-    output = {"status":asp_status,"solutions":[]}
+    generator.run_clingo()
+    success, result = generator.parse_result()
+    output = {"status":"","solutions":[]}
     # if there are solutions, gets them
-    if asp_status == "SATISFIABLE" or asp_status == "OPTIMAL":
-        output["solutions"] = generator.parse_result('default_001.out')
-
+    if success:
+        output["solutions"] = result
+        output["status"] = generator.get_result_status()
     # TODO: fix frontend to handle empty arrays adn remove this
     output["solutions"].append([{"time":12, "day":"Monday", "room": "308", "name":"Architecture"},
                             {"time": 13, "day": "Monday", "room": "308", "name": "Architecture"}])
     return response.HttpResponse(content=json.dumps(output), content_type="application/json")
 
+
 @csrf_exempt
 def check_constraints(request):
     # grid_objects = request["data"]["grid_objects"]
-    timetable = json.loads(request.body)["timetable"]
-    term_name = json.loads(request.body)["term"]
+
+    try:
+        timetable = json.loads(request.body)['timetable']
+        if not timetable:
+            return response.HttpResponseBadRequest("No timetable specified")
+    except ValueError:
+        return response.HttpResponseBadRequest("No timetable specified")
+    try:
+        term_name = json.loads(request.body)["term"]
+        if not term_name:
+            return response.HttpResponseBadRequest("No term specified")
+    except KeyError:
+        return response.HttpResponseBadRequest("No term specified")
     # hard_constraints = request.data["constraints"]
     # soft_constraints = request.data[""]
-    if not timetable:
-        return response.HttpResponseBadRequest('No grid objects data given')
-    if not term:
-        return response.HttpResponseBadRequest("No term specified")
     # create models from json
     grid_objects = []
     for obj in timetable:
         model = ta_models.LectureClass()
         model.init_from_json(obj)
         grid_objects.append(model)
-
     # build pattern
     codegen = asp_code_generator.CodeGeneratorBuilder()
-    codegen.for_term(term_name)
+    codegen.for_term(term_name).perform("CHECK")
     codegen.with_result_facts(grid_objects)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
     # check if code generator generates without exceptions
     try:
-        generator.generate_code('default_001.in')
+        generator.generate_code()
     except asp_code_generator.CodeGeneratorException:
-        response.HttpResponseServerError()
+        response.HttpResponseServerError("Code generator failed")
     # runs clingo
-    run_clingo('./default_001.in','./default_001.out')
-    code_result = generator.get_result_status('default_001.out')
-    return response.HttpResponse(content=code_result)
+    generator.run_clingo()
+    success, violations = generator.parse_result()
+    # if success then send the list of violations
+    if success:
+        return response.HttpResponse(content=violations)
+    # if not success then something has gone wrong since it asp result should be SATISFIABLE(no hard constraints)
+    else:
+        return response.HttpResponseServerError("ASP result is not satisfiable")
 
 
 @csrf_exempt
@@ -118,6 +113,7 @@ def save_timetable(request):
 
     return response.HttpResponse(status=200)
 
+
 @csrf_exempt
 def get_term_choices(request):
     all_terms = ta_models.Term.objects.all()
@@ -126,6 +122,7 @@ def get_term_choices(request):
         term_list.append(term.name)
 
     return response.HttpResponse(content=json.dumps(term_list))
+
 
 @csrf_exempt
 def get_subject_choices(request):
@@ -136,6 +133,7 @@ def get_subject_choices(request):
 
     return response.HttpResponse(content=json.dumps(subject_list))
 
+
 @csrf_exempt
 def get_room_choices(request):
     all_rooms = ta_models.Room.objects.all()
@@ -144,6 +142,7 @@ def get_room_choices(request):
         room_list.append(room.room_name)
 
     return response.HttpResponse(content=json.dumps(room_list))
+
 
 import tests.database_inits as DB
 @csrf_exempt

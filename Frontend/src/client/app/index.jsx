@@ -54,9 +54,10 @@ class App extends React.Component {
   });
   }
 
-  checkTimetable(timetable) {
+  checkTimetable(state) {
     axios.post('/timetable/check', {
-    timetable: timetable
+    timetable: state.timetable,
+    term: state.selected_term
   })
   .then(function (response) {
     console.log(response);
@@ -219,7 +220,7 @@ class App extends React.Component {
                  removeLecture={this.removeLecture} openModal={this.openModal} closeModal={this.closeModal}
                  modalOpen={this.state.modalOpen} rooms={this.state.rooms} subjects={this.state.subjects}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
-    var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
+    var checkBtn = <button onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
 
     var emptyFilterBtn = <button onClick={() => {this.emptyFilter()}}>Empty Filter</button>
@@ -252,12 +253,13 @@ class App extends React.Component {
                 <div style={{padding : 5 + 'px'}}></div>
                 <div>{dropDownCourses}</div>
               </div>
+            {selectTermDropdown}
             {timetable}
             {saveBtn}
             {checkBtn}
             {generateBtn}
             {emptyFilterBtn}
-            {selectTermDropdown}
+
            </div>)
   }
 
