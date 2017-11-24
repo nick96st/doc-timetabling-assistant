@@ -92,7 +92,7 @@ class CheckRoomCapacity():
     def get_show_string(self):
         return "#show check_room_capacity/3.\n "
 
-    def constaint_parse(self,param):
+    def constraint_parse(self,param):
         return 'Room ' + param[0] + "does not have enough capacity for subject at time " + param[2] + " " + param[1] + "."
 
 class ForceTwoHourSlot():
