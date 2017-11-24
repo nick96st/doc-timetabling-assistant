@@ -22,6 +22,7 @@ class App extends React.Component {
     this.closeModal=this.closeModal.bind(this)
     this.addLecture=this.addLecture.bind(this)
     this.removeLecture=this.removeLecture.bind(this)
+    this.handleRemovingFilter=this.handleRemovingFilter.bind(this)
     this.getInitialData();
   }
 
@@ -145,6 +146,25 @@ class App extends React.Component {
     return filteredTimetable
 }
 
+  handleRemovingFilter(e) {
+      if(e.button == 1) {
+        var prevFilter = this.state.roomsFilter;
+//        console.log("prev",prevFilter,"removes",e.target.textContent);
+        var index = -1;
+        for (var i=0; i < this.state.roomsFilter.length ;i ++) {
+           if(this.state.roomsFilter[i].label == e.target.textContent) {
+            index = i;
+           }
+        }
+        if(index >= 0) {
+        this.state.roomsFilter.splice(index,1);
+        this.setState({roomsFilter: this.state.roomsFilter}); // force rerender
+        }
+        console.log(this);
+      }
+
+    }
+
   render () {
     var timetable
     var ftable = this.filterTable(this.state.timetable)
@@ -164,6 +184,14 @@ class App extends React.Component {
                       room => ({label: room, value: room})
                     )}
                     onValuesChange = {value => {this.setState({roomsFilter : value})}}
+                    renderValue = {(arg$) => {
+                                        var label;
+                                        label = arg$.label;
+                                        return <div className='simple-value'/>,
+                                        <span onClick={(e) => {this.handleRemovingFilter(e)}}>{label}</span>;
+
+                                       }
+                                  }
                    />
     var dropDownCourses = <MultiSelect
                           placeholder = "Select Course(s)"
