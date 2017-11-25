@@ -18,36 +18,6 @@ def append_new_definition(current, new):
 
 # Generates code from specified objects
 class ASPCodeGenerator():
-    # enough hours
-    # enough_hour = constraint(":- not class_has_enough_hours(T), subject(T,_,_).")
-    # no 3 conseuquitive lectures
-    # no_three_consecutive_lectures = constraint(":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).")
-    # if 2 lectures in a day they must follow one another
-    #two_hour_slot = constraint(":- class_with_year(T,_,D,S,Y), class_with_year(T,_,D,S+X,Y), X=2..8.")
-    # capacity check
-    #room_capacity = constraint(":- class_with_year(T,R,_,_,_),room(R,C),subject(T,S,_), C<S.")
-    # limit 2 days a week to form 2hour time_slot
-    #max_two_day_a_week = constraint(":- not force_2_hour_slot(T), subject(T,_,_).")
-    # unique timeslot for each year, allow clashes if stated
-    # unique_timeslot_unless_allowed = constraint(":- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).")
-    # Students have maximum 6 hours a days
-    #max_six_hour_a_day = constraint(":- not max_six_hour_a_day(D,Y), timeslot(D,_), course(Y).")
-    # Lectures on the same day must be in the same room(OR even hour)
-    # unique_room_lecture = constraint(":- class_with_year(T,R1,D,_,_), class_with_year(T,R2,D,_,_), R1!=R2.")
-    # Every room can have 1 lecture at a time
-    # unique_room = constraint(":- class_with_year(T,R,D,S,_), class_with_year(Q,R,D,S,_), T!=Q.\n")
-
-    constraint_dictionary = {
-                            # "Each class has enough hour per week" : enough_hour,
-                            # "No three consecutive lectures" : no_three_consecutive_lectures
-                            # "Force two-hour slot" : two_hour_slot
-                            # "Check room capacity" : room_capacity
-                            # "Each subject two day a week" : max_two_day_a_week
-                            # "Forbid 2 lectures in the same room" : unique_room
-                            # "Only allow clashes of timeslot if stated" : unique_timeslot_unless_allowed
-                            #  "Students have max 6 hour a day" : max_six_hour_a_day
-                            #  "Lecture is in exactly one room at a day": unique_room_lecture
-                            }
 
     def __init__(self):
         self.term = ""             # term to be generated on
@@ -107,13 +77,9 @@ class ASPCodeGenerator():
         for constraint in self.hard_constraints:
             axiom_constraints_string += Constraints.constraint_creator(constraint)
 
-        ######## do we leave the rest of the generators here while some of the other are put in class?
         axiom_constraints_string += "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
                                     "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
                                     "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n"
-                                    # "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n" + \
-                                    #"force_2_hour_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
-                                    #"class_has_enough_hours(T):- not H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n"
 
         return axiom_constraints_string
 
@@ -124,11 +90,6 @@ class ASPCodeGenerator():
         if self.status == "GENERATE":
             for constraint in self.hard_constraints:
                 result_string += Constraints.constraint_negator(constraint)
-
-        # TODO: Comment this out when all the constraints are parsed into new format
-        constraints_list = self.constraint_dictionary.values()
-        for c in constraints_list:
-            result_string += c.get_constraint() + "\n"
 
         return result_string
 
