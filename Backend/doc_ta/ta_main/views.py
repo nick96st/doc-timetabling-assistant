@@ -87,7 +87,7 @@ def check_constraints(request):
     success, violations = generator.parse_result()
     # if success then send the list of violations
     if success:
-        return response.HttpResponse(content=violations)
+        return response.HttpResponse(content=json.dumps(violations),content_type="application/json")
     # if not success then something has gone wrong since it asp result should be SATISFIABLE(no hard constraints)
     else:
         return response.HttpResponseServerError("ASP result is not satisfiable")

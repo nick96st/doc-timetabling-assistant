@@ -45,6 +45,9 @@ def parse_subject(subject):
 #
 #     def get_show_string(self):
 #         return self.show_string
+#
+#     def get_metadata(self,params):
+#         return None # if no metadata
 
 
 class HasEnoughHoursConstraint():
@@ -61,6 +64,10 @@ class HasEnoughHoursConstraint():
         subject_obj = ta_models.Subject.objects.filter(title_asp=params[0]).first()
         return 'Class ' + str(subject_obj.title) + " does not have " + str(subject_obj.hours) + " hours per week."
 
+    def get_metadata(self,params):
+        return None # if no metadata
+
+
 class NoThreeConsecutiveLecture():
     def get_creator(self):
         return "no_three_lectures_in_row(Y,D,S) :- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).\n"
@@ -73,6 +80,10 @@ class NoThreeConsecutiveLecture():
 
     def constraint_parse(self,params):
         return parse_year(params[0]) + " has 3 or more consequitive hours of lectures starting" + parse_timeslot(params[1],params[2])
+
+    def get_metadata(self, params):
+        return metadata_timeslot(params[1], params[2])  # if no metadata
+
 
 class TwoHourSlot():
     def get_creator(self):
@@ -87,6 +98,10 @@ class TwoHourSlot():
     def constraint_parse(self,params):
         return 'Subject ' + parse_subject(params[0]) + parse_timeslot(params[1],params[2]) + "violates has lectures not in 2 hours slots."
 
+    def get_metadata(self, params):
+        return metadata_timeslot(params[1],params[2])  # if no metadata
+
+
 class CheckRoomCapacity():
     def get_creator(self):
         return "check_room_capacity(R,D,A):- class_with_year(T,R,D,A,_),room(R,C),subject(T,S,_), C<S. \n"
@@ -98,7 +113,11 @@ class CheckRoomCapacity():
         return "#show check_room_capacity/3.\n "
 
     def constraint_parse(self,param):
-        return 'Room ' + param[0] + "does not have enough capacity for subject at time " + param[2] + " " + param[1] + "."
+        return 'Room ' + param[0] + ' does not have enough capacity for subject ' + parse_timeslot(param[1], param[2]) + "."
+
+    def get_metadata(self, params):
+        return metadata_timeslot(params[1],params[2])  # if no metadata
+
 
 class ForceTwoHourSlot():
     def get_creator(self):
@@ -113,6 +132,10 @@ class ForceTwoHourSlot():
     def constraint_parse(self,param):
         return 'Subject ' + parse_subject(param[0]) + " is not in 2 hour daily slots."
 
+    def get_metadata(self, params):
+        return None  # if no metadata
+
+
 class UniqueRoom():
     def get_creator(self):
         return "not_unique_room(R,D,S) :- class_with_year(T,R,D,S,_), class_with_year(Q,R,D,S,_), T!=Q.\n"
@@ -125,6 +148,10 @@ class UniqueRoom():
 
     def constraint_parse(self,param):
         return 'Room ' + param[0] + " has multiple classes at time " + param[2] + " " + param[1] + "."
+
+    def get_metadata(self, params):
+        return metadata_timeslot(params[1],params[2])  # if no metadata
+
 
 class UniqueTimeslotUnlessAllowed():
     def get_creator(self):
@@ -139,6 +166,10 @@ class UniqueTimeslotUnlessAllowed():
     def constraint_parse(self,param):
         return 'Clashes between subjects' + parse_timeslot(param[2], param[3]) + '.'
 
+    def get_metadata(self, params):
+        return metadata_timeslot(params[2],params[3])  # if no metadata
+
+
 class MaxSixHourADay():
     def get_creator(self):
         return "max_six_hour_a_day(D,Y):- not { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n"
@@ -152,6 +183,10 @@ class MaxSixHourADay():
     def constraint_parse(self,param):
         return 'Course ' + param[1] + " has more than 6 hours a day on " + param[0] + "."
 
+    def get_metadata(self, params):
+        return metadata_day(params[0])  # if no metadata
+
+
 class UniqueRoomLecture():
     def get_creator(self):
         return "not_unique_room_lecture(T,D) :- class_with_year(T,R1,D,_,_), class_with_year(T,R2,D,_,_), R1!=R2.\n"
@@ -164,6 +199,10 @@ class UniqueRoomLecture():
 
     def constraint_parse(self,param):
         return 'Lecture ' + parse_subject(param[0]) + ' is not in the same room on ' + ta_models.get_verbose_of_choice(param[1], ta_models.days_choices) + "."
+
+    def get_metadata(self, params):
+        return metadata_day(params[1])  # if no metadata
+
 
 class ConstraintHandler():
     # static fields
@@ -206,4 +245,7 @@ class ConstraintHandler():
     def constraint_show(name):
         return ConstraintHandler.constraint_table[ConstraintHandler.constraint_table_parse_verbose[name]].get_show_string()
 
+    @staticmethod
+    def constraint_metadata(id, params):
+        return ConstraintHandler.constraint_table[id].get_metadata(params)
 
