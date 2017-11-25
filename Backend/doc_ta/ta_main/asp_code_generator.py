@@ -232,10 +232,11 @@ class ASPCodeGenerator():
                         constraint_violations.append(lecture_class)
                 # parses to readable string the violations the checker has generated
                 parsed_violations = []
+                metadata = []
                 if len(constraint_violations) != 0:
                     parsed_violations = self.parse_violations(constraint_violations)
-
-                json_solutions.append({"violations":parsed_violations})
+                    metadata = self.parse_metadata(constraint_violations)
+                json_solutions.append({"violations":parsed_violations,"metadata":metadata})
 
             return True, json_solutions
 
@@ -269,6 +270,15 @@ class ASPCodeGenerator():
 
         return notification_list
 
+    def parse_metadata(self, violation_terms):
+        metadata_list = []
+
+        for violation in violation_terms:
+            metadata_item = Constraints.constraint_metadata(violation["id"], violation["params"])
+            if metadata_item is not None:
+                metadata_list.append(metadata_item)
+
+        return metadata_list
 
 # Build pattern for the code generator to define which constraints
 # facts, and object definitions to have

@@ -16,6 +16,11 @@ class basic_constraint():
 def parse_timeslot(day, hour):
     return ' at ' + hour + " on " + ta_models.get_verbose_of_choice(day, ta_models.days_choices) + ' '
 
+def metadata_timeslot(day, hour):
+    return {"timeslot":{"day":day,"hour":hour}}
+
+def metadata_day(day):
+    return {}
 
 # TODO:
 def parse_year(course):
