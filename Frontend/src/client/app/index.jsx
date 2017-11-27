@@ -15,6 +15,7 @@ class App extends React.Component {
     this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
+                                {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:17, day:"Tuesday", room: "311", name:"Databases I", type: "lecture"},
                                 {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},], modalOpen:false,
                   subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: []};
@@ -22,7 +23,7 @@ class App extends React.Component {
     this.closeModal=this.closeModal.bind(this)
     this.addLecture=this.addLecture.bind(this)
     this.removeLecture=this.removeLecture.bind(this)
-    this.getInitialData();
+    // this.getInitialData();
   }
 
   getInitialData(){
@@ -53,15 +54,19 @@ class App extends React.Component {
   }
 
   checkTimetable(timetable) {
-    axios.post('/timetable/check', {
-    timetable: timetable
-  })
-  .then(function (response) {
-    console.log(response);
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
+    var data = {violations:["Room 311 is used by different lectures at the same time"],
+                metadata:[{day:"Tuesday", time:17}]}
+    this.setState({violationData:data})
+  //   axios.post('/timetable/check', {
+  //   timetable: timetable
+  // })
+  // .then(function (response) {
+  //   console.log(response);
+  //
+  // })
+  // .catch(function (error) {
+  //   console.log(error);
+  // });
 
   }
 
@@ -145,12 +150,21 @@ class App extends React.Component {
 }
 
   render () {
+    var violations = []
+    const violationData = this.state.violationData
+    console.log(violationData)
+    if (violationData != null){
+      for (var i=0; i<violationData.violations.length; i++){
+        violations.push(<li className="violation-list-item"><span onClick={()=>{this.setState({activeViolation: v.metadata[i]})}}>{violationData.violations[i]}</span></li>)
+      }
+    }
+    var violationList = <ul className="violation-list">{violations}</ul>
     var timetable
     var ftable = this.filterTable(this.state.timetable)
     var rows = this.generateRows(ftable)
     timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
                  removeLecture={this.removeLecture} openModal={this.openModal} closeModal={this.closeModal}
-                 modalOpen={this.state.modalOpen}/>
+                 modalOpen={this.state.modalOpen} violation={this.state.activeViolation}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
@@ -188,6 +202,9 @@ class App extends React.Component {
             {checkBtn}
             {generateBtn}
             {selectTermDropdown}
+            <div className="violation-console">
+            {violationList}
+            </div>
            </div>)
   }
 

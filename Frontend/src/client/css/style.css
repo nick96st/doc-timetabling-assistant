@@ -629,3 +629,20 @@ button:hover {
   display: block;
   padding: 8px 10px;
 }
+.violation-list{
+  padding:0;
+  width: 80%;
+  margin:auto;
+  list-style-type: none;
+}
+.violation-list-item{
+  color: #D8000C;
+  background-color: #FFD2D2;
+  padding:10px;
+}
+.violation-console{
+  background-color: #FFFFFF;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-top: 10px;
+}
