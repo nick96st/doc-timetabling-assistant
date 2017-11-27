@@ -646,3 +646,7 @@ button:hover {
   padding-bottom: 5px;
   margin-top: 10px;
 }
+
+.warning-slot{
+  background-color: #FFD2D2;
+}

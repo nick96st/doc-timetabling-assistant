@@ -152,10 +152,10 @@ class App extends React.Component {
   render () {
     var violations = []
     const violationData = this.state.violationData
-    console.log(violationData)
     if (violationData != null){
       for (var i=0; i<violationData.violations.length; i++){
-        violations.push(<li className="violation-list-item"><span onClick={()=>{this.setState({activeViolation: v.metadata[i]})}}>{violationData.violations[i]}</span></li>)
+        const activeViolation = violationData.metadata[i];
+        violations.push(<li className="violation-list-item"><span onClick={()=>{this.setState({activeViolation: activeViolation})}}>{violationData.violations[i]}</span></li>)
       }
     }
     var violationList = <ul className="violation-list">{violations}</ul>

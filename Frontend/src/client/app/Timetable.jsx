@@ -14,6 +14,7 @@ class Timetable extends React.Component{
     this.lectureChange = this.lectureChange.bind(this);
     this.roomChange = this.roomChange.bind(this);
     this.openModal = this.openModal.bind(this);
+
   }
 
  generateHeader() {
@@ -46,9 +47,14 @@ class Timetable extends React.Component{
     for (var i = start; i<= end; i++){
       var cols = [<td>{i}</td>]
       this.props.rows.forEach(r =>{
+        var warn = ""
         const slot = {time: i, day:r.day}
+        if (this.props.violation !== undefined && this.props.violation.day === slot.day && this.props.violation.time ===slot.time){
+          warn = "warning-slot"
+        }
+
         if (r[i].length == 0){
-          cols.push(<td><a onClick = {()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome><TimetableSlot name = "" room = ""/></a></td>)
+          cols.push(<td className={warn}><a onClick = {()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome><TimetableSlot name = "" room = ""/></a></td>)
         }else{
           var courses =[]
           r[i].forEach(s=>{
@@ -56,7 +62,7 @@ class Timetable extends React.Component{
             courses.push (<div><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
             <button onClick={()=>this.deleteLecture(lect)}> Delete </button></div>)
           })
-          cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome></button></td>)
+          cols.push(<td className={warn}>{courses}<button onClick={()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome></button></td>)
         }
 
       })
