@@ -7,42 +7,74 @@ import asp_manipulators
 # Create your models here.
 
 
-# compares lowerized since we use choices first lowerized as asp code
-def get_verbose_of_choice(current, choices):
-    x = [x[1] for x in choices if x[0].lower() == current.lower()][0]
-    return x
-
-
-class SavedTable(models.Model):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-
-days_choices = [('M','Monday'),
-                ('Tu','Tuesday'),
-                ('W','Wednesday'),
-                ('Th','Thursday'),
-                ('F','Friday')]
-
 selection_levels_choices = [('M','Mandatory'),  # eg: 3rd year group project
                             ('S','Mandatory_Selectable'),  # eg: 3rd year Robotics
                             ('E','Extra')]  # eg: Horizons(non-credit
 
 
+# compares lowerized since we use choices first lowerized as asp code
+def get_verbose_of_choice(current):
+    return DayDef.objects.filter(day_asp=int(current)).first().day_string
+
+
+class TableSizeDef(models.Model):
+    start_hour = models.IntegerField()
+    end_hour = models.IntegerField()
+    title = models.CharField(max_length=30,unique=True)
+
+    @staticmethod
+    def create(daydefs,start_hour,end_hour,name):
+
+        table_size_def = TableSizeDef()
+        table_size_def.start_hour = start_hour
+        table_size_def.end_hour = end_hour
+        table_size_def.title = name
+        table_size_def.save()
+
+        i = 1
+        for daydef in daydefs:
+            curr_daydef = DayDef()
+            curr_daydef.day_asp = i
+            curr_daydef.day_string = daydef
+            curr_daydef.table = table_size_def
+            curr_daydef.save()
+            curr_daydef.day_asp = i
+            curr_daydef.save()
+            i = i + 1
+            # generate timeslots
+            for j in range(start_hour, end_hour):
+                time_slot = Timeslot()
+                time_slot.hour = j
+                time_slot.day = curr_daydef
+                time_slot.save()
+
+class SavedTable(models.Model):
+    name = models.CharField(max_length=50)
+    table_size = models.ForeignKey(TableSizeDef)
+
+    def __str__(self):
+        return self.name
+
+
+class DayDef(models.Model):
+    day_string = models.CharField(max_length=20)
+    day_asp = models.IntegerField()
+    table = models.ForeignKey(TableSizeDef)
+
+
+
 class Timeslot(models.Model):
-    day = models.CharField(choices=days_choices,max_length=2)
+    day = models.ForeignKey(DayDef)
     hour = models.IntegerField()
 
     def __str__(self):
-        return str(self.hour) + ":" + str(self.day)
+        return str(self.hour) + ":" + str(self.day.day_string)
 
     def to_json(self):
         return {"time": self.hour, "day": self.day}
 
     def to_asp(self):
-        return "timeslot(" + str(self.day) + "," + str(self.hour) + ")"
+        return "timeslot(" + str(self.day.day_asp) + "," + str(self.hour) + ")"
 
 
 # Course
@@ -101,14 +133,14 @@ class LectureClass(models.Model):
 
     def to_json_for_frontend(self):
         result = {"time": self.time_slot.hour,
-                  "day":  get_verbose_of_choice(self.time_slot.day, days_choices),
+                  "day":  self.time_slot.day.day_string,
                   "room": self.room.room_name,
                   "name": self.subject.title}
         return result
 
     def init_from_json(self,json_data):
         # gets the day short version
-        x = [x[0] for x in days_choices if x[1] == json_data['day']][0]
+        x = DayDef.objects.filter(day_string=json_data['day']).first()
         self.time_slot = Timeslot.objects.filter(hour=json_data['time'],day=x).first()
         self.room = Room.objects.get(room_name=json_data['room'])
         self.subject = Subject.objects.get(title=json_data['name'])
@@ -117,19 +149,21 @@ class LectureClass(models.Model):
     def to_asp(self):
         json_data = {"id":"class","params":[self.subject.title_asp,
                                             self.room.room_name,
-                                            self.time_slot.day,
+                                            self.time_slot.day.day_asp,
                                             self.time_slot.hour,
                                             ]}
         return asp_manipulators.json_term_to_asp_string(json_data)
 
-    def from_asp(self,data):
+    def from_asp(self,data,table):
         self.subject = Subject()
         self.time_slot = Timeslot()
         self.room = Room()
+        # gets a
+        day_obj = DayDef.objects.filter(day_asp=data["params"][2],table=table).first()
         # TODO: handle uniqueness/not_uniqueness of the title_asp"
         self.subject.title = Subject.objects.filter(title_asp=data["params"][0]).first().title
         self.room.room_name = data["params"][1]
-        self.time_slot.day = data["params"][2]
+        self.time_slot.day = day_obj
         self.time_slot.hour = data["params"][3]
         return self
 
