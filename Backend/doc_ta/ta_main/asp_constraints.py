@@ -194,7 +194,7 @@ class Concentration():
     def get_creator(self):
         result = ""
         for i in self.lecturers:
-            result += "not_concentrated(L) :- not(teaches(L,S1), teaches(L,S2), subject(S1,_,D1,_,_), subject(S2,_,D2,_,_), D1=D2. L= %s) \n" % (i)
+            result += "not_concentrated(L) :- not(teaches(L,S1), teaches(L,S2), subject(S1,_,D1,_,_), subject(S2,_,D2,_,_), D1=D2, L= %s). \n" % (i)
         return result
     def add_lecturer(self, lecturer):
         self.lecturers.append(lecturer)
@@ -206,6 +206,29 @@ class Concentration():
 
     def constraint_parse(self,param):
         return ""
+
+class Spreading():
+    subjects = []
+    def get_creator(self):
+
+        result = ""
+        for i in self.subjects:
+            result += "not_spreading(T) :-  subject(T,_,D1,_,Y), subject(T,_,D2,_,Y), Abs(D1-D2) < 2, D1 != D2, T = %s \n" % (i)
+        return result
+
+    def add_subject(self, subject):
+        self.subjects.append(subject)
+
+    def get_negator(self):
+        return ":-not_spreading(_).  \n "
+
+    def get_show_string(self):
+        return "show not_spreading/1. \n"
+
+    def constraint_parse(self,param):
+        return ""
+
+
 
 class ConstraintHandler():
     # static fields
@@ -221,6 +244,7 @@ class ConstraintHandler():
         "not_unique_room_lecture": UniqueRoomLecture(),
         "reserve_slot" : ReserveSlot(),
         #"concentration" : Concentration()
+        "spreading" : Spreading()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "not_class_has_enough_hours",
@@ -234,6 +258,7 @@ class ConstraintHandler():
         "Lecture is exactly one room at a day": "not_unique_room_lecture",
         "Reserve slot for specific year" : "reserve_slot",
         #"specific lecturer want to teach everything on one day" : "concentration"
+        "specific class spread out during a week(at least one day break)" : "spreading"
     }
 
     @staticmethod
