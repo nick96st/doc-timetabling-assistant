@@ -162,10 +162,10 @@ class UniqueRoomLecture():
 
 class ReserveSlot():
     #reserve slots (now only for horizon (first three line) and horizon year in europe(below first three lines))
-    reserved = [["tu",16,"computingy1"],["tu",17,"computingy1"],
-                ["m",16,"computingy2"], ["m",17,"computingy2"],
-                ["th",16,"computingy3"],["th",17,"computingy3"],["th",16,"computingy4"],["th",17, "computingy4"],
-                ["f",12,"computingy1"],["f",13,"computingy1"],["f",12,"computingy2"],["f",13, "computingy2"]]
+    reserved =  [["horizon","tu",16,"computingy1"],["horizon","tu",17,"computingy1"]]
+                #  ["horizon", "m", 17, "computingy2"], ["horizon", "m", 16, "computingy2"]
+                #["horizon","th",16,"computingy3"],["horizon","th",17,"computingy3"],["horizon","th",16,"computingy4"],["horizon","th",17, "computingy4"],
+                #["horizon","f",12,"computingy1"],["horizon", "f",13,"computingy1"],["horizon","f",12,"computingy2"],["horizon","f",13, "computingy2"]]
 
     def reserve(self,slot):
         #to add reserved slot
@@ -174,15 +174,14 @@ class ReserveSlot():
     def get_creator(self):
         result = ""
         for i in self.reserved:
-            result += "reserve(%s,%d,%s). \n" % (i[0],i[1],i[2])
-        result += "reserved_not_in_use(D,S,Y) :- reserve(D,S,Y),class_with_year(_,_,D,S,Y).\n"
+            result += "reserved(%s,%s,%d,%s). \n" % (i[0],i[1],i[2],i[3])
         return result
 
     def get_negator(self):
-        return ":- reserved_not_in_use(_,_,_).\n"
+        return ":- reserved(_,D,S,Y), class_with_year(_,_,D,S,Y). "
 
     def get_show_string(self):
-        return "#show reserved_not_in_use/3.\n"
+        return ""
 
     def constraint_parse(self,param):
         return ""
