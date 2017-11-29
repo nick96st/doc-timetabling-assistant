@@ -49,6 +49,10 @@ class SubjectsCoursesAdmin(admin.ModelAdmin):
     list_display = ["courseyear", "subject"]
 
 
+class ClashAdmin(admin.ModelAdmin):
+    list_display = ["subject","subject2"]
+
+
 # Register your models here.
 admin.site.register(ta_models.SavedTable, SavedTableAdmin)
 admin.site.register(ta_models.Timeslot, TimeslotAdmin)
@@ -61,4 +65,4 @@ admin.site.register(ta_models.Lecturer, LecturerAdmin)
 admin.site.register(ta_models.Teaches, TeachesAdmin)
 admin.site.register(ta_models.CourseYear, CourseYearAdmin)
 admin.site.register(ta_models.SubjectsCourses, SubjectsCoursesAdmin)
-
+admin.site.register(ta_models.Clash, ClashAdmin)

@@ -56,7 +56,7 @@ def create_course(name):
 def init_course_objects():
     create_course("ComputingY1")
     create_course("ComputingY3")
-
+    create_course("ComputingY4")
 
 # INITIALIZE BASES AS ROOMS AND SLOTS
 def in1t_r00ms():
@@ -75,6 +75,14 @@ def in1t_r00ms():
     room = ta_models.Room()
     room.room_name = "144"
     room.room_size = "90"
+    room.save()
+    room = ta_models.Room()
+    room.room_name = "343"
+    room.room_size = "70"
+    room.save()
+    room = ta_models.Room()
+    room.room_name = "344"
+    room.room_size = "70"
     room.save()
 
 
@@ -167,8 +175,39 @@ def InitThirdYearSelectableCoursesSpring():
     create_subject("MachineLearning", "machinelearning", 3, 395, "S", 100, term_2, course_3)
 
 
+# FOURTH YEAR COURSES
+
+def Generate4thYearCourses():
+    InitFourthYearSelectableCoursesAutumn()
+    InitFourthYearSelectableCoursesSpring()
+
+def InitFourthYearSelectableCoursesAutumn():
+    term_1 = ta_models.Term.objects.filter(name="Term 1").first()
+    course_4 = ta_models.CourseYear.objects.filter(name="ComputingY4").first()
+
+    create_subject("Separation Logic","seplogic",3,404, "S",50,term_1, course_4)
+    create_subject("Concurrent Processes","concurentproc",3,406, "S",50,term_1, course_4)
+    create_subject("Medical Image Computing","mic",3,407, "S",50,term_1, course_4)
+    create_subject("Privacy Enhancing Techniques","privacyenh",3,408, "S",50,term_1, course_4)
+    create_subject("Reinforcement Learning ","rlearing",3,424, "S",50,term_1, course_4)
+    create_subject("Complexity","complexity",3,438, "S",50,term_1, course_4)
+    create_subject("Software Reliability","softreli",3,440, "S",50,term_1, course_4)
+    create_subject("Advanced Security ","advsec",3,445, "S",50,term_1, course_4)
+    create_subject("Dynamical Systems","dynsys",3,450, "S",50,term_1, course_4)
+    create_subject("Advanced Issues","advobb",3,471, "S",50,term_1, course_4)
+    create_subject("Computational Optimisation","advopresearch",3,477, "S",50,term_1, course_4)
+    create_subject("Quantum Computing","quantcomp",3,484, "S",50,term_1, course_4)
+    create_subject("Knowledge Representation","knowrep",3,491, "S",50,term_1, course_4)
+    create_subject("Mathematics for Machine Learning","mathforml",3,496, "S",50,term_1, course_4)
+    create_subject("Modal Logic","modlogic",3,499, "S",50,term_1, course_4)
+    create_subject("High Performance Computing","highperformcomp",3,563, "S",50,term_1, course_4)
+
+def InitFourthYearSelectableCoursesSpring():
+    pass
+
 # FUNCTION TO GENERATE ALL
 def generate_all():
     init_base()                 # Rooms, slots, terms and courses
     GenerateFirstYearsDB()      # First year subjects
     Generate3rdYearCourses()    # Third year subjects
+    Generate4thYearCourses()    # Fourth year subjects

@@ -55,6 +55,7 @@ class App extends React.Component {
   });
   }
 
+<<<<<<< HEAD
   checkTimetable(timetable) {
     var data = {violations:["Room 311 is used by different lectures at the same time", "Class Databases I does not have enough hours"],
                 metadata:[{day:"Tuesday", time:17}, {name:"Databases I"}]}
@@ -69,6 +70,19 @@ class App extends React.Component {
   // .catch(function (error) {
   //   console.log(error);
   // });
+=======
+  checkTimetable(state) {
+    axios.post('/timetable/check', {
+    timetable: state.timetable,
+    term: state.selected_term
+  })
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+>>>>>>> 580c5c2589cee24da9ac780e33e7bf23efa1b636
 
   }
 
@@ -167,11 +181,20 @@ class App extends React.Component {
     var rows = this.generateRows(ftable)
     timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
                  removeLecture={this.removeLecture} openModal={this.openModal} closeModal={this.closeModal}
+<<<<<<< HEAD
                  modalOpen={this.state.modalOpen} violation={this.state.activeViolation}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
     var dimensions = {width:100, height: 100}
+=======
+                 modalOpen={this.state.modalOpen} rooms={this.state.rooms} subjects={this.state.subjects}/>
+    var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
+    var checkBtn = <button onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
+    var generateBtn = <button onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
+
+    var emptyFilterBtn = <button onClick={() => {this.emptyFilter()}}>Empty Filter</button>
+>>>>>>> 580c5c2589cee24da9ac780e33e7bf23efa1b636
 
     var dropDownRooms = <MultiSelect
                     placeholder = "Select room(s)"
@@ -201,14 +224,19 @@ class App extends React.Component {
                 <div style={{padding : 5 + 'px'}}></div>
                 <div>{dropDownCourses}</div>
               </div>
+            {selectTermDropdown}
             {timetable}
             {saveBtn}
             {checkBtn}
             {generateBtn}
+<<<<<<< HEAD
             {selectTermDropdown}
             <div className="violation-console">
             {violationList}
             </div>
+=======
+            {emptyFilterBtn}
+>>>>>>> 580c5c2589cee24da9ac780e33e7bf23efa1b636
 
            </div>)
   }

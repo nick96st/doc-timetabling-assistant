@@ -9,7 +9,7 @@ import asp_manipulators
 
 # compares lowerized since we use choices first lowerized as asp code
 def get_verbose_of_choice(current, choices):
-    x = [x[1] for x in choices if x[0].lower() == current][0]
+    x = [x[1] for x in choices if x[0].lower() == current.lower()][0]
     return x
 
 
@@ -173,6 +173,9 @@ class Teaches(models.Model):
 class CourseYear(models.Model):
     name = models.CharField(max_length=40, null=False)
 
+    def __str__(self):
+        return self.name
+
     def to_asp(self):
         return "course(" + str(self.name) + ")."
 
@@ -189,3 +192,22 @@ class SubjectsCourses(models.Model):
                      }
         return asp_manipulators.json_term_to_asp_string(json_data)
 
+
+class Clash(models.Model):
+    subject  = models.ForeignKey(Subject, related_name="subject1")
+    subject2 = models.ForeignKey(Subject, related_name="subject2")
+
+    def __str__(self):
+        return str(self.subject) + " can clash with " + str(self.subject2)
+
+    def to_asp(self):
+        json_data = {"id":"clash",
+                     "params":[self.subject.title_asp,
+                               self.subject2.title_asp,
+                               ]}
+        json_data_inverse = {"id":"clash",
+                             "params":[self.subject2.title_asp,
+                                       self.subject.title_asp,
+                                      ]}
+        return asp_manipulators.json_term_to_asp_string(json_data) + '.\n' + \
+            asp_manipulators.json_term_to_asp_string(json_data_inverse)
