@@ -636,6 +636,7 @@ button:hover {
   list-style-type: none;
 }
 .violation-list-item{
+  margin-top: 5px;
   color: #D8000C;
   background-color: #FFD2D2;
   padding:10px;

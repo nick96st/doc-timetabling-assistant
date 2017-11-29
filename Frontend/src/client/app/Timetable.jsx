@@ -49,20 +49,22 @@ class Timetable extends React.Component{
       this.props.rows.forEach(r =>{
         var warn = ""
         const slot = {time: i, day:r.day}
-        if (this.props.violation !== undefined && this.props.violation.day === slot.day && this.props.violation.time ===slot.time){
-          warn = "warning-slot"
-        }
-
         if (r[i].length == 0){
-          cols.push(<td className={warn}><a onClick = {()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome><TimetableSlot name = "" room = ""/></a></td>)
+          cols.push(<td><a onClick = {()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome><TimetableSlot name = "" room = ""/></a></td>)
         }else{
           var courses =[]
           r[i].forEach(s=>{
             const lect = s
-            courses.push (<div><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
+            if (this.props.violation !== undefined){
+              if (this.props.violation.name !== undefined && this.props.violation.name === s.name){
+                warn = "warning-slot"
+              }else if (this.props.violation.day === slot.day && this.props.violation.time ===slot.time)
+                warn = "warning-slot"
+            }
+            courses.push (<div className={warn}><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
             <button onClick={()=>this.deleteLecture(lect)}> Delete </button></div>)
           })
-          cols.push(<td className={warn}>{courses}<button onClick={()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome></button></td>)
+          cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome></button></td>)
         }
 
       })

@@ -56,8 +56,8 @@ class App extends React.Component {
   }
 
   checkTimetable(timetable) {
-    var data = {violations:["Room 311 is used by different lectures at the same time"],
-                metadata:[{day:"Tuesday", time:17}]}
+    var data = {violations:["Room 311 is used by different lectures at the same time", "Class Databases I does not have enough hours"],
+                metadata:[{day:"Tuesday", time:17}, {name:"Databases I"}]}
     this.setState({violationData:data})
   //   axios.post('/timetable/check', {
   //   timetable: timetable
@@ -157,6 +157,7 @@ class App extends React.Component {
     if (violationData != null){
       for (var i=0; i<violationData.violations.length; i++){
         const activeViolation = violationData.metadata[i];
+        console.log(activeViolation)
         violations.push(<li className="violation-list-item"><span onClick={()=>{this.setState({activeViolation: activeViolation})}}>{violationData.violations[i]}</span></li>)
       }
     }
