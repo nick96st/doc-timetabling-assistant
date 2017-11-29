@@ -14,7 +14,7 @@ class basic_constraint():
 
 
 def parse_timeslot(day, hour):
-    return ' at ' + hour + " on " + ta_models.get_verbose_of_choice(day, ta_models.days_choices) + ' '
+    return ' at ' + hour + " on " + ta_models.get_verbose_of_choice(day) + ' '
 
 def metadata_timeslot(day, hour):
     return {"timeslot":{"day":day,"hour":hour}}
@@ -198,7 +198,7 @@ class UniqueRoomLecture():
         return "#show not_unique_room_lecture/2.\n"
 
     def constraint_parse(self,param):
-        return 'Lecture ' + parse_subject(param[0]) + ' is not in the same room on ' + ta_models.get_verbose_of_choice(param[1], ta_models.days_choices) + "."
+        return 'Lecture ' + parse_subject(param[0]) + ' is not in the same room on ' + ta_models.get_verbose_of_choice(param[1]) + "."
 
     def get_metadata(self, params):
         return metadata_day(params[1])  # if no metadata

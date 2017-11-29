@@ -20,6 +20,7 @@ def append_new_definition(current, new):
 class ASPCodeGenerator():
 
     def __init__(self):
+        self.table_def = ta_models.TableSizeDef.objects.all().first()
         self.term = ""             # term to be generated on
         self.subjects = []         # subjects which belong to the term
         self.result_facts = []
@@ -36,8 +37,14 @@ class ASPCodeGenerator():
         for room in ta_models.Room.objects.all():
             obj_def_string += room.to_asp() + '.\n'
 
-        # TODO: perhaps selectable MxN thing
-        for timeslot in ta_models.Timeslot.objects.all():
+        # Gets the timeslots asociated with the table size definitions
+        all_daydefs = ta_models.DayDef.objects.filter(table=self.table_def)
+        timeslots = []
+        for daydef in all_daydefs:
+            for ts in ta_models.Timeslot.objects.filter(day=daydef):
+                timeslots.append(ts)
+
+        for timeslot in timeslots:
             obj_def_string += timeslot.to_asp() + '.\n'
 
         for course in ta_models.CourseYear.objects.all():
@@ -208,7 +215,7 @@ class ASPCodeGenerator():
                 result_array = []
                 # for every solution parse
                 for lecture_class in solution:
-                        result_array.append(ta_models.LectureClass().from_asp(lecture_class).to_json_for_frontend())
+                        result_array.append(ta_models.LectureClass().from_asp(lecture_class,self.table_def).to_json_for_frontend())
 
                 json_solutions.append(result_array)
             # code_result = read_from_asp_result('default_001.in')
@@ -245,6 +252,7 @@ class ASPCodeGenerator():
 # facts, and object definitions to have
 class CodeGeneratorBuilder():
     def __init__(self):
+        self.table = None
         self.selected_term = ""
         self.result_facts = []
         # Default hard constraints are all the defined keys in the verbose map table
@@ -252,6 +260,9 @@ class CodeGeneratorBuilder():
         self.soft_constraints = []
         self.should_generate = True
         self.status = ""
+
+    def for_table(self,table_id):
+        self.table = ta_models.SavedTable(id=table_id)
 
     def for_term(self,term_name):
         self.selected_term = term_name
@@ -288,4 +299,5 @@ class CodeGeneratorBuilder():
         code_generator.should_generate = self.should_generate
         code_generator.term = self.selected_term
         code_generator.status = self.status
+        # code_generator.table_def = self.table.table_size
         return code_generator
