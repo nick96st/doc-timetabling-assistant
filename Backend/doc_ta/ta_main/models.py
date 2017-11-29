@@ -234,20 +234,20 @@ class SubjectsCourses(models.Model):
 
 
 class Clash(models.Model):
-    subject1  = models.ForeignKey(Subject, related_name="subject1")
+    subject1 = models.ForeignKey(Subject, related_name="subject1")
     subject2 = models.ForeignKey(Subject, related_name="subject2")
 
     def __str__(self):
-        return str(self.subject) + " can clash with " + str(self.subject2)
+        return str(self.subject1) + " can clash with " + str(self.subject2)
 
     def to_asp(self):
         json_data = {"id":"clash",
-                     "params":[self.subject.title_asp,
+                     "params":[self.subject1.title_asp,
                                self.subject2.title_asp,
                                ]}
         json_data_inverse = {"id":"clash",
                              "params":[self.subject2.title_asp,
-                                       self.subject.title_asp,
+                                       self.subject1.title_asp,
                                       ]}
         return asp_manipulators.json_term_to_asp_string(json_data) + '.\n' + \
             asp_manipulators.json_term_to_asp_string(json_data_inverse)
