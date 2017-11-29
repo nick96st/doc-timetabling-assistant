@@ -196,7 +196,8 @@ class Concentration():
         for i in self.lecturers:
             result += "not_concentrated(L) :- not(teaches(L,S1), teaches(L,S2), subject(S1,_,D1,_,_), subject(S2,_,D2,_,_), D1=D2. L= %s) \n" % (i)
         return result
-
+    def add_lecturer(self, lecturer):
+        self.lecturers.append(lecturer)
     def get_negator(self):
         return ":-not_concentarted(_).  \n "
 
