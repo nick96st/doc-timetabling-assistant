@@ -119,16 +119,13 @@ class CheckRoomCapacity():
         return metadata_timeslot(params[1],params[2])  # if no metadata
 
 
-class ForceTwoHourSlot():
+class LimitDayToFormTwohourSlot():
     def get_creator(self):
-        return "force_2_hour_slot(T) :- not { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
-
+        return "limit_day_to_form_2h_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
     def get_negator(self):
-        return ":- force_2_hour_slot(T), subject(T,_,_).\n"
-
+        return ":- not limit_day_to_form_2h_slot(T), subject(T,_,_).\n"
     def get_show_string(self):
-        return "#show force_2_hour_slot/1.\n"
-
+        return "#show limit_day_to_form_2h_slot/1.\n"
     def constraint_parse(self,param):
         return 'Subject ' + parse_subject(param[0]) + " is not in 2 hour daily slots."
 
@@ -204,29 +201,56 @@ class UniqueRoomLecture():
         return metadata_day(params[1])  # if no metadata
 
 
+class LecturerClash():
+    def get_creator(self):
+        return "lecturer_clash(L,D,S) :- class_with_year(T1,_,D,S,_), class_with_year(T2,_,D,S,_), T1!=T2, teaches(L,T1), teaches(L,T2), lecturer(L).\n"
+    def get_negator(self):
+        return ":- lecturer_clash(L,D,S). \n"
+    def get_show_string(self):
+        return "#show lecturer_clash/3. \n"
+    def constraint_parse(self,param):
+        return 'Lecturer ' + param[0] + 'has clashes on ' + parse_timeslot(param[1], param[2]) + '.\n'
+
+class MaxFourHourADayLecturer():
+    def get_creator(self):
+        return "max_four_hour_a_day(L,D) :- not { slot_teaches(L,D,_) } 4, timeslot(D,_), lecturer(L). \n"
+    def get_negator(self):
+        return ":- max_four_hour_a_day(L,D). \n"
+    def get_show_string(self):
+        return "#show max_four_hour_a_day/2. \n"
+    def constraint_parse(self,param):
+        return 'Lecturer ' + param[0] + 'has more than four hour on ' + param[1] + "."
+
 class ConstraintHandler():
     # static fields
     constraint_table = {
         "not_class_has_enough_hours": HasEnoughHoursConstraint(),
         "no_three_lectures_in_row": NoThreeConsecutiveLecture(),
         "two_hour_slot":TwoHourSlot(),
-        "check_room_capacity": CheckRoomCapacity(),
-        "force_2_hour_slot":ForceTwoHourSlot(),
-        "not_unique_room": UniqueRoom(),
-        "clash_when_not_allowed": UniqueTimeslotUnlessAllowed(),
-        "max_six_hour_a_day": MaxSixHourADay(),
-        "not_unique_room_lecture": UniqueRoomLecture()
+        "check_room_capacity" : CheckRoomCapacity(),
+        "limit_day_to_form_2h_slot":LimitDayToFormTwohourSlot(),
+        "unique_room" : UniqueRoom(),
+        "unique_timeslot_unless_allowed" : UniqueTimeslotUnlessAllowed(),
+        "max_six_hour_a_day" : MaxSixHourADay(),
+        "unique_room_lecture" : UniqueRoomLecture(),
+        "lecturer_clash" : LecturerClash(),
+        "max_four_hour_a_day_lecturer" : MaxFourHourADayLecturer()
     }
     constraint_table_parse_verbose = {
-        "Each class to have enough hours.": "not_class_has_enough_hours",
-        "No three consecutive lectures": "no_three_lectures_in_row",
-        "Force two-hour slot": "two_hour_slot",
-        "Check Room Capacity": "check_room_capacity",
-        "Max_two_day_a_week": "force_2_hour_slot",
-        "Forbid 2 lectures in the same room": "not_unique_room",
-        "Only allow clashes of time slot if stated": "clash_when_not_allowed",
-        "Students have max 6 hours a day": "max_six_hour_a_day",
-        "Lecture is exactly one room at a day": "not_unique_room_lecture"
+        "Each class to have enough hours.": "class_has_enough_hours",
+        "No three consecutive lecture" : "no_three_consecutive_lecture",
+        "Force two-hour slot" : "two_hour_slot",
+        "Check Room Capacity" : "check_room_capacity",
+
+        #limit_day_to_form_2h_slot? a bit confusing makesure this is right please
+        "Limit the number of days have a subject to form 2h slot": "limit_day_to_form_2h_slot",
+
+        "Forbid 2 lecturers in the same room" : "unique_room",
+        "only allow clashes of time slot if stated" : "unique_timeslot_unless_allowed",
+        "Students have max 6 hours a day" : "max_six_hour_a_day",
+        "Lecture is exactly one room at a day" : "unique_room_lecture",
+        "Lecturer can only teach one subject at a time" : "lecturer_clash",
+        "Lecturer teaches max 4 hour a day" : "max_four_hour_a_day_lecturer"
     }
 
     @staticmethod

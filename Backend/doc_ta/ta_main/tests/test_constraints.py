@@ -107,7 +107,7 @@ class HardConstraintsTest(test.TestCase):
 
     def test_allow_clashes_only_if_specified(self):
         clash = ta_models.Clash()
-        clash.subject = ta_models.Subject.objects.get(title="Hardware")
+        clash.subject1 = ta_models.Subject.objects.get(title="Hardware")
         clash.subject2 = ta_models.Subject.objects.get(title="Descrete")
         clash.save()
 
@@ -152,6 +152,83 @@ class HardConstraintsTest(test.TestCase):
             ta_models.LectureClass().init_from_json( \
                 generate_lectureclass_json("Math Methods", "308", "Monday", 10)),
         ]
+
+        code_result = invoke_codegen_sequence_with_facts(facts)
+        self.assertEquals(code_result, unsatisfiable)
+
+    def test_lecturer_cant_teach_2_different_subjects_at_same_time(self):
+        #create lecturer object
+        lecturer = ta_models.Lecturer()
+        lecturer.first_name = "Tony"
+        lecturer.surname = "Field"
+        lecturer.save()
+
+        #assign lecturer to subjects
+        teaches1 = ta_models.Teaches()
+        teaches1.lecturer = lecturer
+        teaches1.subject = ta_models.Subject.objects.get(title="Hardware")
+        teaches1.save()
+
+        teaches2 = ta_models.Teaches()
+        teaches2.lecturer = lecturer
+        teaches2.subject = ta_models.Subject.objects.get(title="Logic")
+        teaches2.save()
+
+        #allow subject to clash
+        clash1 = ta_models.Clash()
+        clash1.subject1 = ta_models.Subject.objects.get(title="Hardware")
+        clash1.subject2 = ta_models.Subject.objects.get(title="Logic")
+        clash1.save()
+
+        clash2 = ta_models.Clash()
+        clash2.subject1 = ta_models.Subject.objects.get(title="Logic")
+        clash2.subject2 = ta_models.Subject.objects.get(title="Hardware")
+        clash2.save()
+
+        #should unsatisfiable due to lecturer_clash constraint
+        facts = [ta_models.LectureClass().init_from_json( \
+            generate_lectureclass_json("Hardware", "311", "Wednesday", 11)),
+            ta_models.LectureClass().init_from_json( \
+            generate_lectureclass_json("Logic", "308", "Wednesday", 11)),
+            ]
+
+        code_result = invoke_codegen_sequence_with_facts(facts)
+        self.assertEquals(code_result, unsatisfiable)
+
+    def test_max_four_hour_a_day_lecturer(self):
+        #create lecturer object
+        lecturer = ta_models.Lecturer()
+        lecturer.first_name = "Tony"
+        lecturer.surname = "Field"
+        lecturer.save()
+
+        #assign lecturer to subjects
+        teaches1 = ta_models.Teaches()
+        teaches1.lecturer = lecturer
+        teaches1.subject = ta_models.Subject.objects.get(title="Hardware")
+        teaches1.save()
+
+        teaches2 = ta_models.Teaches()
+        teaches2.lecturer = lecturer
+        teaches2.subject = ta_models.Subject.objects.get(title="Logic")
+        teaches2.save()
+
+        teaches3 = ta_models.Teaches()
+        teaches3.lecturer = lecturer
+        teaches3.subject = ta_models.Subject.objects.get(title="Math Methods")
+        teaches3.save()
+
+        facts = [ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Hardware", "311", "Wednesday", 9)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Hardware", "311", "Wednesday", 10)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Logic", "308", "Wednesday", 12)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Logic", "308", "Wednesday", 13)),
+            ta_models.LectureClass().init_from_json( \
+                    generate_lectureclass_json("Math Methods", "311", "Wednesday", 15)),
+            ]
 
         code_result = invoke_codegen_sequence_with_facts(facts)
         self.assertEquals(code_result, unsatisfiable)
