@@ -175,13 +175,14 @@ class ReserveSlot():
         result = ""
         for i in self.reserved:
             result += "reserved(%s,%s,%d,%s). \n" % (i[0],i[1],i[2],i[3])
+        result += "reserved_in_use(D,S,Y) :- reserved(_,D,S,Y), class_with_year(_,_,D,S,Y).\n"
         return result
 
     def get_negator(self):
-        return ":- reserved(_,D,S,Y), class_with_year(_,_,D,S,Y). "
+        return ":-reserved_in_use(_,_,_).  \n "
 
     def get_show_string(self):
-        return ""
+        return "show reserved_in_use/3. \n"
 
     def constraint_parse(self,param):
         return ""
