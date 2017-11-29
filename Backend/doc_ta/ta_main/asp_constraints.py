@@ -187,6 +187,25 @@ class ReserveSlot():
     def constraint_parse(self,param):
         return ""
 
+class Concentration():
+    #we dont have teaches yet
+    #we dont even have information about which lecturer teaches which course or class
+    lecturers = []
+    def get_creator(self):
+        result = ""
+        for i in self.lecturers:
+            result += "not_concentrated(L) :- not(teaches(L,S1), teaches(L,S2), subject(S1,_,D1,_,_), subject(S2,_,D2,_,_), D1=D2. L= %s) \n" % (i)
+        return result
+
+    def get_negator(self):
+        return ":-not_concentarted(_).  \n "
+
+    def get_show_string(self):
+        return "show not_concentrated/1. \n"
+
+    def constraint_parse(self,param):
+        return ""
+
 class ConstraintHandler():
     # static fields
     constraint_table = {
@@ -199,7 +218,8 @@ class ConstraintHandler():
         "clash_when_not_allowed": UniqueTimeslotUnlessAllowed(),
         "max_six_hour_a_day": MaxSixHourADay(),
         "not_unique_room_lecture": UniqueRoomLecture(),
-        "reserve_slot" : ReserveSlot()
+        "reserve_slot" : ReserveSlot(),
+        #"concentration" : Concentration()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "not_class_has_enough_hours",
@@ -211,7 +231,8 @@ class ConstraintHandler():
         "Only allow clashes of time slot if stated": "clash_when_not_allowed",
         "Students have max 6 hours a day": "max_six_hour_a_day",
         "Lecture is exactly one room at a day": "not_unique_room_lecture",
-        "Reserve slot for specific year" : "reserve_slot"
+        "Reserve slot for specific year" : "reserve_slot",
+        #"specific lecturer want to teach everything on one day" : "concentration"
     }
 
     @staticmethod
