@@ -62,6 +62,10 @@ def check_constraints(request):
             return response.HttpResponseBadRequest("No term specified")
     except KeyError:
         return response.HttpResponseBadRequest("No term specified")
+    try:
+        constraints = json.loads(request.body)["constraints"]
+    except KeyError:
+        constraints = None
     # hard_constraints = request.data["constraints"]
     # soft_constraints = request.data[""]
     # create models from json
@@ -74,7 +78,8 @@ def check_constraints(request):
     codegen = asp_code_generator.CodeGeneratorBuilder()
     codegen.for_term(term_name).perform("CHECK")
     codegen.with_result_facts(grid_objects)
-    # codegen.with_hard_constraints(hard_constraints)
+    # set constraints if  None - it will use default(ALL)
+    codegen.with_hard_constraints(constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
     # check if code generator generates without exceptions
