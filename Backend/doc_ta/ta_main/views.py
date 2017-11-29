@@ -131,6 +131,7 @@ def save_timetable(request):
 
     save_id = ta_models.SavedTable()
     save_id.name = save_name  # TODO: pass a name of timetable
+    save_id.table_size = ta_models.TableSizeDef.objects.first() #TODO: select from frontend
     save_id.save()
     for obj in timetable:
         model = ta_models.LectureClass()
@@ -203,6 +204,20 @@ def get_constraint_choices(request):
     constraints = Constraints.constraint_table_parse_verbose.keys()
     return response.HttpResponse(content=json.dumps(constraints))
 
+
+@csrf_exempt
+def create_timeslots_for_table(request):
+    try:
+        params = json.loads(request.body)
+        daydefs = params["days"]
+        hours_start = params["hours_start"]
+        hours_end = params["hours_end"]
+        name = params["name"]
+    except ValueError:
+        return response.HttpResponseBadRequest("Not a post request ot not have all params")
+
+    ta_models.TableSizeDef.create(daydefs,hours_start,hours_end,name)
+    return response.HttpResponse()
 
 import tests.database_inits as DB
 @csrf_exempt

@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'choices/subjects', views.get_subject_choices),
     url(r'choices/terms', views.get_term_choices),
     url(r'choices/constraints',views.get_constraint_choices),
+    url(r'create_table_size', views.create_timeslots_for_table),
     url(r'init_timeslots_doc', views.init_timeslots_DoC),
     url(r'', views.get_index),
 ]
