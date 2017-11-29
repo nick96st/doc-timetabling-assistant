@@ -9,6 +9,8 @@ import {getDropdownData} from './Utils.jsx'
 
 
 
+
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -168,6 +170,7 @@ class App extends React.Component {
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
+    var dimensions = {width:100, height: 100}
 
     var dropDownRooms = <MultiSelect
                     placeholder = "Select room(s)"
@@ -205,6 +208,7 @@ class App extends React.Component {
             <div className="violation-console">
             {violationList}
             </div>
+
            </div>)
   }
 
