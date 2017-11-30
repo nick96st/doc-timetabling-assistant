@@ -184,9 +184,20 @@ class No9to5():
         return ":- no_9_to_5(_,Y), course(Y). \n"
     def get_show_string(self):
         return "#show no_9_to_5/2. \n"
-    def constaint_parse(self,param):
+    def constraint_parse(self,param):
         return 'Year ' +param[1] + 'on day ' + param[0] + ' has classes from 9am to 6pm.\n'
-    
+
+class ThreeConsecutiveHourForLecturer():
+    def get_creator(self):
+        return "three_consecutive_hour_for_lecturer(L,D) :- class_with_year(S1,_,D,S,_), class_with_year(S2,_,D,S+1,_), class_with_year(S3,_,D,S+2,_), teaches(L,S1),teaches(L,S2), teaches(L,S3), lecturer(L). \n"
+    def get_negator(self):
+        return ":- three_consecutive_hour_for_lecturer(L,D), lecturer(L), timeslot(D,_) \n."
+    def get_show_string(self):
+        return "#show three_consecutive_hour_for_lecturer/2. \n"
+    def constraint_parse(self,param):
+        return 'Lecturer ' + param[0] + ' on day ' + param[1] + ' has 3 consecutive hours. \n'
+
+
 
 class ConstraintHandler():
     # static fields
