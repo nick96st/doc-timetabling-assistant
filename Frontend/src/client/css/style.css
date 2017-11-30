@@ -641,6 +641,14 @@ button:hover {
   background-color: #FFD2D2;
   padding:10px;
 }
+
+.check-success{
+  margin-top: 5px;
+  color: #4F8A10;
+  background-color: #DFF2BF;
+  padding:10px;
+}
+
 .violation-console{
   height: 100px;
   overflow-y: auto;
