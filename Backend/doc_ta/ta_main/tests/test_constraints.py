@@ -275,3 +275,4 @@ class HardConstraintsTest(test.TestCase):
 
         code_result = invoke_codegen_sequence_with_facts(facts)
         self.assertEquals(code_result, unsatisfiable)
+    
