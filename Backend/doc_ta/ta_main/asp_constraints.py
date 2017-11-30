@@ -165,7 +165,7 @@ class LecturerClash():
     def get_show_string(self):
         return "#show lecturer_clash/3. \n"
     def constraint_parse(self,param):
-        return 'Lecturer ' + param[0] + 'has clashes on ' + parse_timeslot(param[1], param[2]) + '.\n'
+        return 'Lecturer ' + param[0] + ' has clashes on ' + parse_timeslot(param[1], param[2]) + '.\n'
 
 class MaxFourHourADayLecturer():
     def get_creator(self):
@@ -175,7 +175,18 @@ class MaxFourHourADayLecturer():
     def get_show_string(self):
         return "#show max_four_hour_a_day/2. \n"
     def constraint_parse(self,param):
-        return 'Lecturer ' + param[0] + 'has more than four hour on ' + param[1] + "."
+        return 'Lecturer ' + param[0] + ' has more than four hour on ' + param[1] + '.\n'
+
+class No9to5():
+    def get_creator(self):
+        return "no_9_to_5(D,Y) :- class_with_year(_,_,D,S1,Y), class_with_year(_,_,D,S2,Y), S1<10, S2>16. \n"
+    def get_negator(self):
+        return ":- no_9_to_5(_,Y), course(Y). \n"
+    def get_show_string(self):
+        return "#show no_9_to_5/2. \n"
+    def constaint_parse(self,param):
+        return 'Year ' +param[1] + 'on day ' + param[0] + ' has classes from 9am to 6pm.\n'
+    
 
 class ConstraintHandler():
     # static fields
