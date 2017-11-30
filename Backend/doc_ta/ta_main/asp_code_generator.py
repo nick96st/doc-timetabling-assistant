@@ -288,6 +288,8 @@ class ASPCodeGenerator():
             metadata_item = Constraints.constraint_metadata(violation["id"], violation["params"])
             if metadata_item is not None:
                 metadata_list.append(metadata_item)
+            else:
+                metadata_list.append({})
 
         return metadata_list
 
