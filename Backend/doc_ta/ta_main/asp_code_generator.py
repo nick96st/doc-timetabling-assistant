@@ -86,8 +86,15 @@ class ASPCodeGenerator():
 
         axiom_constraints_string += "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
                                     "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
+<<<<<<< HEAD
                                     "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n" + \
                                     "slot_teaches(L,D,S) :- class_with_year(T,_,D,S,_), teaches(L,T), lecturer(L).\n"
+=======
+                                    "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n"
+                                    # "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n" + \
+                                    #"force_2_hour_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
+                                    #"class_has_enough_hours(T):- not H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n"
+>>>>>>> parent of 8366c04... [Son] added python codegen for no_9_to_5 constraint
 
         return axiom_constraints_string
 
