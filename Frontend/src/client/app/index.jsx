@@ -4,7 +4,8 @@ import Timetable from './Timetable.jsx';
 import axios from 'axios'
 import {ReactSelectize, SimpleSelect, MultiSelect} from 'react-selectize';
 import Dropdown from 'react-dropdown';
-import {getDropdownData} from './Utils.jsx'
+import {getDropdownData} from './Utils.jsx';
+import MyCheckbox from './MyCheckbox.jsx'
 
 
 
@@ -20,17 +21,43 @@ class App extends React.Component {
                                 {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                 {time:17, day:"Tuesday", room: "311", name:"Databases I", type: "lecture"},
                                 {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},], modalOpen:false,
-                  subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: []};
+                  subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [], labels:[]};
     this.openModal=this.openModal.bind(this)
     this.closeModal=this.closeModal.bind(this)
     this.addLecture=this.addLecture.bind(this)
     this.removeLecture=this.removeLecture.bind(this)
+    this.toggleCheckbox=this.toggleCheckbox.bind(this)
+    this.getConstraints();
+
     // this.getInitialData();
+  }
+
+  componentWillMount(){
+    this.selectedCheckboxes = new Set();
+  }
+
+  getConstraints(){
+    axios.get('/choices/constraints').
+    then((response) => {
+        console.log(response.data)
+        this.setState({labels: response.data})
+        console.log(this.state.labels)
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
   }
 
   getInitialData(){
   var dropdownData = getDropdownData()
   this.setState({terms: dropdownData.terms, rooms: dropdownData.rooms, subjects: dropdownData.subjects})
+  axios.get('/choices/constraints').
+  then((response) => {
+      this.setState({labels: response.data})
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
   }
 
   openModal(){
@@ -55,13 +82,12 @@ class App extends React.Component {
   });
   }
 
-<<<<<<< HEAD
   checkTimetable(timetable) {
     var data = {violations:["Room 311 is used by different lectures at the same time", "Class Databases I does not have enough hours"],
                 metadata:[{day:"Tuesday", time:17}, {name:"Databases I"}]}
     this.setState({violationData:data})
   //   axios.post('/timetable/check', {
-  //   timetable: timetable
+  //   timetable: timetable, term: this.state.term, constraints= this.selectedCheckboxes
   // })
   // .then(function (response) {
   //   console.log(response);
@@ -70,19 +96,6 @@ class App extends React.Component {
   // .catch(function (error) {
   //   console.log(error);
   // });
-=======
-  checkTimetable(state) {
-    axios.post('/timetable/check', {
-    timetable: state.timetable,
-    term: state.selected_term
-  })
-  .then(function (response) {
-    console.log(response);
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
->>>>>>> 580c5c2589cee24da9ac780e33e7bf23efa1b636
 
   }
 
@@ -108,6 +121,24 @@ class App extends React.Component {
 
   }
 
+  generateConstraintSelector(){
+    var checkboxes = []
+    const labels = this.state.labels
+    labels.forEach(l =>{
+      checkboxes.push(<MyCheckbox label={l} handleChange={this.toggleCheckbox} key={l}/>)
+    })
+    return checkboxes
+  }
+
+  toggleCheckbox(label){
+    if(this.selectedCheckboxes.has(label)){
+      this.selectedCheckboxes.delete(label)
+    }else{
+      this.selectedCheckboxes.add(label)
+    }
+    console.log(this.selectedCheckboxes)
+  }
+
   onSelectedTermChange(e) {
     this.setState({selected_term:e.value});
   }
@@ -116,6 +147,8 @@ class App extends React.Component {
    var timetable = this.state.timetable
    timetable.push(lect)
   }
+
+
 
   removeLecture(lect){
     var timetable = this.state.timetable
@@ -171,30 +204,21 @@ class App extends React.Component {
     if (violationData != null){
       for (var i=0; i<violationData.violations.length; i++){
         const activeViolation = violationData.metadata[i];
-        console.log(activeViolation)
         violations.push(<li className="violation-list-item"><span onClick={()=>{this.setState({activeViolation: activeViolation})}}>{violationData.violations[i]}</span></li>)
       }
     }
+    var constraintSelectorItems = this.generateConstraintSelector()
     var violationList = <ul className="violation-list">{violations}</ul>
     var timetable
     var ftable = this.filterTable(this.state.timetable)
     var rows = this.generateRows(ftable)
     timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
                  removeLecture={this.removeLecture} openModal={this.openModal} closeModal={this.closeModal}
-<<<<<<< HEAD
                  modalOpen={this.state.modalOpen} violation={this.state.activeViolation}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state.timetable)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable()}}>Generate</button>
     var dimensions = {width:100, height: 100}
-=======
-                 modalOpen={this.state.modalOpen} rooms={this.state.rooms} subjects={this.state.subjects}/>
-    var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
-    var checkBtn = <button onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
-    var generateBtn = <button onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
-
-    var emptyFilterBtn = <button onClick={() => {this.emptyFilter()}}>Empty Filter</button>
->>>>>>> 580c5c2589cee24da9ac780e33e7bf23efa1b636
 
     var dropDownRooms = <MultiSelect
                     placeholder = "Select room(s)"
@@ -225,18 +249,15 @@ class App extends React.Component {
                 <div>{dropDownCourses}</div>
               </div>
             {selectTermDropdown}
+            {constraintSelectorItems}
             {timetable}
             {saveBtn}
             {checkBtn}
             {generateBtn}
-<<<<<<< HEAD
             {selectTermDropdown}
             <div className="violation-console">
             {violationList}
             </div>
-=======
-            {emptyFilterBtn}
->>>>>>> 580c5c2589cee24da9ac780e33e7bf23efa1b636
 
            </div>)
   }
