@@ -76,6 +76,9 @@ class ASPCodeGenerator():
         result_string = ""
         for fact in self.result_facts:
             result_string += fact.to_asp().lower() + ".\n"
+            # generate blocker for already existing if checking for available slots
+            if self.status == "CHECKSLOTS" and fact.subject.title_asp == self.check_subject:
+                result_string += 'start_loc(' + str(fact.time_slot.day.day_asp) + ',' + str(fact.time_slot.hour) + ').\n'
 
         return result_string
 
@@ -94,7 +97,7 @@ class ASPCodeGenerator():
 
         result_string = ""
         # generate hard constraint negators if generating
-        if self.status == "GENERATE":
+        if self.status == "GENERATE" or self.status == "CHECKSLOTS":
             for constraint in self.hard_constraints:
                 result_string += Constraints.constraint_negator(constraint)
 
@@ -148,7 +151,10 @@ class ASPCodeGenerator():
         code_string += self.generate_hard_constraints()
         code_string += self.generate_soft_constraints()
         # generate result we are interested in(class objects)
-        code_string += "#show class_with_year/5."
+        if self.status != "CHECKSLOTS":
+            code_string += "#show class_with_year/5.\n"
+        else: # for CHECKSLOTS show the possible locations
+            code_string += "#show possible_locations/2.\n"
         # ask to display facts generated from violations when checking
         if self.status == "CHECK":
             for constraint in self.hard_constraints:
