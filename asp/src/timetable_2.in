@@ -45,8 +45,8 @@ class_with_year(hardware,308,w,9,y1).
 class_with_year(hardware,308,w,10,y1).
 
 
-class_with_year(operating_systems,311,w,11,y2).
 class_with_year(operating_systems,311,w,12,y2).
+class_with_year(operating_systems,311,w,13,y2).
 
 % class_with_year(architecture, 308,w,15,y1).
 % class_with_year(architecture,311,w,12,y1).
@@ -71,7 +71,7 @@ max_six_hour_a_day(D,Y):- not { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(
 slot_teaches(L,D,S) :- class_with_year(T,_,D,S,_), teaches(L,T), lecturer(L).
 max_four_hour_a_day(L,D) :- not { slot_teaches(L,D,_) } 4, timeslot(D,_), lecturer(L).
 lecturer_clash(L,D,S) :- class_with_year(T1,_,D,S,_), class_with_year(T2,_,D,S,_), T1!=T2, teaches(L,T1), teaches(L,T2), lecturer(L).
-no_9_to_5(D,Y) :- class_with_year(_,_,D,S1,Y), class_with_year(_,_,D,S2,Y), S1<11, S2>15.
+no_9_to_5(Y) :- class_with_year(_,_,D,S1,Y), class_with_year(_,_,D,S2,Y), S1<11, S2>15.
 three_consecutive_hour_for_lecturer(L,D) :- class_with_year(S1,_,D,S,_), class_with_year(S2,_,D,S+1,_), class_with_year(S3,_,D,S+2,_), teaches(L,S1),teaches(L,S2), teaches(L,S3), lecturer(L).
 
 
@@ -118,7 +118,7 @@ force_2_hour_slot(T) :- { day_occupied(T,_,_) } (H+1)/2, subject(T,_,H).
 
 %No 9 to 5
 % :- class_with_year(_,_,D,S1,Y), class_with_year(_,_,D,S2,Y), S1<11, S2>15.
-:- no_9_to_5(_,Y), course(Y).
+:- no_9_to_5(Y), course(Y).
 
 %No three consecutive hour for lecturer
 % :- class_with_year(S1,_,D,S,_), class_with_year(S2,_,D,S+1,_), class_with_year(S3,_,D,S+2,_), teaches(L,S1),teaches(L,S2), teaches(L,S3), lecturer(L).
@@ -132,7 +132,6 @@ force_2_hour_slot(T) :- { day_occupied(T,_,_) } (H+1)/2, subject(T,_,H).
 
 
 #show class_with_year/5.
-% #show no_9_to_5/2.
 % #show lecturer_clash/3.
 % #show class_has_enough_hours/1.
 % #show max_two_day_a_week/1.
