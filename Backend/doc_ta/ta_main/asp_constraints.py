@@ -194,7 +194,7 @@ class Concentration():
     def get_creator(self):
         result = ""
         for i in self.lecturers:
-            result += "not_concentrated(L) :- not(teaches(L,S1), teaches(L,S2), subject(S1,_,D1,_,_), subject(S2,_,D2,_,_), D1=D2, L= %s). \n" % (i)
+            result += "not_concentrated(L) :- teaches(L,S1), teaches(L,S2), subject(S1,_,D1,_,_), subject(S2,_,D2,_,_), D1!=D2, L= %s). \n" % (i)
         return result
     def add_lecturer(self, lecturer):
         self.lecturers.append(lecturer)
@@ -228,6 +228,27 @@ class Spreading():
     def constraint_parse(self,param):
         return ""
 
+class ConcentrateTwo():
+    #we dont have teaches yet
+    #we dont even have information about which lecturer teaches which course or class
+    lecturers = []
+    def get_creator(self):
+        result = ""
+        for i in self.lecturers:
+            result += "not_concentrated_two(L) :- teaches(L,S1), teaches(L,S2), teaches(L,S3)," + \
+                      "subject(S1,_,D1,_,_), subject(S2,_,D2,_,_), subject(S3,_,D3,_,_),"+\
+                      "D1 != D2 , D2 != D3, D3 != D1 , L = %s. \n" % (i)
+        return result
+    def add_lecturer(self, lecturer):
+        self.lecturers.append(lecturer)
+    def get_negator(self):
+        return ":-not_concentarted(_).  \n "
+
+    def get_show_string(self):
+        return "show not_concentrated_two/1. \n"
+
+    def constraint_parse(self,param):
+        return ""
 
 
 class ConstraintHandler():
@@ -244,6 +265,7 @@ class ConstraintHandler():
         "not_unique_room_lecture": UniqueRoomLecture(),
         "reserve_slot" : ReserveSlot(),
         #"concentration" : Concentration()
+        #"concentrate_two" : ConcentrateTwo(),
         "spreading" : Spreading()
     }
     constraint_table_parse_verbose = {
@@ -256,8 +278,9 @@ class ConstraintHandler():
         "Only allow clashes of time slot if stated": "clash_when_not_allowed",
         "Students have max 6 hours a day": "max_six_hour_a_day",
         "Lecture is exactly one room at a day": "not_unique_room_lecture",
-        "Reserve slot for specific year" : "reserve_slot",
+        "Reserve specific slot for specific year" : "reserve_slot",
         #"specific lecturer want to teach everything on one day" : "concentration"
+        #"specific lecturer want all teaching in two days" : "concentrate_two",
         "specific class spread out during a week(at least one day break)" : "spreading"
     }
 
