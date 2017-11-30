@@ -4,6 +4,7 @@ import Timetable from './Timetable.jsx';
 import axios from 'axios'
 import {ReactSelectize, SimpleSelect, MultiSelect} from 'react-selectize';
 import Dropdown from 'react-dropdown';
+import {getDropdownData} from './Utils.jsx'
 
 
 
@@ -14,32 +15,30 @@ class App extends React.Component {
     this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
-                                {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
+                                {time:17, day:"Tuesday", room: "311", name:"Databases I", type: "lecture"},
                                 {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},], modalOpen:false,
-                  subjects:["Architecture", "Hardware", "Databases I"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: []};
+                  subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: []};
     this.openModal=this.openModal.bind(this)
     this.closeModal=this.closeModal.bind(this)
     this.addLecture=this.addLecture.bind(this)
     this.removeLecture=this.removeLecture.bind(this)
+    this.handleRemovingFilter=this.handleRemovingFilter.bind(this)
+    this.getInitialData();
+  }
 
-    // fetch terms he can select
-    this.getTerms();
-    //fetch subjects he can select
-    this.getSubjects();
-    //fetch rooms he can select
-    this.fetchRooms();
+  getInitialData(){
+  var dropdownData = getDropdownData(this)
+//  this.setState({terms: dropdownData.terms, rooms: dropdownData.rooms, subjects: dropdownData.subjects})
   }
 
   openModal(){
     var hours = this.state.hours
     var timetable = this.state.timetable
     this.setState({modalOpen: true})
-    console.log(this.state)
   }
 
   closeModal(){
     this.setState({modalOpen:false})
-
   }
 
   saveTimetable(timetable){
@@ -80,7 +79,8 @@ class App extends React.Component {
             console.log("ERROR");
         }
         else {
-        this.fillTable(response.data.solutions);
+        var timetables = response.data.solutions;
+        this.setState({timetable: timetables[0]});
         }
     })
     .catch(function (error) {
@@ -89,60 +89,17 @@ class App extends React.Component {
 
   }
 
-  fillTable(data) {
-    console.log("data in filltable",data);
-    console.log("state in filltable",this.state);
-    this.setState({timetable:data[0]});
-    console.log(this.state);
-  }
-
-  // fill state.selectable_terms with the terms defined on backend
-  getTerms() {
-    axios.get('/choices/terms').
-    then((response) => {
-        this.setState({selectable_terms: response.data});
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-  }
-
-  getSubjects(){
-    axios.get('/choices/subjects').
-    then((response)=>{
-      this.setState({subjects: response.data})
-    })
-    .catch(function(error){
-      console.log(error)
-    })
-  }
-
-  fetchRooms(){
-    axios.get('/choices/rooms').
-    then((response)=>{
-      this.setState({rooms: response.data})
-    })
-    .catch(function(error){
-      console.log(error)
-    })
-  }
-
   onSelectedTermChange(e) {
-    console.log(e.value," ",this);
     this.setState({selected_term:e.value});
-    console.log("selector changed state to ",this.state);
   }
 
   addLecture(lect){
    var timetable = this.state.timetable
    timetable.push(lect)
-   console.log(timetable)
   }
 
   removeLecture(lect){
-
     var timetable = this.state.timetable
-    console.log(timetable)
     var i = timetable.indexOf(lect);
     if (i> -1){
       timetable.splice(i, 1)
@@ -166,42 +123,21 @@ class App extends React.Component {
     return rows
   }
 
-  getRooms(){
-    var rooms = []
-    this.state.timetable.forEach(d => {if(rooms.indexOf(d.room) === -1) {
-                      rooms.push(d.room);
-                      console.log(rooms);
-                      }});
-    return rooms
-  }
-
-  getCourses(){
-    var courses = []
-    this.state.timetable.forEach(d => {if(courses.indexOf(d.name) === -1) {
-                      courses.push(d.name);
-                      console.log(courses);
-                      }});
-    return courses
-  }
-
-  emptyFilter(){
-    this.setState({roomsFilter:[]})
-  }
 
   //generate table with appropriate filters
-  filterTable(data, allRooms, allCourses){
+  filterTable(timetable){
     var rooms = [];
     var courses = [];
     if(this.state.roomsFilter.length == 0) {
-      rooms = allRooms;
+      rooms = this.state.rooms;
     }
     if(this.state.coursesFilter.length == 0) {
-      courses = allCourses;
+      courses = this.state.subjects;
     }
     this.state.roomsFilter.forEach(r => {rooms.push(r.value)});
     this.state.coursesFilter.forEach(c => {courses.push(c.value)});
-    var timetable = this.state.timetable;
     var filteredTimetable = [];
+
     timetable.forEach(lect => {
       if (rooms.indexOf(lect.room) != -1 && courses.indexOf(lect.name) != -1){
         filteredTimetable.push(lect);
@@ -210,11 +146,28 @@ class App extends React.Component {
     return filteredTimetable
 }
 
+  handleRemovingFilter(e) {
+      if(e.button == 1) {
+        var prevFilter = this.state.roomsFilter;
+//        console.log("prev",prevFilter,"removes",e.target.textContent);
+        var index = -1;
+        for (var i=0; i < this.state.roomsFilter.length ;i ++) {
+           if(this.state.roomsFilter[i].label == e.target.textContent) {
+            index = i;
+           }
+        }
+        if(index >= 0) {
+        this.state.roomsFilter.splice(index,1);
+        this.setState({roomsFilter: this.state.roomsFilter}); // force rerender
+        }
+        console.log(this);
+      }
+
+    }
+
   render () {
     var timetable
-    var allRooms = this.getRooms()
-    var allCourses = this.getCourses()
-    var ftable = this.filterTable(this.state.timetable, allRooms, allCourses)
+    var ftable = this.filterTable(this.state.timetable)
     var rows = this.generateRows(ftable)
     timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
                  removeLecture={this.removeLecture} openModal={this.openModal} closeModal={this.closeModal}
@@ -227,15 +180,23 @@ class App extends React.Component {
     var dropDownRooms = <MultiSelect
                     placeholder = "Select Room(s)"
                     theme = "material"
-                    options = {allRooms.map(
+                    options = {this.state.rooms.map(
                       room => ({label: room, value: room})
                     )}
                     onValuesChange = {value => {this.setState({roomsFilter : value})}}
+                    renderValue = {(arg$) => {
+                                        var label;
+                                        label = arg$.label;
+                                        return <div className='simple-value'/>,
+                                        <span onClick={(e) => {this.handleRemovingFilter(e)}}>{label}</span>;
+
+                                       }
+                                  }
                    />
     var dropDownCourses = <MultiSelect
                           placeholder = "Select Course(s)"
                           theme = "material"
-                          options = {allCourses.map(
+                          options = {this.state.subjects.map(
                             course => ({label: course, value: course})
                           )}
                           onValuesChange = {value =>{this.setState({coursesFilter: value})}}
@@ -262,7 +223,6 @@ class App extends React.Component {
               </div>
            </div>)
   }
-
 }
 
 render(<App/>, document.getElementById('app'));

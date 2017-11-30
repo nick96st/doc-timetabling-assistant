@@ -4,6 +4,7 @@ from django.http import response
 from django.template import loader
 import models as ta_models
 import asp_code_generator
+from asp_constraints import ConstraintHandler as Constraints
 import json
 from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import APIView, permission_classes
@@ -61,6 +62,10 @@ def check_constraints(request):
             return response.HttpResponseBadRequest("No term specified")
     except KeyError:
         return response.HttpResponseBadRequest("No term specified")
+    try:
+        constraints = json.loads(request.body)["constraints"]
+    except KeyError:
+        constraints = None
     # hard_constraints = request.data["constraints"]
     # soft_constraints = request.data[""]
     # create models from json
@@ -73,7 +78,8 @@ def check_constraints(request):
     codegen = asp_code_generator.CodeGeneratorBuilder()
     codegen.for_term(term_name).perform("CHECK")
     codegen.with_result_facts(grid_objects)
-    # codegen.with_hard_constraints(hard_constraints)
+    # set constraints if  None - it will use default(ALL)
+    codegen.with_hard_constraints(constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
     # check if code generator generates without exceptions
@@ -86,24 +92,51 @@ def check_constraints(request):
     success, violations = generator.parse_result()
     # if success then send the list of violations
     if success:
-        return response.HttpResponse(content=violations)
+        return response.HttpResponse(content=json.dumps(violations),content_type="application/json")
     # if not success then something has gone wrong since it asp result should be SATISFIABLE(no hard constraints)
     else:
         return response.HttpResponseServerError("ASP result is not satisfiable")
+
+@csrf_exempt
+def update_save(request):
+    try:
+        timetable = json.loads(request.body)["timetable"]
+    except KeyError:
+        response.HttpResponseBadRequest("No timetable parameter.")
+    save_id = 0
+    try:
+        save_id = json.loads(request.body)["save_id"]
+    except KeyError:
+        response.HttpResponseBadRequest("No save id parameter.")
+
+    try:
+        save_obj = ta_models.SavedTable.objects.get(id=save_id)
+        ta_models.LectureClass.objects.filter(save_it_belongs_to=save_obj).delete()
+        for obj in timetable:
+            model = ta_models.LectureClass()
+            model.init_from_json(obj)
+            model.save_it_belongs_to = save_obj
+            model.save()
+        response.HttpResponse(status=200)
+    except IndexError:
+        response.HttpResponseBadRequest("Save id parameter does not exist.")
 
 
 @csrf_exempt
 def save_timetable(request):
     # return response.HttpResponse(content=json.loads(request.body)['timetable'],content_type="application/json")
-    timetable = json.loads(request.body)["timetable"]
-    # delete any previous saved data
-    previous_save = ta_models.SavedTable.objects.filter(name="test_timetable").first()
-    if not (previous_save is None):
-        ta_models.LectureClass.objects.filter(save_it_belongs_to=previous_save).delete()
-        previous_save.delete()
+    try:
+        timetable = json.loads(request.body)["timetable"]
+    except KeyError:
+        response.HttpResponseBadRequest("No timetable parameter.")
+    try:
+        save_name = json.loads(request.body)["save_name"]
+    except KeyError:
+        save_name = "Unnamed"  # default name if no provided
 
     save_id = ta_models.SavedTable()
-    save_id.name = "test_timetable"  # TODO: pass a name of timetable
+    save_id.name = save_name  # TODO: pass a name of timetable
+    save_id.table_size = ta_models.TableSizeDef.objects.first() #TODO: select from frontend
     save_id.save()
     for obj in timetable:
         model = ta_models.LectureClass()
@@ -113,6 +146,33 @@ def save_timetable(request):
 
     return response.HttpResponse(status=200)
 
+
+@csrf_exempt
+def get_load_choices(request):
+
+    all_saves = ta_models.SavedTable.objects.all()
+    saves = []
+
+    for save in all_saves:
+        saves.append({"id":save.id, "name":save.name})
+
+    return response.HttpResponse(content=json.dumps(saves),content_type="application/json")
+
+@csrf_exempt
+def load_save(request):
+    save_id = request.GET.get("save_id", None)
+
+    if not save_id:
+        response.HttpResponseBadRequest("No save identifier given.")
+
+    save_obj = ta_models.SavedTable.objects.get(id=save_id)
+    saved_data = ta_models.LectureClass.objects.filter(save_it_belongs_to=save_obj)
+
+    result = []
+    for item in saved_data:
+        result.append(item.to_json_for_frontend())
+
+    return response.HttpResponse(content=json.dumps(result))
 
 @csrf_exempt
 def get_term_choices(request):
@@ -143,6 +203,26 @@ def get_room_choices(request):
 
     return response.HttpResponse(content=json.dumps(room_list))
 
+
+@csrf_exempt
+def get_constraint_choices(request):
+    constraints = Constraints.constraint_table_parse_verbose.keys()
+    return response.HttpResponse(content=json.dumps(constraints))
+
+
+@csrf_exempt
+def create_timeslots_for_table(request):
+    try:
+        params = json.loads(request.body)
+        daydefs = params["days"]
+        hours_start = params["hours_start"]
+        hours_end = params["hours_end"]
+        name = params["name"]
+    except ValueError:
+        return response.HttpResponseBadRequest("Not a post request ot not have all params")
+
+    ta_models.TableSizeDef.create(daydefs,hours_start,hours_end,name)
+    return response.HttpResponse()
 
 import tests.database_inits as DB
 @csrf_exempt

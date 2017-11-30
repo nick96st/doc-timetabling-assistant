@@ -18,38 +18,10 @@ def append_new_definition(current, new):
 
 # Generates code from specified objects
 class ASPCodeGenerator():
-    # enough hours
-    # enough_hour = constraint(":- not class_has_enough_hours(T), subject(T,_,_).")
-    # no 3 conseuquitive lectures
-    # no_three_consecutive_lectures = constraint(":- class_with_year(_,_,D,S,Y), class_with_year(_,_,D,S+1,Y), class_with_year(_,_,D,S+2,Y), timeslot(D,S), course(Y).")
-    # if 2 lectures in a day they must follow one another
-    #two_hour_slot = constraint(":- class_with_year(T,_,D,S,Y), class_with_year(T,_,D,S+X,Y), X=2..8.")
-    # capacity check
-    #room_capacity = constraint(":- class_with_year(T,R,_,_,_),room(R,C),subject(T,S,_), C<S.")
-    # limit 2 days a week to form 2hour time_slot
-    #max_two_day_a_week = constraint(":- not force_2_hour_slot(T), subject(T,_,_).")
-    # unique timeslot for each year, allow clashes if stated
-    # unique_timeslot_unless_allowed = constraint(":- class_with_year(A,_,D,S,Y), class_with_year(B,_,D,S,Y), A!=B, not clash(A,B).")
-    # Students have maximum 6 hours a days
-    #max_six_hour_a_day = constraint(":- not max_six_hour_a_day(D,Y), timeslot(D,_), course(Y).")
-    # Lectures on the same day must be in the same room(OR even hour)
-    # unique_room_lecture = constraint(":- class_with_year(T,R1,D,_,_), class_with_year(T,R2,D,_,_), R1!=R2.")
-    # Every room can have 1 lecture at a time
-    # unique_room = constraint(":- class_with_year(T,R,D,S,_), class_with_year(Q,R,D,S,_), T!=Q.\n")
-
-    constraint_dictionary = {
-                            # "Each class has enough hour per week" : enough_hour,
-                            # "No three consecutive lectures" : no_three_consecutive_lectures
-                            # "Force two-hour slot" : two_hour_slot
-                            # "Check room capacity" : room_capacity
-                            # "Each subject two day a week" : max_two_day_a_week
-                            # "Forbid 2 lectures in the same room" : unique_room
-                            # "Only allow clashes of timeslot if stated" : unique_timeslot_unless_allowed
-                            #  "Students have max 6 hour a day" : max_six_hour_a_day
-                            #  "Lecture is in exactly one room at a day": unique_room_lecture
-                            }
 
     def __init__(self):
+        self.table_def = ta_models.TableSizeDef.objects.all().first()
+        self.check_subject = "architecture"
         self.term = ""             # term to be generated on
         self.subjects = []         # subjects which belong to the term
         self.result_facts = []
@@ -66,8 +38,14 @@ class ASPCodeGenerator():
         for room in ta_models.Room.objects.all():
             obj_def_string += room.to_asp() + '.\n'
 
-        # TODO: perhaps selectable MxN thing
-        for timeslot in ta_models.Timeslot.objects.all():
+        # Gets the timeslots asociated with the table size definitions
+        all_daydefs = ta_models.DayDef.objects.filter(table=self.table_def)
+        timeslots = []
+        for daydef in all_daydefs:
+            for ts in ta_models.Timeslot.objects.filter(day=daydef):
+                timeslots.append(ts)
+
+        for timeslot in timeslots:
             obj_def_string += timeslot.to_asp() + '.\n'
 
         for course in ta_models.CourseYear.objects.all():
@@ -99,36 +77,54 @@ class ASPCodeGenerator():
         result_string = ""
         for fact in self.result_facts:
             result_string += fact.to_asp().lower() + ".\n"
+            # generate blocker for already existing if checking for available slots
+            if self.status == "CHECKSLOTS" and fact.subject.title_asp == self.check_subject:
+                result_string += 'start_loc(' + str(fact.time_slot.day.day_asp) + ',' + str(fact.time_slot.hour) + ').\n'
 
         return result_string
 
     def generate_axiom_constraints(self):
         axiom_constraints_string = " "
+        # remove constraint to generate enough hours for all subjects
+        if self.status == "CHECKSLOTS":
+            self.hard_constraints.remove("Each class to have enough hours.")
+
         for constraint in self.hard_constraints:
             axiom_constraints_string += Constraints.constraint_creator(constraint)
 
-        ######## do we leave the rest of the generators here while some of the other are put in class?
         axiom_constraints_string += "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
-                                    "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
                                     "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n"
-                                    # "max_six_hour_a_day(D,Y):- { slot_occupied(D,_,Y) } 6, timeslot(D,_), course(Y).\n" + \
-                                    #"force_2_hour_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
-                                    #"class_has_enough_hours(T):- not H { class_with_year(T,_,_,_,_) } H , subject(T,_,H).\n"
 
+        if self.status != "CHECKSLOTS":
+            axiom_constraints_string += "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n"
+        else:
+            T = self.check_subject
+            # has enough hours of subjects
+            H = 0 # class hours needed
+            # count how many times you have as fact and get 1 more
+            for fact in self.result_facts:
+                if fact.subject.title_asp == T:
+                    H = H +1
+
+            H = H + 1
+            H = str(H)
+            # class ahs enough hours (1 + existing)
+            axiom_constraints_string += "not_class_has_enough_hours("+ T + ") :- not " + H +" { class_with_year(" + T + ",_,_,_,_) } " + H + ".\n "
+            axiom_constraints_string += ":- not_class_has_enough_hours("+ T + ").\n"
+            # generate only of type subject
+            axiom_constraints_string += "0 { class("+T + ",R,D,S) } 1:- room(R,_),timeslot(D,S).\n"
+            axiom_constraints_string += "class_with_year(" + T + ",R,D,S,Y) :- class(" + T + ",R,D,S),subjectincourse(" + T +",Y).\n"
+            # generate result
+            axiom_constraints_string += "possible_locations(D,S):- class_with_year(" + T + ",R,D,S,Y), not start_loc(D,S).\n"
         return axiom_constraints_string
 
     def generate_hard_constraints(self):
 
         result_string = ""
         # generate hard constraint negators if generating
-        if self.status == "GENERATE":
+        if self.status == "GENERATE" or self.status == "CHECKSLOTS":
             for constraint in self.hard_constraints:
                 result_string += Constraints.constraint_negator(constraint)
-
-        # TODO: Comment this out when all the constraints are parsed into new format
-        constraints_list = self.constraint_dictionary.values()
-        for c in constraints_list:
-            result_string += c.get_constraint() + "\n"
 
         return result_string
 
@@ -149,8 +145,10 @@ class ASPCodeGenerator():
         # takes inputs source and gets the name before "." for the out file
         if output_src is None:
             output_src = str(input_src).split('.')[0] + '.out'
-
-        command_string = "./asp/clingo --outf=2 <" + './' + input_src + ">" + './' + output_src
+        if self.status != "CHECKSLOTS":
+            command_string = "./asp/clingo --outf=2 <" + './' + input_src + ">" + './' + output_src
+        else:
+            command_string = "./asp/clingo  -n 0 --outf=2 <" + './' + input_src + ">" + './' + output_src
         os.system(command_string)
 
     def select_subjects_from_term(self):
@@ -180,7 +178,10 @@ class ASPCodeGenerator():
         code_string += self.generate_hard_constraints()
         code_string += self.generate_soft_constraints()
         # generate result we are interested in(class objects)
-        code_string += "#show class_with_year/5."
+        if self.status != "CHECKSLOTS":
+            code_string += "#show class_with_year/5.\n"
+        else: # for CHECKSLOTS show the possible locations
+            code_string += "#show possible_locations/2.\n"
         # ask to display facts generated from violations when checking
         if self.status == "CHECK":
             for constraint in self.hard_constraints:
@@ -232,10 +233,11 @@ class ASPCodeGenerator():
                         constraint_violations.append(lecture_class)
                 # parses to readable string the violations the checker has generated
                 parsed_violations = []
+                metadata = []
                 if len(constraint_violations) != 0:
                     parsed_violations = self.parse_violations(constraint_violations)
-
-                json_solutions.append({"violations":parsed_violations})
+                    metadata = self.parse_metadata(constraint_violations)
+                json_solutions.append({"violations":parsed_violations,"metadata":metadata})
 
             return True, json_solutions
 
@@ -246,13 +248,19 @@ class ASPCodeGenerator():
                 result_array = []
                 # for every solution parse
                 for lecture_class in solution:
-                        result_array.append(ta_models.LectureClass().from_asp(lecture_class).to_json_for_frontend())
+                        result_array.append(ta_models.LectureClass().from_asp(lecture_class,self.table_def).to_json_for_frontend())
 
                 json_solutions.append(result_array)
             # code_result = read_from_asp_result('default_001.in')
             return True, json_solutions
 
+        elif self.status == "CHECKSLOTS":
+            json_solutions = []
+            for solution in tokenized_results:
+                for possible_slot in solution:
+                    json_solutions.append({"day":possible_slot["params"][0],"time":possible_slot["params"][1]})
 
+            return True, json_solutions
 # Returns only result status of a asp
     def get_result_status(self,file_name=None):
         if file_name is None:
@@ -269,11 +277,22 @@ class ASPCodeGenerator():
 
         return notification_list
 
+    def parse_metadata(self, violation_terms):
+        metadata_list = []
+
+        for violation in violation_terms:
+            metadata_item = Constraints.constraint_metadata(violation["id"], violation["params"])
+            if metadata_item is not None:
+                metadata_list.append(metadata_item)
+
+        return metadata_list
 
 # Build pattern for the code generator to define which constraints
 # facts, and object definitions to have
 class CodeGeneratorBuilder():
     def __init__(self):
+        self.table = None
+        self.subject_to_check = None
         self.selected_term = ""
         self.result_facts = []
         # Default hard constraints are all the defined keys in the verbose map table
@@ -281,6 +300,12 @@ class CodeGeneratorBuilder():
         self.soft_constraints = []
         self.should_generate = True
         self.status = ""
+
+    def for_subject(self,subject_name):
+        self.subject_to_check = subject_name
+
+    def for_table(self,table_id):
+        self.table = ta_models.SavedTable(id=table_id)
 
     def for_term(self,term_name):
         self.selected_term = term_name
@@ -317,4 +342,7 @@ class CodeGeneratorBuilder():
         code_generator.should_generate = self.should_generate
         code_generator.term = self.selected_term
         code_generator.status = self.status
+        if self.subject_to_check is not None:
+            code_generator.check_subject = ta_models.Subject.objects.filter(title=self.subject_to_check).first().title_asp
+        # code_generator.table_def = self.table.table_size
         return code_generator
