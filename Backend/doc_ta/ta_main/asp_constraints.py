@@ -107,10 +107,10 @@ class CheckRoomCapacity():
         return "check_room_capacity(R,D,A):- class_with_year(T,R,D,A,_),room(R,C),subject(T,S,_), C<S. \n"
 
     def get_negator(self):
-        return ":-check_room_capacity(_,_,_). \n"
+        return ":- check_room_capacity(_,_,_). \n"
 
     def get_show_string(self):
-        return "#show check_room_capacity/3.\n "
+        return "#show check_room_capacity/3.\n"
 
     def constraint_parse(self,param):
         return 'Room ' + param[0] + ' does not have enough capacity for subject ' + parse_timeslot(param[1], param[2]) + "."
@@ -229,10 +229,10 @@ class ConstraintHandler():
         "two_hour_slot":TwoHourSlot(),
         "check_room_capacity" : CheckRoomCapacity(),
         "limit_day_to_form_2h_slot":LimitDayToFormTwohourSlot(),
-        "unique_room" : UniqueRoom(),
+        "not_unique_room" : UniqueRoom(),
         "clash_when_not_allowed" : UniqueTimeslotUnlessAllowed(),
         "max_six_hour_a_day" : MaxSixHourADay(),
-        "unique_room_lecture" : UniqueRoomLecture(),
+        "not_unique_room_lecture" : UniqueRoomLecture(),
         "lecturer_clash" : LecturerClash(),
         "max_four_hour_a_day_lecturer" : MaxFourHourADayLecturer()
     }
@@ -242,10 +242,10 @@ class ConstraintHandler():
         "Force two-hour slot" : "two_hour_slot",
         "Check Room Capacity" : "check_room_capacity",
         "Limit the number of days have a subject to form 2h slot": "limit_day_to_form_2h_slot",
-        "Forbid 2 lecturers in the same room" : "unique_room",
+        "Forbid 2 lecturers in the same room" : "not_unique_room",
         "only allow clashes of time slot if stated" : "clash_when_not_allowed",
         "Students have max 6 hours a day" : "max_six_hour_a_day",
-        "Lecture is exactly one room at a day" : "unique_room_lecture",
+        "Lecture is exactly one room at a day" : "not_unique_room_lecture",
         "Lecturer can only teach one subject at a time" : "lecturer_clash",
         "Lecturer teaches max 4 hour a day" : "max_four_hour_a_day_lecturer"
     }
