@@ -41,6 +41,8 @@ class Timetable extends React.Component{
 
 
   generateRows(){
+    var days = {"1":"Monday","2":"Tuesday","3":"Wednesday","4":"Thusday","5":"Friday"}
+
     var rowItems = []
     var start = this.props.hours.start
     var end = this.props.hours.finish
@@ -58,7 +60,7 @@ class Timetable extends React.Component{
             if (this.props.violation !== undefined){
               if (this.props.violation.name !== undefined && this.props.violation.name === s.name){
                 warn = "warning-slot"
-              }else if (this.props.violation.day === slot.day && this.props.violation.time ===slot.time)
+              }else if (days[this.props.violation.timeslot.day] === slot.day && parseInt(this.props.violation.timeslot.hour) === slot.time)
                 warn = "warning-slot"
             }
             courses.push (<div className={warn}><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>

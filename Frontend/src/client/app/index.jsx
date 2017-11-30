@@ -41,7 +41,6 @@ class App extends React.Component {
     then((response) => {
         console.log(response.data)
         this.setState({labels: response.data})
-        console.log(this.state.labels)
     })
     .catch(function (error) {
       console.log(error);
@@ -90,7 +89,6 @@ class App extends React.Component {
      timetable: state.timetable, term: state.selected_term, constraints: Array.from(this.selectedCheckboxes)
    })
    .then( (response) => {
-     console.log(this.state);
      this.setState({violationData: response.data[0]})
     this.setState({isChecked:true})
 //    this.generateViolations();
@@ -182,13 +180,13 @@ class App extends React.Component {
   generateViolations(){
     var violations = []
     const violationData = this.state.violationData;
-    if (violationData != null){
+    console.log(violationData)
+    if (violationData !=  null){
       for (var i=0; i<violationData.violations.length; i++){
         const activeViolation = violationData.metadata[i];
         violations.push(<li className="violation-list-item"><span onClick={()=>{this.setState({activeViolation: activeViolation})}}>{violationData.violations[i]}</span></li>)
       }
-    }else{
-      if(this.state.isChecked){
+      if(violationData.violations.length == 0 && this.state.isChecked){
       violations = <li className="check-success"><span>Timetable is valid on all selected constraints</span></li>
     }
     }
@@ -238,7 +236,6 @@ class App extends React.Component {
     }
 
   render () {
-  console.log(this.state);
     var violations = this.generateViolations()
     var constraintSelectorItems = this.generateConstraintSelector()
     var violationList = <ul className="violation-list">{violations}</ul>
@@ -247,7 +244,8 @@ class App extends React.Component {
     var rows = this.generateRows(ftable)
     timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
                  removeLecture={this.removeLecture} openModal={this.openModal} closeModal={this.closeModal}
-                 modalOpen={this.state.modalOpen} violation={this.state.activeViolation}/>
+                 modalOpen={this.state.modalOpen} violation={this.state.activeViolation}
+                 rooms={this.state.rooms} subjects={this.state.subjects}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
