@@ -194,7 +194,7 @@ class Concentration():
     def get_creator(self):
         result = ""
         for i in self.lecturers:
-            result += "not_concentrated(L) :- teaches(L,S1), teaches(L,S2), subject(S1,_,D1,_,_), subject(S2,_,D2,_,_), D1!=D2, L= %s). \n" % (i)
+            result += "not_concentrated(L) :- teaches(L,S1), teaches(L,S2), class_with_year(S1,_,D1,_,_), class_with_year(S2,_,D2,_,_), D1!=D2, L= %s). \n" % (i)
         return result
     def add_lecturer(self, lecturer):
         self.lecturers.append(lecturer)
@@ -213,14 +213,14 @@ class Spreading():
 
         result = ""
         for i in self.subjects:
-            result += "not_spreading(T) :-  subject(T,_,D1,_,Y), subject(T,_,D2,_,Y), Abs(D1-D2) < 2, D1 != D2, T = %s \n" % (i)
+            result += "not_spreading(T) :-  class_with_year(T,_,D1,_,Y), class_with_year(T,_,D2,_,Y), Abs(D1-D2) < 2, D1 != D2, T = %s \n" % (i)
         return result
 
     def add_subject(self, subject):
         self.subjects.append(subject)
 
     def get_negator(self):
-        return ":-not_spreading(_).  \n "
+        return ":- not_spreading(_).  \n "
 
     def get_show_string(self):
         return "show not_spreading/1. \n"
@@ -236,19 +236,44 @@ class ConcentrateTwo():
         result = ""
         for i in self.lecturers:
             result += "not_concentrated_two(L) :- teaches(L,S1), teaches(L,S2), teaches(L,S3)," + \
-                      "subject(S1,_,D1,_,_), subject(S2,_,D2,_,_), subject(S3,_,D3,_,_),"+\
+                      "class_with_year(S1,_,D1,_,_), class_with_year(S2,_,D2,_,_), class_with_year(S3,_,D3,_,_),"+\
                       "D1 != D2 , D2 != D3, D3 != D1 , L = %s. \n" % (i)
         return result
     def add_lecturer(self, lecturer):
         self.lecturers.append(lecturer)
     def get_negator(self):
-        return ":-not_concentarted(_).  \n "
+        return ":- not_concentarted_two(_).  \n "
 
     def get_show_string(self):
         return "show not_concentrated_two/1. \n"
 
     def constraint_parse(self,param):
         return ""
+
+class NoLecturerDayTime():
+    #no lecturer on specific day and time
+    #we dont have teaches yet
+    #we dont even have information about which lecturer teaches which course or class
+    lecturerDayTime = []
+    def get_creator(self):
+        result = ""
+        for i in self.lecturerDayTime:
+            result += "cannot_teach(L,S,D,T) :- teaches(L,S) , class_with_year(S,_,D,T,_), L = %s, D = %s, T = %s.\n" % (i[0],i[1],i[2])
+        return result
+
+    def add_no_lecturer_day_time(self, lecturer, day, time):
+        ar = [lecturer,day,time]
+        self.lecturerDayTime.append(ar)
+
+    def get_negator(self):
+        return ":- cannot_teach(_,_,_,_).  \n "
+
+    def get_show_string(self):
+        return "cannot_teach/4. \n"
+
+    def constraint_parse(self,param):
+        return ""
+
 
 
 class ConstraintHandler():
@@ -266,7 +291,8 @@ class ConstraintHandler():
         "reserve_slot" : ReserveSlot(),
         #"concentration" : Concentration()
         #"concentrate_two" : ConcentrateTwo(),
-        "spreading" : Spreading()
+        "spreading" : Spreading(),
+        "no_lecturer_day_time" : NoLecturerDayTime()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "not_class_has_enough_hours",
@@ -281,7 +307,8 @@ class ConstraintHandler():
         "Reserve specific slot for specific year" : "reserve_slot",
         #"specific lecturer want to teach everything on one day" : "concentration"
         #"specific lecturer want all teaching in two days" : "concentrate_two",
-        "specific class spread out during a week(at least one day break)" : "spreading"
+        "specific class spread out during a week(at least one day break)" : "spreading",
+        "specific lecturer cannot teach on specific day speciic time" : "no_lecturer_day_time"
     }
 
     @staticmethod
