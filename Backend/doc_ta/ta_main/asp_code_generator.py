@@ -84,13 +84,37 @@ class ASPCodeGenerator():
 
     def generate_axiom_constraints(self):
         axiom_constraints_string = " "
+        # remove constraint to generate enough hours for all subjects
+        if self.status == "CHECKSLOTS":
+            self.hard_constraints.remove("Each class to have enough hours.")
+
         for constraint in self.hard_constraints:
             axiom_constraints_string += Constraints.constraint_creator(constraint)
 
         axiom_constraints_string += "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
-                                    "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
                                     "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n"
 
+        if self.status != "CHECKSLOTS":
+            axiom_constraints_string += "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n"
+        else:
+            T = self.check_subject
+            # has enough hours of subjects
+            H = 0 # class hours needed
+            # count how many times you have as fact and get 1 more
+            for fact in self.result_facts:
+                if fact.subject.title_asp == T:
+                    H = H +1
+
+            H = H + 1
+            H = str(H)
+            # class ahs enough hours (1 + existing)
+            axiom_constraints_string += "not_class_has_enough_hours("+ T + ") :- not " + H +" { class_with_year(" + T + ",_,_,_,_) } " + H + ".\n "
+            axiom_constraints_string += ":- not_class_has_enough_hours("+ T + ").\n"
+            # generate only of type subject
+            axiom_constraints_string += "0 { class("+T + ",R,D,S) } 1:- room(R,_),timeslot(D,S).\n"
+            axiom_constraints_string += "class_with_year(" + T + ",R,D,S,Y) :- class(" + T + ",R,D,S),subjectincourse(" + T +",Y).\n"
+            # generate result
+            axiom_constraints_string += "possible_locations(D,S):- class_with_year(" + T + ",R,D,S,Y), not start_loc(D,S).\n"
         return axiom_constraints_string
 
     def generate_hard_constraints(self):
