@@ -254,7 +254,13 @@ class ASPCodeGenerator():
             # code_result = read_from_asp_result('default_001.in')
             return True, json_solutions
 
+        elif self.status == "CHECKSLOTS":
+            json_solutions = []
+            for solution in tokenized_results:
+                for possible_slot in solution:
+                    json_solutions.append({"day":possible_slot["params"][0],"time":possible_slot["params"][1]})
 
+            return True, json_solutions
 # Returns only result status of a asp
     def get_result_status(self,file_name=None):
         if file_name is None:
