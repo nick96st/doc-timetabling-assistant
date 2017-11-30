@@ -70,6 +70,8 @@ def check_constraints(request):
     # soft_constraints = request.data[""]
     # create models from json
     grid_objects = []
+    # return response.HttpResponse(content=timetable,
+    #                              content_type="application/json")
     for obj in timetable:
         model = ta_models.LectureClass()
         model.init_from_json(obj)

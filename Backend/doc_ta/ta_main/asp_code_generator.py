@@ -87,7 +87,11 @@ class ASPCodeGenerator():
         axiom_constraints_string = " "
         # remove constraint to generate enough hours for all subjects
         if self.status == "CHECKSLOTS":
-            self.hard_constraints.remove("Each class to have enough hours.")
+            try:
+                self.hard_constraints.remove("Each class to have enough hours.")
+            except ValueError:
+                pass
+
 
         for constraint in self.hard_constraints:
             axiom_constraints_string += Constraints.constraint_creator(constraint)

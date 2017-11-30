@@ -4,7 +4,10 @@ import Timetable from './Timetable.jsx';
 import axios from 'axios'
 import {ReactSelectize, SimpleSelect, MultiSelect} from 'react-selectize';
 import Dropdown from 'react-dropdown';
-import {getDropdownData} from './Utils.jsx'
+import {getDropdownData} from './Utils.jsx';
+import MyCheckbox from './MyCheckbox.jsx'
+
+
 
 
 
@@ -14,22 +17,46 @@ class App extends React.Component {
     super(props);
     this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                 {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
-                                {time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
-                                {time:17, day:"Tuesday", room: "311", name:"Databases I", type: "lecture"},
-                                {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},], modalOpen:false,
-                  subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: []};
+                                //{time:16, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
+                               // {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
+                               // {time:17, day:"Tuesday", room: "311", name:"Databases I", type: "lecture"},
+                              //  {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},
+                                ], modalOpen:false,
+                  subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [], labels:[]};
     this.openModal=this.openModal.bind(this)
     this.closeModal=this.closeModal.bind(this)
     this.addLecture=this.addLecture.bind(this)
     this.removeLecture=this.removeLecture.bind(this)
     this.handleRemovingFilter=this.handleRemovingFilter.bind(this)
+    this.toggleCheckbox=this.toggleCheckbox.bind(this)
     this.getInitialData();
   }
 
   getInitialData(){
   var dropdownData = getDropdownData(this)
 //  this.setState({terms: dropdownData.terms, rooms: dropdownData.rooms, subjects: dropdownData.subjects})
+
+//    this.getConstraints();
+    axios.get('/choices/constraints').
+    then((response) => {
+        console.log(response.data)
+        this.setState({labels: response.data})
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    // this.getInitialData();
   }
+
+  componentWillMount(){
+    this.selectedCheckboxes = new Set();
+  }
+
+  getConstraints(){
+
+  }
+
+
 
   openModal(){
     var hours = this.state.hours
@@ -54,16 +81,23 @@ class App extends React.Component {
   }
 
   checkTimetable(state) {
-    axios.post('/timetable/check', {
-    timetable: state.timetable,
-    term: state.selected_term
-  })
-  .then(function (response) {
-    console.log(response);
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
+  console.log(this.state,this.selectedCheckboxes);
+//    var data = {violations:["Room 311 is used by different lectures at the same time", "Class Databases I does not have enough hours"],
+//                metadata:[{day:"Tuesday", time:17}, {name:"Databases I"}]}
+//    this.setState({violationData:data})
+     axios.post('/timetable/check', {
+     timetable: state.timetable, term: state.selected_term, constraints: Array.from(this.selectedCheckboxes)
+   })
+   .then( (response) => {
+     this.setState({violationData: response.data[0]})
+    this.setState({isChecked:true})
+//    this.generateViolations();
+
+
+   })
+   .catch(function (error) {
+     console.log(error);
+   });
 
   }
 
@@ -89,6 +123,24 @@ class App extends React.Component {
 
   }
 
+  generateConstraintSelector(){
+    var checkboxes = []
+    const labels = this.state.labels
+    labels.forEach(l =>{
+      checkboxes.push(<li><MyCheckbox label={l} handleChange={this.toggleCheckbox} key={l}/></li>)
+    })
+    var checkboxList = <ul>{checkboxes}</ul>
+    return checkboxList
+  }
+
+  toggleCheckbox(label){
+    if(this.selectedCheckboxes.has(label)){
+      this.selectedCheckboxes.delete(label)
+    }else{
+      this.selectedCheckboxes.add(label)
+    }
+  }
+
   onSelectedTermChange(e) {
     this.setState({selected_term:e.value});
   }
@@ -97,6 +149,8 @@ class App extends React.Component {
    var timetable = this.state.timetable
    timetable.push(lect)
   }
+
+
 
   removeLecture(lect){
     var timetable = this.state.timetable
@@ -121,6 +175,22 @@ class App extends React.Component {
                        if(d.day === "Friday"){friday[d.time].push(d)}});
     var rows = [monday, tuesday, wednesday, thursday, friday]
     return rows
+  }
+
+  generateViolations(){
+    var violations = []
+    const violationData = this.state.violationData;
+    console.log(violationData)
+    if (violationData !=  null){
+      for (var i=0; i<violationData.violations.length; i++){
+        const activeViolation = violationData.metadata[i];
+        violations.push(<li className="violation-list-item"><span onClick={()=>{this.setState({activeViolation: activeViolation})}}>{violationData.violations[i]}</span></li>)
+      }
+      if(violationData.violations.length == 0 && this.state.isChecked){
+      violations = <li className="check-success"><span>Timetable is valid on all selected constraints</span></li>
+    }
+    }
+    return violations
   }
 
 
@@ -166,16 +236,20 @@ class App extends React.Component {
     }
 
   render () {
+    var violations = this.generateViolations()
+    var constraintSelectorItems = this.generateConstraintSelector()
+    var violationList = <ul className="violation-list">{violations}</ul>
     var timetable
     var ftable = this.filterTable(this.state.timetable)
     var rows = this.generateRows(ftable)
     timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
                  removeLecture={this.removeLecture} openModal={this.openModal} closeModal={this.closeModal}
-                 modalOpen={this.state.modalOpen} rooms={this.state.rooms} subjects={this.state.subjects}/>
+                 modalOpen={this.state.modalOpen} violation={this.state.activeViolation}
+                 rooms={this.state.rooms} subjects={this.state.subjects}/>
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
-    var emptyFilterBtn = <button onClick={() => {this.emptyFilter()}}>Empty Filter</button>
+    var dimensions = {width:100, height: 100}
 
     var dropDownRooms = <MultiSelect
                     placeholder = "Select Room(s)"
@@ -215,13 +289,15 @@ class App extends React.Component {
                 <div class="horizontal2">{saveBtn}</div>
                 <div class="horizontal2">{checkBtn}</div>
                 <div class="horizontal2">{generateBtn}</div>
-                <div class="horizontal2">{emptyFilterBtn}</div>
-                <div class="console_place_holder">Console place holder...</div>
+                <div className="violation-console">
+                {violationList}
+                </div>
               </div>
               <div class="right-component">
                 {timetable}
               </div>
-           </div>)
+            </div>);
+
   }
 }
 

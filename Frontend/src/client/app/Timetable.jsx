@@ -14,11 +14,12 @@ class Timetable extends React.Component{
     this.lectureChange = this.lectureChange.bind(this);
     this.roomChange = this.roomChange.bind(this);
     this.openModal = this.openModal.bind(this);
+
   }
 
  generateHeader() {
     var header = <thead/>
-    var headerItems = [<th>Day</th>, <th>9</th>, <th>10</th>, <th>11</th>, <th>12</th> ,<th>13</th>, <th>14</th>, <th>15</th>, <th>16</th> ,<th>17</th>]
+    var headerItems = [<th></th>, <th>Monday</th>, <th>Tuesday</th>, <th>Wednesday</th>, <th>Thursday</th> ,<th>Friday</th>]
     header = <thead>
               <tr>{headerItems}</tr>
             </thead>
@@ -40,27 +41,37 @@ class Timetable extends React.Component{
 
 
   generateRows(){
+    var days = {"1":"Monday","2":"Tuesday","3":"Wednesday","4":"Thusday","5":"Friday"}
+
     var rowItems = []
     var start = this.props.hours.start
     var end = this.props.hours.finish
-    this.props.rows.forEach(r => {
-      var cols = [<td>{r.day}</td>]
-      for (var i = start; i <= end; i++ ){
-        const slot = {time: i, day: r.day}
+    for (var i = start; i<= end; i++){
+      var cols = [<td>{i}</td>]
+      this.props.rows.forEach(r =>{
+        var warn = ""
+        const slot = {time: i, day:r.day}
         if (r[i].length == 0){
           cols.push(<td><button onClick = {()=>this.openModal(slot)} class="round"><FontAwesome name="plus"></FontAwesome><TimetableSlot name = "" room = ""/></button></td>)
         }else{
-        var courses = []
-        r[i].forEach(s => {
-          const lect = s
-          courses.push (<div><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
-                        <button onClick={()=>this.deleteLecture(lect)} class="delete round"> <FontAwesome name="trash-o"></FontAwesome> </button></div>)
-        })
-        cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)} class="round"><FontAwesome name="plus"></FontAwesome></button></td>)
-      }
-      }
+          var courses =[]
+          r[i].forEach(s=>{
+            const lect = s
+            if (this.props.violation !== undefined){
+              if (this.props.violation.name !== undefined && this.props.violation.name === s.name){
+                warn = "warning-slot"
+              }else if (days[this.props.violation.timeslot.day] === slot.day && parseInt(this.props.violation.timeslot.hour) === slot.time)
+                warn = "warning-slot"
+            }
+            courses.push (<div className={warn}><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
+            <button onClick={()=>this.deleteLecture(lect)} class="delete round"> Delete </button></div>)
+          })
+          cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)} class="round"><FontAwesome name="plus"></FontAwesome></button></td>)
+        }
+
+      })
       rowItems.push(<tr>{cols}</tr>)
-    })
+    }
     return rowItems
   }
 

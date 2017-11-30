@@ -121,9 +121,9 @@ class CheckRoomCapacity():
 
 class LimitDayToFormTwohourSlot():
     def get_creator(self):
-        return "limit_day_to_form_2h_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
+        return "limit_day_to_form_2h_slot(T) :- not { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
     def get_negator(self):
-        return ":- not limit_day_to_form_2h_slot(T), subject(T,_,_).\n"
+        return ":- limit_day_to_form_2h_slot(T), subject(T,_,_).\n"
     def get_show_string(self):
         return "#show limit_day_to_form_2h_slot/1.\n"
     def constraint_parse(self,param):
@@ -220,6 +220,33 @@ class MaxFourHourADayLecturer():
         return "#show max_four_hour_a_day/2. \n"
     def constraint_parse(self,param):
         return 'Lecturer ' + param[0] + 'has more than four hour on ' + param[1] + "."
+
+class ReserveSlot():
+    #reserve slots (now only for horizon (first three line) and horizon year in europe(below first three lines))
+    reserved = [["tu",16,"computingy1"],["tu",17,"computingy1"],
+                ["m",16,"computingy2"], ["m",17,"computingy2"],
+                ["th",16,"computingy3"],["th",17,"computingy3"],["th",16,"computingy4"],["th",17, "computingy4"],
+                ["f",12,"computingy1"],["f",13,"computingy1"],["f",12,"computingy2"],["f",13, "computingy2"]]
+
+    def reserve(self,slot):
+        #to add reserved slot
+        self.reserved.append(slot)
+
+    def get_creator(self):
+        result = ""
+        for i in self.reserved:
+            result += "reserve(%s,%d,%s). \n" % (i[0],i[1],i[2])
+        result += "reserved_not_in_use(D,S,Y) :- reserve(D,S,Y),class_with_year(_,_,D,S,Y).\n"
+        return result
+
+    def get_negator(self):
+        return ":- reserved_not_in_use(_,_,_).\n"
+
+    def get_show_string(self):
+        return "#show reserved_not_in_use/3.\n"
+
+    def constraint_parse(self,param):
+        return ""
 
 class ConstraintHandler():
     # static fields
