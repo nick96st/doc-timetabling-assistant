@@ -222,11 +222,10 @@ class App extends React.Component {
     var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
     var checkBtn = <button onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
     var generateBtn = <button onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
-
     var emptyFilterBtn = <button onClick={() => {this.emptyFilter()}}>Empty Filter</button>
 
     var dropDownRooms = <MultiSelect
-                    placeholder = "Select room(s)"
+                    placeholder = "Select Room(s)"
                     theme = "material"
                     options = {allRooms.map(
                       room => ({label: room, value: room})
@@ -248,18 +247,19 @@ class App extends React.Component {
                               value={this.state.selected_term}
                              />
     return( <div>
-              <div className ='rows'>
+              <div class="left-component">
+                {selectTermDropdown}
                 <div>{dropDownRooms}</div>
-                <div style={{padding : 5 + 'px'}}></div>
                 <div>{dropDownCourses}</div>
+                <div class="horizontal2">{saveBtn}</div>
+                <div class="horizontal2">{checkBtn}</div>
+                <div class="horizontal2">{generateBtn}</div>
+                <div class="horizontal2">{emptyFilterBtn}</div>
+                <div class="console_place_holder">Console place holder...</div>
               </div>
-            {selectTermDropdown}
-            {timetable}
-            {saveBtn}
-            {checkBtn}
-            {generateBtn}
-            {emptyFilterBtn}
-
+              <div class="right-component">
+                {timetable}
+              </div>
            </div>)
   }
 
