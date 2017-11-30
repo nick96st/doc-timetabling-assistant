@@ -209,7 +209,7 @@ class LecturerClash():
     def get_show_string(self):
         return "#show lecturer_clash/3. \n"
     def constraint_parse(self,param):
-        return 'Lecturer ' + param[0] + ' has clashes on ' + parse_timeslot(param[1], param[2]) + '.\n'
+        return 'Lecturer ' + param[0] + 'has clashes on ' + parse_timeslot(param[1], param[2]) + '.\n'
 
 class MaxFourHourADayLecturer():
     def get_creator(self):
