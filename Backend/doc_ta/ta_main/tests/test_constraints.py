@@ -232,3 +232,18 @@ class HardConstraintsTest(test.TestCase):
 
         code_result = invoke_codegen_sequence_with_facts(facts)
         self.assertEquals(code_result, unsatisfiable)
+
+    def test_no_9_to_5(self):
+        facts = [ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Hardware", "311", "Wednesday", 9)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Hardware", "311", "Wednesday", 10)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Logic", "308", "Wednesday", 16)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Logic", "308", "Wednesday", 17)),
+            ]
+
+        code_result = invoke_codegen_sequence_with_facts(facts)
+        self.assertEquals(code_result, unsatisfiable)
+    
