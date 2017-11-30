@@ -4,9 +4,15 @@ from __future__ import unicode_literals
 from django.contrib import admin
 import models as ta_models
 
+class TableDefAdmin(admin.ModelAdmin):
+    list_display = ["start_hour","end_hour","title"]
 
 class SavedTableAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['name','table_size']
+
+
+class DayDefAdmin(admin.ModelAdmin):
+    list_display = ["day_string","day_asp"]
 
 
 class TimeslotAdmin(admin.ModelAdmin):
@@ -54,7 +60,9 @@ class ClashAdmin(admin.ModelAdmin):
 
 
 # Register your models here.
+admin.site.register(ta_models.TableSizeDef,TableDefAdmin)
 admin.site.register(ta_models.SavedTable, SavedTableAdmin)
+admin.site.register(ta_models.DayDef, DayDefAdmin)
 admin.site.register(ta_models.Timeslot, TimeslotAdmin)
 admin.site.register(ta_models.Subject, SubjectAdmin)
 admin.site.register(ta_models.Room, RoomAdmin)

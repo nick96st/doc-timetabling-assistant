@@ -88,14 +88,16 @@ def in1t_r00ms():
 
 # TIMESLOT INIT
 def init_t1m3sl0ts_DoC():
-    for i in range(9, 18):
-        for day in ta_models.days_choices:
-            if ta_models.Timeslot.objects.filter(day=day[0], hour=i).first() is None:
-                # return response.HttpResponse(content="does not have item")
-                model = ta_models.Timeslot()
-                model.hour = i
-                model.day = day[0]
-                model.save()
+    ta_models.TableSizeDef.create(["Monday","Tuesday","Wednesday","Thursday","Friday"],
+                                  9,18, "DoC Preset")
+    # for i in range(9, 18):
+    #     for day in ta_models.days_choices:
+    #         if ta_models.Timeslot.objects.filter(day=day[0], hour=i).first() is None:
+    #             # return response.HttpResponse(content="does not have item")
+    #             model = ta_models.Timeslot()
+    #             model.hour = i
+    #             model.day = day[0]
+    #             model.save()
 
 
 def init_base():
