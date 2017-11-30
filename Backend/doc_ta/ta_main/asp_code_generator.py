@@ -21,6 +21,7 @@ class ASPCodeGenerator():
 
     def __init__(self):
         self.table_def = ta_models.TableSizeDef.objects.all().first()
+        self.check_subject = "architecture"
         self.term = ""             # term to be generated on
         self.subjects = []         # subjects which belong to the term
         self.result_facts = []
@@ -283,6 +284,7 @@ class ASPCodeGenerator():
 class CodeGeneratorBuilder():
     def __init__(self):
         self.table = None
+        self.subject_to_check = None
         self.selected_term = ""
         self.result_facts = []
         # Default hard constraints are all the defined keys in the verbose map table
@@ -290,6 +292,9 @@ class CodeGeneratorBuilder():
         self.soft_constraints = []
         self.should_generate = True
         self.status = ""
+
+    def for_subject(self,subject_name):
+        self.subject_to_check = subject_name
 
     def for_table(self,table_id):
         self.table = ta_models.SavedTable(id=table_id)
@@ -329,5 +334,7 @@ class CodeGeneratorBuilder():
         code_generator.should_generate = self.should_generate
         code_generator.term = self.selected_term
         code_generator.status = self.status
+        if self.subject_to_check is not None:
+            code_generator.check_subject = ta_models.Subject.objects.filter(title=self.subject_to_check).first().title_asp
         # code_generator.table_def = self.table.table_size
         return code_generator
