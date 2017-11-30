@@ -121,9 +121,9 @@ class CheckRoomCapacity():
 
 class LimitDayToFormTwohourSlot():
     def get_creator(self):
-        return "limit_day_to_form_2h_slot(T) :- { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
+        return "limit_day_to_form_2h_slot(T) :- not { day_occupied(T,_) } (H+1)/2, subject(T,_,H).\n"
     def get_negator(self):
-        return ":- not limit_day_to_form_2h_slot(T), subject(T,_,_).\n"
+        return ":- limit_day_to_form_2h_slot(T), subject(T,_,_).\n"
     def get_show_string(self):
         return "#show limit_day_to_form_2h_slot/1.\n"
     def constraint_parse(self,param):
