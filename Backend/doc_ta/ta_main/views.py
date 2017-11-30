@@ -227,7 +227,6 @@ def create_timeslots_for_table(request):
 import tests.database_inits as DB
 @csrf_exempt
 def init_timeslots_DoC(request):
-    DB.generate_all()
+    # DB.generate_all()
+    DB.init_timeslots_DoC()
     return response.HttpResponse()
-
-

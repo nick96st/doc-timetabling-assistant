@@ -21,6 +21,7 @@ class ASPCodeGenerator():
 
     def __init__(self):
         self.table_def = ta_models.TableSizeDef.objects.all().first()
+        self.check_subject = "architecture"
         self.term = ""             # term to be generated on
         self.subjects = []         # subjects which belong to the term
         self.result_facts = []
@@ -76,26 +77,53 @@ class ASPCodeGenerator():
         result_string = ""
         for fact in self.result_facts:
             result_string += fact.to_asp().lower() + ".\n"
+            # generate blocker for already existing if checking for available slots
+            if self.status == "CHECKSLOTS" and fact.subject.title_asp == self.check_subject:
+                result_string += 'start_loc(' + str(fact.time_slot.day.day_asp) + ',' + str(fact.time_slot.hour) + ').\n'
 
         return result_string
 
     def generate_axiom_constraints(self):
         axiom_constraints_string = " "
+        # remove constraint to generate enough hours for all subjects
+        if self.status == "CHECKSLOTS":
+            self.hard_constraints.remove("Each class to have enough hours.")
+
         for constraint in self.hard_constraints:
             axiom_constraints_string += Constraints.constraint_creator(constraint)
 
         axiom_constraints_string += "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
-                                    "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n" + \
                                     "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n" + \
                                     "slot_teaches(L,D,S) :- class_with_year(T,_,D,S,_), teaches(L,T), lecturer(L).\n"
 
+        if self.status != "CHECKSLOTS":
+            axiom_constraints_string += "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n"
+        else:
+            T = self.check_subject
+            # has enough hours of subjects
+            H = 0 # class hours needed
+            # count how many times you have as fact and get 1 more
+            for fact in self.result_facts:
+                if fact.subject.title_asp == T:
+                    H = H +1
+
+            H = H + 1
+            H = str(H)
+            # class ahs enough hours (1 + existing)
+            axiom_constraints_string += "not_class_has_enough_hours("+ T + ") :- not " + H +" { class_with_year(" + T + ",_,_,_,_) } " + H + ".\n "
+            axiom_constraints_string += ":- not_class_has_enough_hours("+ T + ").\n"
+            # generate only of type subject
+            axiom_constraints_string += "0 { class("+T + ",R,D,S) } 1:- room(R,_),timeslot(D,S).\n"
+            axiom_constraints_string += "class_with_year(" + T + ",R,D,S,Y) :- class(" + T + ",R,D,S),subjectincourse(" + T +",Y).\n"
+            # generate result
+            axiom_constraints_string += "possible_locations(D,S):- class_with_year(" + T + ",R,D,S,Y), not start_loc(D,S).\n"
         return axiom_constraints_string
 
     def generate_hard_constraints(self):
 
         result_string = ""
         # generate hard constraint negators if generating
-        if self.status == "GENERATE":
+        if self.status == "GENERATE" or self.status == "CHECKSLOTS":
             for constraint in self.hard_constraints:
                 result_string += Constraints.constraint_negator(constraint)
 
@@ -118,8 +146,10 @@ class ASPCodeGenerator():
         # takes inputs source and gets the name before "." for the out file
         if output_src is None:
             output_src = str(input_src).split('.')[0] + '.out'
-
-        command_string = "./asp/clingo --outf=2 <" + './' + input_src + ">" + './' + output_src
+        if self.status != "CHECKSLOTS":
+            command_string = "./asp/clingo --outf=2 <" + './' + input_src + ">" + './' + output_src
+        else:
+            command_string = "./asp/clingo  -n 0 --outf=2 <" + './' + input_src + ">" + './' + output_src
         os.system(command_string)
 
     def select_subjects_from_term(self):
@@ -149,7 +179,10 @@ class ASPCodeGenerator():
         code_string += self.generate_hard_constraints()
         code_string += self.generate_soft_constraints()
         # generate result we are interested in(class objects)
-        code_string += "#show class_with_year/5."
+        if self.status != "CHECKSLOTS":
+            code_string += "#show class_with_year/5.\n"
+        else: # for CHECKSLOTS show the possible locations
+            code_string += "#show possible_locations/2.\n"
         # ask to display facts generated from violations when checking
         if self.status == "CHECK":
             for constraint in self.hard_constraints:
@@ -222,7 +255,13 @@ class ASPCodeGenerator():
             # code_result = read_from_asp_result('default_001.in')
             return True, json_solutions
 
+        elif self.status == "CHECKSLOTS":
+            json_solutions = []
+            for solution in tokenized_results:
+                for possible_slot in solution:
+                    json_solutions.append({"day":possible_slot["params"][0],"time":possible_slot["params"][1]})
 
+            return True, json_solutions
 # Returns only result status of a asp
     def get_result_status(self,file_name=None):
         if file_name is None:
@@ -254,6 +293,7 @@ class ASPCodeGenerator():
 class CodeGeneratorBuilder():
     def __init__(self):
         self.table = None
+        self.subject_to_check = None
         self.selected_term = ""
         self.result_facts = []
         # Default hard constraints are all the defined keys in the verbose map table
@@ -261,6 +301,9 @@ class CodeGeneratorBuilder():
         self.soft_constraints = []
         self.should_generate = True
         self.status = ""
+
+    def for_subject(self,subject_name):
+        self.subject_to_check = subject_name
 
     def for_table(self,table_id):
         self.table = ta_models.SavedTable(id=table_id)
@@ -300,5 +343,7 @@ class CodeGeneratorBuilder():
         code_generator.should_generate = self.should_generate
         code_generator.term = self.selected_term
         code_generator.status = self.status
+        if self.subject_to_check is not None:
+            code_generator.check_subject = ta_models.Subject.objects.filter(title=self.subject_to_check).first().title_asp
         # code_generator.table_def = self.table.table_size
         return code_generator
