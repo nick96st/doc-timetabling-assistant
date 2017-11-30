@@ -274,6 +274,30 @@ class NoLecturerDayTime():
     def constraint_parse(self,param):
         return ""
 
+class NoLecturerDay():
+    #no lecturer on specific day and time
+    #we dont have teaches yet
+    #we dont even have information about which lecturer teaches which course or class
+    lecturerDay = []
+    def get_creator(self):
+        result = ""
+        for i in self.lecturerDay:
+            result += "no_lecturer_day(L,S,D) :- teaches(L,S) , class_with_year(S,_,D,_,_), L = %s, D = %s.\n" % (i[0],i[1])
+        return result
+
+    def add_no_lecturer_day_time(self, lecturer, day):
+        ar = [lecturer,day]
+        self.lecturerDay.append(ar)
+
+    def get_negator(self):
+        return ":- no_lecturer_day(_,_,_,_).  \n "
+
+    def get_show_string(self):
+        return "cannot_lecturer_day/3. \n"
+
+    def constraint_parse(self,param):
+        return ""
+
 
 
 class ConstraintHandler():
@@ -292,8 +316,8 @@ class ConstraintHandler():
         #"not_concentration" : Concentration()
         #"not_concentrate_two" : ConcentrateTwo(),
         "not_spreading" : Spreading(),
-        "no_lecturer_day_time" : NoLecturerDayTime()
-        #"no_lecturer_day":
+        #"no_lecturer_day_time" : NoLecturerDayTime(),
+        #"no_lecturer_day": NoLecturerDay()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "not_class_has_enough_hours",
@@ -309,7 +333,7 @@ class ConstraintHandler():
         #"specific lecturer want to teach everything on one day" : "not_concentration"
         #"specific lecturer want all teaching in two days" : "not_concentrate_two",
         "specific class spread out during a week(at least one day break)" : "not_spreading",
-        "specific lecturer cannot teach on specific day speciic time" : "no_lecturer_day_time",
+        #"specific lecturer cannot teach on specific day speciic time" : "no_lecturer_day_time",
         #"specific lecturer cannot teach on specific day" : "no_lecturer_day"
     }
 
