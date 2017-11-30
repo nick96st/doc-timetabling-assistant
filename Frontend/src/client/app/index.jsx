@@ -89,9 +89,12 @@ class App extends React.Component {
      axios.post('/timetable/check', {
      timetable: state.timetable, term: state.selected_term, constraints: Array.from(this.selectedCheckboxes)
    })
-   .then(function (response) {
- 
-     console.log(response);
+   .then( (response) => {
+     console.log(this.state);
+     this.setState({violationData: response.data[0]})
+    this.setState({isChecked:true})
+//    this.generateViolations();
+
 
    })
    .catch(function (error) {
@@ -126,9 +129,10 @@ class App extends React.Component {
     var checkboxes = []
     const labels = this.state.labels
     labels.forEach(l =>{
-      checkboxes.push(<MyCheckbox label={l} handleChange={this.toggleCheckbox} key={l}/>)
+      checkboxes.push(<li><MyCheckbox label={l} handleChange={this.toggleCheckbox} key={l}/></li>)
     })
-    return checkboxes
+    var checkboxList = <ul>{checkboxes}</ul>
+    return checkboxList
   }
 
   toggleCheckbox(label){
@@ -137,7 +141,6 @@ class App extends React.Component {
     }else{
       this.selectedCheckboxes.add(label)
     }
-    console.log(this.selectedCheckboxes)
   }
 
   onSelectedTermChange(e) {
@@ -174,6 +177,22 @@ class App extends React.Component {
                        if(d.day === "Friday"){friday[d.time].push(d)}});
     var rows = [monday, tuesday, wednesday, thursday, friday]
     return rows
+  }
+
+  generateViolations(){
+    var violations = []
+    const violationData = this.state.violationData;
+    if (violationData != null){
+      for (var i=0; i<violationData.violations.length; i++){
+        const activeViolation = violationData.metadata[i];
+        violations.push(<li className="violation-list-item"><span onClick={()=>{this.setState({activeViolation: activeViolation})}}>{violationData.violations[i]}</span></li>)
+      }
+    }else{
+      if(this.state.isChecked){
+      violations = <li className="check-success"><span>Timetable is valid on all selected constraints</span></li>
+    }
+    }
+    return violations
   }
 
 
@@ -219,14 +238,8 @@ class App extends React.Component {
     }
 
   render () {
-    var violations = []
-    const violationData = this.state.violationData
-    if (violationData != null){
-      for (var i=0; i<violationData.violations.length; i++){
-        const activeViolation = violationData.metadata[i];
-        violations.push(<li className="violation-list-item"><span onClick={()=>{this.setState({activeViolation: activeViolation})}}>{violationData.violations[i]}</span></li>)
-      }
-    }
+  console.log(this.state);
+    var violations = this.generateViolations()
     var constraintSelectorItems = this.generateConstraintSelector()
     var violationList = <ul className="violation-list">{violations}</ul>
     var timetable
@@ -276,7 +289,7 @@ class App extends React.Component {
                 <div style={{padding : 5 + 'px'}}></div>
                 <div>{dropDownCourses}</div>
               </div>
-            {selectTermDropdown}
+             {selectTermDropdown}
             {constraintSelectorItems}
             {timetable}
             {saveBtn}
