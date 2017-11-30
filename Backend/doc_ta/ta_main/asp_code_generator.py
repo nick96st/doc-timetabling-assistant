@@ -1,10 +1,9 @@
 import models as ta_models
-import os
 import json
 import asp_manipulators
 from asp_constraints import basic_constraint as constraint
 from exceptions import TypeError
-from asp_constraints import ConstraintHandler as Constraints
+
 
 class CodeGeneratorException(Exception):
     pass
@@ -19,6 +18,7 @@ def append_new_definition(current, new):
 # Generates code from specified objects
 class ASPCodeGenerator():
 
+
     def __init__(self):
         self.table_def = ta_models.TableSizeDef.objects.all().first()
         self.check_subject = "architecture"
@@ -28,8 +28,6 @@ class ASPCodeGenerator():
         self.hard_constraints = []
         self.soft_constraints = []
         self.should_generate = True
-        self.status = ""
-        self.file_name = "default_001"
 
 # define base objects like lectures, timeslots and etc
     def generate_default_object_definitions(self):
@@ -118,6 +116,7 @@ class ASPCodeGenerator():
             # generate result
             axiom_constraints_string += "possible_locations(D,S):- class_with_year(" + T + ",R,D,S,Y), not start_loc(D,S).\n"
         return axiom_constraints_string
+        # return "class_has_enough_hours(T):- 3 { class(T,_,_,_) } 3 , subject(T,_,_)."
 
     def generate_hard_constraints(self):
 
@@ -152,7 +151,10 @@ class ASPCodeGenerator():
             command_string = "./asp/clingo  -n 0 --outf=2 <" + './' + input_src + ">" + './' + output_src
         os.system(command_string)
 
-    def select_subjects_from_term(self):
+# method which runs the stages of code generation
+    def generate_code(self, file_name):
+        code_string = ''
+
         # fetches the model of the term
         selected_term = ta_models.Term.objects.filter(name=self.term).first()
         if selected_term is None:
@@ -162,14 +164,6 @@ class ASPCodeGenerator():
         for class_term in subjects_queryset:
             self.subjects.append(class_term.subject)
 
-# method which runs the stages of code generation
-    def generate_code(self, file_name=None):
-        # if call does not specify the file use the filed defined on creation
-        if file_name is None:
-            file_name = self.file_name + '.in'
-
-        code_string = ''
-        self.select_subjects_from_term()
         code_string += self.generate_default_object_definitions()
         code_string += self.generate_result_facts()
         # checks if we need want to generate classes or just check whether current is ok
@@ -193,29 +187,19 @@ class ASPCodeGenerator():
         fd.close()
 
     def run(self,file_name='default_001'):
-        self.generate_code()
+        self.generate_code(file_name)
         # TODO: make run_clingo function call async with cancellation token
         self.run_clingo(file_name + '.in', file_name + '.out')
-        # return self.read_from_asp_result(file_name + '.out')
+        return self.read_from_asp_result(file_name + '.out')
 
 
 # Parses json result as list of solutions in json format suitable for frontend display
-# Returns: (success, array of solutions if generating/array of violations if checking)
-    def parse_result(self,file_name=None):
-        # if call does not specify the file use the filed defined on creation
-        if file_name is None:
-            file_name = self.file_name + '.out'
+    def parse_result(self,file_name):
         data = self.read_from_asp_result(file_name)
         data_dict = json.loads(data)
-        # check if there are solutions
-        result_status = data_dict["Result"]
-        if result_status == "UNSATISFIABLE" or result_status == "UNKNOWN":
-            return False, []
-
         all_results = data_dict["Call"][0]["Witnesses"]
 
-        # gets from string to json format of id and params for each solution
-        tokenized_results = []
+        tokenized_results = {"results": []}
         for result in all_results:
             asp_terms = []
             for item in result["Value"]:
@@ -240,7 +224,11 @@ class ASPCodeGenerator():
                     metadata = self.parse_metadata(constraint_violations)
                 json_solutions.append({"violations":parsed_violations,"metadata":metadata})
 
-            return True, json_solutions
+        json_solutions = []
+        for solution in tokenized_results["results"]:
+            actual_json = []
+            for lecture_class in solution:
+                actual_json.append(ta_models.LectureClass().from_asp(lecture_class).to_json_for_frontend())
 
         # IF IT IS GENERATING NO NEED TO CHECK FOR CONSTRAINTS
         elif self.status == "GENERATE":
@@ -263,9 +251,7 @@ class ASPCodeGenerator():
 
             return True, json_solutions
 # Returns only result status of a asp
-    def get_result_status(self,file_name=None):
-        if file_name is None:
-            file_name = self.file_name + '.out'
+    def get_result_status(self,file_name):
         data = self.read_from_asp_result(file_name)
         data_dict = json.loads(data)
         return data_dict["Result"]
@@ -296,11 +282,9 @@ class CodeGeneratorBuilder():
         self.subject_to_check = None
         self.selected_term = ""
         self.result_facts = []
-        # Default hard constraints are all the defined keys in the verbose map table
-        self.hard_constraints = Constraints.constraint_table_parse_verbose.keys()
+        self.hard_constraints = []
         self.soft_constraints = []
         self.should_generate = True
-        self.status = ""
 
     def for_subject(self,subject_name):
         self.subject_to_check = subject_name
@@ -310,10 +294,6 @@ class CodeGeneratorBuilder():
 
     def for_term(self,term_name):
         self.selected_term = term_name
-        return self
-
-    def perform(self,action_name):
-        self.status = action_name
         return self
 
     def with_result_facts(self, result_facts):

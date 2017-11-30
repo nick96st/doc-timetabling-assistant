@@ -190,12 +190,6 @@ class Lecturer(models.Model):
     def __str__(self):
         return str(self.first_name) + " " + str(self.surname)
 
-    def to_asp(self):
-        json_data = {"id": "lecturer",
-                     "params": [asp_manipulators.string_to_asp_suitable(str(self.__str__())),
-                     ]}
-        return asp_manipulators.json_term_to_asp_string(json_data)
-
 
 class Teaches(models.Model):
     lecturer = models.ForeignKey(Lecturer)
@@ -234,7 +228,11 @@ class SubjectsCourses(models.Model):
 
 
 class Clash(models.Model):
+<<<<<<< HEAD
     subject1 = models.ForeignKey(Subject, related_name="subject1")
+=======
+    subject  = models.ForeignKey(Subject, related_name="subject1")
+>>>>>>> parent of 1e00b0e... Merge branch 'aspProgramming' of https://github.com/nickdaminov/doc-timetabling-assistant
     subject2 = models.ForeignKey(Subject, related_name="subject2")
 
     def __str__(self):

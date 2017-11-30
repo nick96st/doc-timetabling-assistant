@@ -1,5 +1,4 @@
 import asp_manipulators
-import models as ta_models
 
 class basic_constraint():
 
