@@ -140,7 +140,7 @@ class LectureClass(models.Model):
 
     def init_from_json(self,json_data):
         # gets the day short version
-        x = DayDef.objects.filter(day_string=json_data['day']).first()
+        x = DayDef.objects.filter(day_string=json_data["day"]).first()
         self.time_slot = Timeslot.objects.filter(hour=json_data['time'],day=x).first()
         self.room = Room.objects.get(room_name=json_data['room'])
         self.subject = Subject.objects.get(title=json_data['name'])

@@ -81,14 +81,16 @@ class App extends React.Component {
   });
   }
 
-  checkTimetable(timetable) {
+  checkTimetable(state) {
+  console.log(this.state,this.selectedCheckboxes);
 //    var data = {violations:["Room 311 is used by different lectures at the same time", "Class Databases I does not have enough hours"],
 //                metadata:[{day:"Tuesday", time:17}, {name:"Databases I"}]}
 //    this.setState({violationData:data})
      axios.post('/timetable/check', {
-     timetable: timetable, term: this.state.selected_term, constraints: this.selectedCheckboxes
+     timetable: state.timetable, term: state.selected_term, constraints: Array.from(this.selectedCheckboxes)
    })
    .then(function (response) {
+ 
      console.log(response);
 
    })
