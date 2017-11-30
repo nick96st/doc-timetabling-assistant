@@ -290,7 +290,7 @@ class NoLecturerDay():
         self.lecturerDay.append(ar)
 
     def get_negator(self):
-        return ":- no_lecturer_day(_,_,_,_).  \n "
+        return ":- no_lecturer_day(_,_,_).  \n "
 
     def get_show_string(self):
         return "cannot_lecturer_day/3. \n"
@@ -298,7 +298,29 @@ class NoLecturerDay():
     def constraint_parse(self,param):
         return ""
 
+class NoLecturerTime():
+    #no lecturer on specific day and time
+    #we dont have teaches yet
+    #we dont even have information about which lecturer teaches which course or class
+    lecturerTime = []
+    def get_creator(self):
+        result = ""
+        for i in self.lecturerTime:
+            result += "no_lecturer_time(L,S,T) :- teaches(L,S) , class_with_year(S,_,_,T,_), L = %s, T = %s.\n" % (i[0],i[1])
+        return result
 
+    def add_no_lecturer_day_time(self, lecturer, time):
+        ar = [lecturer,time]
+        self.lecturerTime.append(ar)
+
+    def get_negator(self):
+        return ":- no_lecturer_time(_,_,_).  \n "
+
+    def get_show_string(self):
+        return "cannot_lecturer_time/3. \n"
+
+    def constraint_parse(self,param):
+        return ""
 
 class ConstraintHandler():
     # static fields
@@ -313,11 +335,12 @@ class ConstraintHandler():
         "max_six_hour_a_day": MaxSixHourADay(),
         "not_unique_room_lecture": UniqueRoomLecture(),
         "reserve_slot" : ReserveSlot(),
-        #"not_concentration" : Concentration()
+        #"not_concentration" : Concentration(),
         #"not_concentrate_two" : ConcentrateTwo(),
         "not_spreading" : Spreading(),
         #"no_lecturer_day_time" : NoLecturerDayTime(),
-        #"no_lecturer_day": NoLecturerDay()
+        #"no_lecturer_day": NoLecturerDay(),
+        #"no_lecturer_time" : NoLecturerTime()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "not_class_has_enough_hours",
@@ -330,11 +353,12 @@ class ConstraintHandler():
         "Students have max 6 hours a day": "max_six_hour_a_day",
         "Lecture is exactly one room at a day": "not_unique_room_lecture",
         "Reserve specific slot for specific year" : "reserve_slot",
-        #"specific lecturer want to teach everything on one day" : "not_concentration"
+        #"specific lecturer want to teach everything on one day" : "not_concentration",
         #"specific lecturer want all teaching in two days" : "not_concentrate_two",
         "specific class spread out during a week(at least one day break)" : "not_spreading",
-        #"specific lecturer cannot teach on specific day speciic time" : "no_lecturer_day_time",
-        #"specific lecturer cannot teach on specific day" : "no_lecturer_day"
+        #"specific lecturer cannot teach on specific day and specific time" : "no_lecturer_day_time",
+        #"specific lecturer cannot teach on specific day" : "no_lecturer_day",
+        #"specific lecturer cannot teach on specific time" : "no_lecturer_time"
     }
 
     @staticmethod
