@@ -145,8 +145,10 @@ class ASPCodeGenerator():
         # takes inputs source and gets the name before "." for the out file
         if output_src is None:
             output_src = str(input_src).split('.')[0] + '.out'
-
-        command_string = "./asp/clingo --outf=2 <" + './' + input_src + ">" + './' + output_src
+        if self.status != "CHECKSLOTS":
+            command_string = "./asp/clingo --outf=2 <" + './' + input_src + ">" + './' + output_src
+        else:
+            command_string = "./asp/clingo  -n 0 --outf=2 <" + './' + input_src + ">" + './' + output_src
         os.system(command_string)
 
     def select_subjects_from_term(self):
