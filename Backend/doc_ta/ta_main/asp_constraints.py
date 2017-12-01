@@ -447,6 +447,8 @@ class ConstraintHandler():
         # "no_lecturer_day_time" : NoLecturerDayTime(),
         # "no_lecturer_day": NoLecturerDay(),
         # "no_lecturer_time" : NoLecturerTime()
+        "no_9_to_5": No9to5(),
+        "three_consecutive_hour_for_lecturer": ThreeConsecutiveHourForLecturer(),
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "not_class_has_enough_hours",
@@ -466,7 +468,9 @@ class ConstraintHandler():
         "specific class spread out during a week(at least one day break)" : "not_spreading",
         #"specific lecturer cannot teach on specific day and specific time" : "no_lecturer_day_time",
         #"specific lecturer cannot teach on specific day" : "no_lecturer_day",
-        #"specific lecturer cannot teach on specific time" : "no_lecturer_time"
+        #"specific lecturer cannot teach on specific time" : "no_lecturer_time",
+        "Forbid early morning and late afternoon on same day.": "no_9_to_5",
+        "Lecturer can't have 3 consequitive hours of tutoring.": "three_consecutive_hour_for_lecturer"
     }
 
     @staticmethod
