@@ -6,11 +6,7 @@ import {ReactSelectize, SimpleSelect, MultiSelect} from 'react-selectize';
 import Dropdown from 'react-dropdown';
 import {getDropdownData} from './Utils.jsx';
 import MyCheckbox from './MyCheckbox.jsx'
-
-
-
-
-
+import FontAwesome from 'react-fontawesome';
 
 class App extends React.Component {
   constructor(props) {
@@ -246,13 +242,13 @@ class App extends React.Component {
                  removeLecture={this.removeLecture} openModal={this.openModal} closeModal={this.closeModal}
                  modalOpen={this.state.modalOpen} violation={this.state.activeViolation}
                  rooms={this.state.rooms} subjects={this.state.subjects}/>
-    var saveBtn = <button onClick={ () => {this.saveTimetable(this.state.timetable)}}>Save</button>
-    var checkBtn = <button onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
-    var generateBtn = <button onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
+    var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
+    var checkBtn = <button class="horizontal2" onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
+    var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
     var dimensions = {width:100, height: 100}
 
     var dropDownRooms = <MultiSelect
-                    placeholder = "Select room(s)"
+                    placeholder = "Select Room(s)"
                     theme = "material"
                     options = {this.state.rooms.map(
                       room => ({label: room, value: room})
@@ -282,24 +278,25 @@ class App extends React.Component {
                               value={this.state.selected_term}
                              />
     return( <div>
-              <div className ='rows'>
-                <div>{dropDownRooms}</div>
-                <div style={{padding : 5 + 'px'}}></div>
+              <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
+              <h2>DEPARTMENT OF COMPUTING</h2>
+              <div class="left-component">
+                {selectTermDropdown}
+                <div id="top-item">{dropDownRooms}</div>
                 <div>{dropDownCourses}</div>
+                <div>{saveBtn}
+                {checkBtn}
+                {generateBtn}</div>
+                <div className="violation-console">
+                {violationList}
+                </div>
               </div>
-             {selectTermDropdown}
-            {constraintSelectorItems}
-            {timetable}
-            {saveBtn}
-            {checkBtn}
-            {generateBtn}
-            <div className="violation-console">
-            {violationList}
-            </div>
+              <div class="right-component">
+                {timetable}
+              </div>
+            </div>);
 
-           </div>)
   }
-
 }
 
 render(<App/>, document.getElementById('app'));

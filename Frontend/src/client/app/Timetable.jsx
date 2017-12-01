@@ -5,6 +5,24 @@ import Modal from 'react-modal';
 import Dropdown from 'react-dropdown';
 import FontAwesome from 'react-fontawesome';
 
+// const customStyles = {
+//   overlay : {
+//     position          : 'fixed',
+//     top               : 0,
+//     left              : 0,
+//     right             : 0,
+//     bottom            : 0,
+//     backgroundColor   : 'rgba(255, 255, 255, 0.2)',
+//   },
+//   content : {
+//     top                   : '50%',
+//     left                  : '50%',
+//     right                 : 'auto',
+//     bottom                : 'auto',
+//     marginRight           : '-50%',
+//     transform             : 'translate(-50%, -50%)'
+//   }
+// };
 
 class Timetable extends React.Component{
 
@@ -63,10 +81,10 @@ class Timetable extends React.Component{
               }else if (this.props.violation.timeslot !== undefined && days[this.props.violation.timeslot.day] === slot.day && parseInt(this.props.violation.timeslot.hour) === slot.time)
                 warn = "warning-slot"
             }
-            courses.push (<div className={warn}><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
-            <button onClick={()=>this.deleteLecture(lect)}> Delete </button></div>)
+            courses.push (<div className={warn} class="session"><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
+            <button onClick={()=>this.deleteLecture(lect)} class="delete round"> <FontAwesome name="trash-o"></FontAwesome> </button></div>)
           })
-          cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome></button></td>)
+          cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)} class="round"><FontAwesome name="plus"></FontAwesome></button></td>)
         }
 
       })
