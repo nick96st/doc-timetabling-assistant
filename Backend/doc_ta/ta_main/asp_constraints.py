@@ -221,7 +221,6 @@ class MaxFourHourADayLecturer():
     def constraint_parse(self,param):
         return 'Lecturer ' + param[0] + 'has more than four hour on ' + param[1] + "."
 
-<<<<<<< HEAD
 class ReserveSlot():
     #reserve slots (now only for horizon (first three line) and horizon year in europe(below first three lines))
     reserved =  [["horizon","tu",16,"computingy1"],["horizon","tu",17,"computingy1"]]
@@ -319,7 +318,6 @@ class ConcentrateTwo():
         return "#show not_concentrated_two/1. \n"
 
     def constraint_parse(self,param):
-<<<<<<< HEAD
         return "" #TODO
 
     def get_metadata(self, params):
