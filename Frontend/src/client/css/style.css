@@ -2,8 +2,34 @@
   box-sizing: border-box;
 }
 body {
-  background: steelblue;
+  background: #1F2739;
+  /*background: #2A3132;*/
+  /*background: steelblue;*/
   font-family: "Open Sans", arial;
+}
+
+h1{
+  text-align: center;
+  font-family: Futura;
+  font-weight: 300;
+  font-size: 2em;
+  letter-spacing: 0.1ch;
+  color: white;
+  margin-bottom: 0;
+  text-decoration: underline;
+}
+
+h2{
+  text-align: center;
+  font-size: 1em;
+  font-weight: 100;
+  letter-spacing: 0.735ch;
+  color: white;
+  margin-top: 0.5ex;
+}
+
+p {
+  color: white;
 }
 table {
   table-layout: fixed;
@@ -16,6 +42,7 @@ table {
 }
 th {
   background: steelblue;
+  /*background: #336B87;*/
   height: 54px;
   width: 25%;
   font-weight: lighter;
@@ -36,18 +63,22 @@ td {
   padding: 10px;
   text-overflow: ellipsis;
 }
+td:first-child {
+  background-color: rgba(117, 117, 117, 0.2);
+}
 td:last-child {
   border-right: 0px;
 }
 
 button {
   background-color: #555555;
+  /*background-color: #763626;*/
   border: none;
   /*border-radius: 8px;*/
   margin: 10px;
   color: white;
   /*padding: 10px 25px;*/
-  width: 120px;
+  width: 100px;
   height: 60px;
   text-align: center;
   display: inline-block;
@@ -118,15 +149,41 @@ button:hover {
   color: white;
 }
 
-.horizontal2 {
-  display: inline-block;
-  width: 50%;
+#top-item {
+  margin-top: 10px;
 }
 
-.horizontal4 {
+.horizontal2 {
   display: inline-block;
-  width: 25%;
-  margin-top:15px;
+  width: 30%;
+  margin: 3px;
+}
+
+.save span{
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.save span::before {
+  content: "\f0c7";
+  font-family: FontAwesome;
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  left: -20px;
+  transition: 0.5s;
+}
+
+.save:hover span {
+  padding-left: 25px;
+}
+
+.save:hover span::before {
+  opacity: 1;
+  left: 0;
+  color: black;
 }
 
 /* Below code is for selectize(dropdown menu) styling*/
@@ -477,10 +534,12 @@ button:hover {
   background-color: #fff;
 }
 .react-selectize.material.root-node .react-selectize-control {
-  border-bottom: 1px solid rgba(0,0,0,0.3);
+  /*border-bottom: 1px solid rgba(0,0,0,0.3);*/
+  border-bottom: 1px solid #FFF842;
 }
 .react-selectize.material.root-node .react-selectize-control:after {
-  background-color: #00bcd4;
+  /*background-color: #00bcd4;*/
+  background-color: #FFF842;
   content: "";
   transform: scaleX(0);
   transition: transform 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;

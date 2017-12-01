@@ -52,7 +52,7 @@ class Timetable extends React.Component{
         var warn = ""
         const slot = {time: i, day:r.day}
         if (r[i].length == 0){
-          cols.push(<td><button onClick = {()=>this.openModal(slot)} class="round"><FontAwesome name="plus"></FontAwesome><TimetableSlot name = "" room = ""/></button></td>)
+          cols.push(<td><a onClick = {()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome><TimetableSlot name = "" room = ""/></a></td>)
         }else{
           var courses =[]
           r[i].forEach(s=>{
@@ -64,7 +64,7 @@ class Timetable extends React.Component{
                 warn = "warning-slot"
             }
             courses.push (<div className={warn}><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
-            <button onClick={()=>this.deleteLecture(lect)} class="delete round"> Delete </button></div>)
+            <button onClick={()=>this.deleteLecture(lect)} class="delete round"> <FontAwesome name="trash-o"></FontAwesome> </button></div>)
           })
           cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)} class="round"><FontAwesome name="plus"></FontAwesome></button></td>)
         }
