@@ -223,10 +223,10 @@ class MaxFourHourADayLecturer():
 
 class ReserveSlot():
     #reserve slots (now only for horizon (first three line) and horizon year in europe(below first three lines))
-    reserved = [["tu",16,"computingy1"],["tu",17,"computingy1"],
-                ["m",16,"computingy2"], ["m",17,"computingy2"],
-                ["th",16,"computingy3"],["th",17,"computingy3"],["th",16,"computingy4"],["th",17, "computingy4"],
-                ["f",12,"computingy1"],["f",13,"computingy1"],["f",12,"computingy2"],["f",13, "computingy2"]]
+    reserved =  [["horizon","tu",16,"computingy1"],["horizon","tu",17,"computingy1"]]
+                #  ["horizon", "m", 17, "computingy2"], ["horizon", "m", 16, "computingy2"]
+                #["horizon","th",16,"computingy3"],["horizon","th",17,"computingy3"],["horizon","th",16,"computingy4"],["horizon","th",17, "computingy4"],
+                #["horizon","f",12,"computingy1"],["horizon", "f",13,"computingy1"],["horizon","f",12,"computingy2"],["horizon","f",13, "computingy2"]]
 
     def reserve(self,slot):
         #to add reserved slot
@@ -235,18 +235,174 @@ class ReserveSlot():
     def get_creator(self):
         result = ""
         for i in self.reserved:
-            result += "reserve(%s,%d,%s). \n" % (i[0],i[1],i[2])
-        result += "reserved_not_in_use(D,S,Y) :- reserve(D,S,Y),class_with_year(_,_,D,S,Y).\n"
+            result += "reserved(%s,%s,%d,%s). \n" % (i[0],i[1],i[2],i[3])
+        result += "reserved_slot(D,S,Y) :- reserved(_,D,S,Y), class_with_year(_,_,D,S,Y).\n"
         return result
 
     def get_negator(self):
-        return ":- reserved_not_in_use(_,_,_).\n"
+        return ":-reserved_slot(_,_,_).  \n "
 
     def get_show_string(self):
-        return "#show reserved_not_in_use/3.\n"
+        return "#show reserved_slot/3. \n"
 
     def constraint_parse(self,param):
-        return ""
+        return "" #TODO
+
+    def get_metadata(self, params):
+        return None  # if no metadata
+
+class Concentration():
+    #we dont have teaches yet
+    #we dont even have information about which lecturer teaches which course or class
+    lecturers = []
+    def get_creator(self):
+        result = ""
+        for i in self.lecturers:
+            result += "not_concentrate(L) :- teaches(L,S1), teaches(L,S2), class_with_year(S1,_,D1,_,_), class_with_year(S2,_,D2,_,_), D1!=D2, L= %s). \n" % (i)
+        return result
+    def add_lecturer(self, lecturer):
+        self.lecturers.append(lecturer)
+    def get_negator(self):
+        return ":-not_concentrate(_).  \n "
+
+    def get_show_string(self):
+        return "#show not_concentrate/1. \n"
+
+    def constraint_parse(self,param):
+        return "" #TODO
+
+    def get_metadata(self, params):
+        return None  # if no metadata
+
+class Spreading():
+    subjects = ["architecture"]
+    def get_creator(self):
+
+        result = ""
+        for i in self.subjects:
+            result += "not_spreading(T) :-  class_with_year(T,_,D1,_,Y), class_with_year(T,_,D2,_,Y), |D1-D2| < 2, D1 != D2, T = %s .\n" % (i)
+        return result
+
+    def add_subject(self, subject):
+        self.subjects.append(subject)
+
+    def get_negator(self):
+        return ":- not_spreading(_).  \n "
+
+    def get_show_string(self):
+        return "#show not_spreading/1. \n"
+
+    def constraint_parse(self,param):
+        return "Subject is not spread."
+
+    def get_metadata(self, params):
+        return None  # if no metadata
+
+class ConcentrateTwo():
+    #we dont have teaches yet
+    #we dont even have information about which lecturer teaches which course or class
+    lecturers = []
+    def get_creator(self):
+        result = ""
+        for i in self.lecturers:
+            result += "not_concentrate_two(L) :- teaches(L,S1), teaches(L,S2), teaches(L,S3)," + \
+                      "class_with_year(S1,_,D1,_,_), class_with_year(S2,_,D2,_,_), class_with_year(S3,_,D3,_,_),"+\
+                      "D1 != D2 , D2 != D3, D3 != D1 , L = %s. \n" % (i)
+        return result
+    def add_lecturer(self, lecturer):
+        self.lecturers.append(lecturer)
+    def get_negator(self):
+        return ":- not_concentrate_two(_).  \n "
+
+    def get_show_string(self):
+        return "#show not_concentrated_two/1. \n"
+
+    def constraint_parse(self,param):
+        return "" #TODO
+
+    def get_metadata(self, params):
+        return None  # if no metadata
+
+class NoLecturerDayTime():
+    #no lecturer on specific day and time
+    #we dont have teaches yet
+    #we dont even have information about which lecturer teaches which course or class
+    lecturerDayTime = []
+    def get_creator(self):
+        result = ""
+        for i in self.lecturerDayTime:
+            result += "no_lecturer_day_time(L,S,D,T) :- teaches(L,S) , class_with_year(S,_,D,T,_), L = %s, D = %s, T = %s.\n" % (i[0],i[1],i[2])
+        return result
+
+    def add_no_lecturer_day_time(self, lecturer, day, time):
+        ar = [lecturer,day,time]
+        self.lecturerDayTime.append(ar)
+
+    def get_negator(self):
+        return ":- no_lecturer_day_time(_,_,_,_).  \n "
+
+    def get_show_string(self):
+        return "#show no_lecturer_day_time/4. \n"
+
+    def constraint_parse(self,param):
+        return "" #TODO
+
+    def get_metadata(self, params):
+        return None  # if no metadata
+
+class NoLecturerDay():
+    #no lecturer on specific day and time
+    #we dont have teaches yet
+    #we dont even have information about which lecturer teaches which course or class
+    lecturerDay = []
+    def get_creator(self):
+        result = ""
+        for i in self.lecturerDay:
+            result += "no_lecturer_day(L,S,D) :- teaches(L,S) , class_with_year(S,_,D,_,_), L = %s, D = %s.\n" % (i[0],i[1])
+        return result
+
+    def add_no_lecturer_day_time(self, lecturer, day):
+        ar = [lecturer,day]
+        self.lecturerDay.append(ar)
+
+    def get_negator(self):
+        return ":- no_lecturer_day(_,_,_).  \n "
+
+    def get_show_string(self):
+        return "#show no_lecturer_day/3. \n"
+
+    def constraint_parse(self,param):
+        return "" #TODO
+
+    def get_metadata(self, params):
+        return None  # if no metadata
+
+class NoLecturerTime():
+    #no lecturer on specific day and time
+    #we dont have teaches yet
+    #we dont even have information about which lecturer teaches which course or class
+    lecturerTime = []
+    def get_creator(self):
+        result = ""
+        for i in self.lecturerTime:
+            result += "no_lecturer_time(L,S,T) :- teaches(L,S) , class_with_year(S,_,_,T,_), L = %s, T = %s.\n" % (i[0],i[1])
+        return result
+
+    def add_no_lecturer_day_time(self, lecturer, time):
+        ar = [lecturer,time]
+        self.lecturerTime.append(ar)
+
+    def get_negator(self):
+        return ":- no_lecturer_time(_,_,_).  \n "
+
+    def get_show_string(self):
+        return "#show no_lecturer_time/3. \n"
+
+    def constraint_parse(self,param):
+        return "" #TODO
+
+    def get_metadata(self, params):
+        return None  # if no metadata
 
 class ConstraintHandler():
     # static fields
@@ -261,7 +417,14 @@ class ConstraintHandler():
         "max_six_hour_a_day" : MaxSixHourADay(),
         "not_unique_room_lecture" : UniqueRoomLecture(),
         "lecturer_clash" : LecturerClash(),
-        "max_four_hour_a_day_lecturer" : MaxFourHourADayLecturer()
+        "max_four_hour_a_day_lecturer" : MaxFourHourADayLecturer(),
+        "reserve_slot": ReserveSlot(),
+        # "not_concentration" : Concentration(),
+        # "not_concentrate_two" : ConcentrateTwo(),
+        "not_spreading": Spreading(),
+        # "no_lecturer_day_time" : NoLecturerDayTime(),
+        # "no_lecturer_day": NoLecturerDay(),
+        # "no_lecturer_time" : NoLecturerTime()
     }
     constraint_table_parse_verbose = {
         "Each class to have enough hours.": "not_class_has_enough_hours",
@@ -274,7 +437,14 @@ class ConstraintHandler():
         "Students have max 6 hours a day" : "max_six_hour_a_day",
         "Lecture is exactly one room at a day" : "not_unique_room_lecture",
         "Lecturer can only teach one subject at a time" : "lecturer_clash",
-        "Lecturer teaches max 4 hour a day" : "max_four_hour_a_day_lecturer"
+        "Lecturer teaches max 4 hour a day" : "max_four_hour_a_day_lecturer",
+        "Reserve specific slot for specific year" : "reserve_slot",
+        #"specific lecturer want to teach everything on one day" : "not_concentration",
+        #"specific lecturer want all teaching in two days" : "not_concentrate_two",
+        "specific class spread out during a week(at least one day break)" : "not_spreading",
+        #"specific lecturer cannot teach on specific day and specific time" : "no_lecturer_day_time",
+        #"specific lecturer cannot teach on specific day" : "no_lecturer_day",
+        #"specific lecturer cannot teach on specific time" : "no_lecturer_time"
     }
 
     @staticmethod
