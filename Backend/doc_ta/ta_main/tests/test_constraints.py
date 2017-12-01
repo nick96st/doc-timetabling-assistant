@@ -232,3 +232,47 @@ class HardConstraintsTest(test.TestCase):
 
         code_result = invoke_codegen_sequence_with_facts(facts)
         self.assertEquals(code_result, unsatisfiable)
+
+    def test_no_9_to_5(self):
+        facts = [ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Hardware", "311", "Wednesday", 9)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Hardware", "311", "Wednesday", 10)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Logic", "308", "Wednesday", 16)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Logic", "308", "Wednesday", 17)),
+            ]
+
+        code_result = invoke_codegen_sequence_with_facts(facts)
+        self.assertEquals(code_result, unsatisfiable)
+
+    def test_lecture_no_three_consecutive_hour(self):
+        #create lecturer object
+        lecturer = ta_models.Lecturer()
+        lecturer.first_name = "Tony"
+        lecturer.surname = "Field"
+        lecturer.save()
+
+        #assign lecturer to subjects
+        teaches1 = ta_models.Teaches()
+        teaches1.lecturer = lecturer
+        teaches1.subject = ta_models.Subject.objects.get(title="Hardware")
+        teaches1.save()
+
+        teaches2 = ta_models.Teaches()
+        teaches2.lecturer = lecturer
+        teaches2.subject = ta_models.Subject.objects.get(title="Logic")
+        teaches2.save()
+
+        facts = [ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Hardware", "311", "Wednesday", 9)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Hardware", "311", "Wednesday", 10)),
+            ta_models.LectureClass().init_from_json( \
+                generate_lectureclass_json("Logic", "308", "Wednesday", 11)),
+            ]
+
+        code_result = invoke_codegen_sequence_with_facts(facts)
+        self.assertEquals(code_result, unsatisfiable)
+    
