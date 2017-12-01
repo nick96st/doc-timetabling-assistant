@@ -245,7 +245,7 @@ class App extends React.Component {
     var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
     var checkBtn = <button class="horizontal2" onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
     var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
-    var dimensions = {width:100, height: 100}
+    var style = {color:'white'}
 
     var dropDownRooms = <MultiSelect
                     placeholder = "Select Room(s)"
@@ -284,6 +284,9 @@ class App extends React.Component {
                 {selectTermDropdown}
                 <div id="top-item">{dropDownRooms}</div>
                 <div>{dropDownCourses}</div>
+                <div style={{color: 'white'}}>
+                {constraintSelectorItems}
+                </div>
                 <div>{saveBtn}
                 {checkBtn}
                 {generateBtn}</div>

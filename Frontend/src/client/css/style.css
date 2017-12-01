@@ -777,7 +777,7 @@ button:hover {
 }
 
 .violation-console{
-  height: 100px;
+  height: 400px;
   overflow-y: auto;
   background-color: #FFFFFF;
   padding-top: 5px;
