@@ -786,3 +786,8 @@ button:hover {
 .warning-slot{
   background-color: #FFD2D2;
 }
+
+.session {
+  margin-right: 2em;
+  width: 100%;
+}
