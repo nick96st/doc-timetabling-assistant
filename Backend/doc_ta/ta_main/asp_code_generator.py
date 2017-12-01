@@ -97,7 +97,8 @@ class ASPCodeGenerator():
             axiom_constraints_string += Constraints.constraint_creator(constraint)
 
         axiom_constraints_string += "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
-                                    "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n"
+                                    "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n" +\
+                                    "slot_teaches(L,D,S) :- class_with_year(T,_,D,S,_), teaches(L,T), lecturer(L).\n"
 
         if self.status != "CHECKSLOTS":
             axiom_constraints_string += "class_with_year(T,R,D,S,Y) :- class(T,R,D,S), subjectincourse(T,Y).\n"

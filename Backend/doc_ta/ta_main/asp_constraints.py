@@ -221,6 +221,7 @@ class MaxFourHourADayLecturer():
     def constraint_parse(self,param):
         return 'Lecturer ' + param[0] + 'has more than four hour on ' + param[1] + "."
 
+
 class ReserveSlot():
     #reserve slots (now only for horizon (first three line) and horizon year in europe(below first three lines))
     reserved = [["tu",16,"computingy1"],["tu",17,"computingy1"],
@@ -247,6 +248,26 @@ class ReserveSlot():
 
     def constraint_parse(self,param):
         return ""
+
+class No9to5():
+    def get_creator(self):
+        return "no_9_to_5(D,Y) :- class_with_year(_,_,D,S1,Y), class_with_year(_,_,D,S2,Y), S1<10, S2>16. \n"
+    def get_negator(self):
+        return ":- no_9_to_5(_,Y), course(Y). \n"
+    def get_show_string(self):
+        return "#show no_9_to_5/2. \n"
+    def constraint_parse(self,param):
+        return 'Year ' +param[1] + 'on day ' + param[0] + ' has classes from 9am to 6pm.\n'
+
+class ThreeConsecutiveHourForLecturer():
+    def get_creator(self):
+        return "three_consecutive_hour_for_lecturer(L,D) :- class_with_year(S1,_,D,S,_), class_with_year(S2,_,D,S+1,_), class_with_year(S3,_,D,S+2,_), teaches(L,S1),teaches(L,S2), teaches(L,S3), lecturer(L). \n"
+    def get_negator(self):
+        return ":- three_consecutive_hour_for_lecturer(L,D), lecturer(L), timeslot(D,_) \n."
+    def get_show_string(self):
+        return "#show three_consecutive_hour_for_lecturer/2. \n"
+    def constraint_parse(self,param):
+        return 'Lecturer ' + param[0] + ' on day ' + param[1] + ' has 3 consecutive hours. \n'
 
 class ConstraintHandler():
     # static fields
@@ -296,4 +317,3 @@ class ConstraintHandler():
     @staticmethod
     def constraint_metadata(id, params):
         return ConstraintHandler.constraint_table[id].get_metadata(params)
-
