@@ -9,9 +9,10 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import APIView, permission_classes
 # from rest_framework.permissions import AllowAny
-
+from django.contrib.auth.decorators import login_required
 
 # get index page
+@login_required
 def get_index(request):
     template = loader.get_template("index.html")
     context = {}
@@ -19,6 +20,7 @@ def get_index(request):
 
 
 @csrf_exempt
+@login_required
 def generate_table(request):
     term_name = request.GET.get("term",None)
     # term_name = json.loads(request.body)["term"]
@@ -100,6 +102,7 @@ def check_constraints(request):
         return response.HttpResponseServerError("ASP result is not satisfiable")
 
 @csrf_exempt
+@login_required
 def update_save(request):
     try:
         timetable = json.loads(request.body)["timetable"]
@@ -125,6 +128,7 @@ def update_save(request):
 
 
 @csrf_exempt
+@login_required
 def save_timetable(request):
     # return response.HttpResponse(content=json.loads(request.body)['timetable'],content_type="application/json")
     try:
@@ -150,6 +154,7 @@ def save_timetable(request):
 
 
 @csrf_exempt
+@login_required
 def get_load_choices(request):
 
     all_saves = ta_models.SavedTable.objects.all()
@@ -161,6 +166,7 @@ def get_load_choices(request):
     return response.HttpResponse(content=json.dumps(saves),content_type="application/json")
 
 @csrf_exempt
+@login_required
 def load_save(request):
     save_id = request.GET.get("save_id", None)
 
@@ -176,7 +182,8 @@ def load_save(request):
 
     return response.HttpResponse(content=json.dumps(result))
 
-@csrf_exempt
+
+@login_required
 def get_term_choices(request):
     all_terms = ta_models.Term.objects.all()
     term_list = []
@@ -186,7 +193,7 @@ def get_term_choices(request):
     return response.HttpResponse(content=json.dumps(term_list))
 
 
-@csrf_exempt
+@login_required
 def get_subject_choices(request):
     all_subjects = ta_models.Subject.objects.all()
     subject_list = []
@@ -196,7 +203,7 @@ def get_subject_choices(request):
     return response.HttpResponse(content=json.dumps(subject_list))
 
 
-@csrf_exempt
+@login_required
 def get_room_choices(request):
     all_rooms = ta_models.Room.objects.all()
     room_list = []
@@ -206,13 +213,14 @@ def get_room_choices(request):
     return response.HttpResponse(content=json.dumps(room_list))
 
 
-@csrf_exempt
+@login_required
 def get_constraint_choices(request):
     constraints = Constraints.constraint_table_parse_verbose.keys()
     return response.HttpResponse(content=json.dumps(constraints))
 
 
 @csrf_exempt
+@login_required
 def create_timeslots_for_table(request):
     try:
         params = json.loads(request.body)
@@ -228,6 +236,7 @@ def create_timeslots_for_table(request):
 
 import tests.database_inits as DB
 @csrf_exempt
+@login_required
 def init_timeslots_DoC(request):
     DB.generate_all()
     return response.HttpResponse()

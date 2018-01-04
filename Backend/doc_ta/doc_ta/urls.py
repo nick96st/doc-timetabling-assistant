@@ -16,8 +16,11 @@ Including another URLconf
 from ta_main import views
 from django.conf.urls import url
 from django.contrib import admin
+from django.conf.urls import include
 
+# adds Django auto-generated login views
 urlpatterns = [
+    url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'timetable/check', views.check_constraints),
     url(r'timetable/save', views.save_timetable),
