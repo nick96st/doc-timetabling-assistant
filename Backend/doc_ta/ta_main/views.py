@@ -49,6 +49,7 @@ def generate_table(request):
 
 
 @csrf_exempt
+@login_required
 def check_constraints(request):
     # grid_objects = request["data"]["grid_objects"]
 
