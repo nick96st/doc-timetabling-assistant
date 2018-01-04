@@ -1,6 +1,7 @@
 import React from 'react'
 import {render} from 'react-dom';
 import axios from 'axios'
+import FontAwesome from 'react-fontawesome';
 
   class Login extends React.Component{
     constructor(props){
@@ -33,8 +34,8 @@ import axios from 'axios'
     })
     .then(function (response) {
       if(response.data.success){
-        this.props.login()
         localStorage.setItem("username", this.state.username)
+        this.props.login()
       }else{
         this.setState("error": true)
       }
@@ -46,12 +47,16 @@ import axios from 'axios'
 
     render(){
       return(
+        <div>
+        <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
+        <h2>DEPARTMENT OF COMPUTING</h2>
         <div className="login-div">
           <input className={this.checkError()} type='text' value={this.state.username} onChange={this.updateUsernameValue}/>
           <br/>
           <input className={this.checkError()} type='password' value={this.state.password} onChange={this.updatePasswordValue}/>
           <br/>
-          <button className = "login-button" onClick = {this.loginUser}>Log In </button>
+          <button className = "login-button" onClick = {this.props.login}>Log In </button>
+        </div>
         </div>
       )
     }

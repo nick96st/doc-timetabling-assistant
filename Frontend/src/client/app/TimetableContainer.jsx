@@ -5,17 +5,22 @@ import axios from 'axios'
 import {ReactSelectize, SimpleSelect, MultiSelect} from 'react-selectize';
 import Dropdown from 'react-dropdown';
 import {getDropdownData} from './Utils.jsx';
-import MyCheckbox from './MyCheckbox.jsx'
+import SimpleCheckbox from './SimpleCheckbox.jsx'
 import FontAwesome from 'react-fontawesome';
+import Modal from 'react-modal';
 
   class TimetableContainer extends React.Component{
     constructor(props) {
       super(props);
       this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
-                                  {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},], modalOpen:false,
+                                  {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},], addConstraintModal:false, constraint:{},
                                   subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [], labels:[]};
-      this.openModal=this.openModal.bind(this)
-      this.closeModal=this.closeModal.bind(this)
+      this.addConstraintModal=this.addConstraintModal.bind(this)
+      this.constraintModuleChange=this.constraintModuleChange.bind(this)
+      this.constraintDayChange=this.constraintDayChange.bind(this)
+      this.constraintStartChange=this.constraintStartChange.bind(this)
+      this.constraintEndChange=this.constraintEndChange.bind(this)
+      this.closeConstraintModal=this.closeConstraintModal.bind(this)
       this.addLecture=this.addLecture.bind(this)
       this.removeLecture=this.removeLecture.bind(this)
       this.handleRemovingFilter=this.handleRemovingFilter.bind(this)
@@ -42,14 +47,12 @@ import FontAwesome from 'react-fontawesome';
     }
 
 
-    openModal(){
-      var hours = this.state.hours
-      var timetable = this.state.timetable
-      this.setState({modalOpen: true})
+    addConstraintModal(){
+      this.setState({addConstraintModal: true})
     }
 
-    closeModal(){
-      this.setState({modalOpen:false})
+    closeConstraintModal(){
+      this.setState({addConstraintModal:false})
     }
 
     saveTimetable(timetable){
@@ -111,7 +114,7 @@ import FontAwesome from 'react-fontawesome';
       var checkboxes = []
       const labels = this.state.labels
       labels.forEach(l =>{
-        checkboxes.push(<li><MyCheckbox label={l} handleChange={this.toggleCheckbox} key={l}/></li>)
+        checkboxes.push(<li><SimpleCheckbox label={l} handleChange={this.toggleCheckbox} key={l}/></li>)
       })
       var checkboxList = <ul>{checkboxes}</ul>
       return checkboxList
@@ -130,8 +133,9 @@ import FontAwesome from 'react-fontawesome';
     }
 
     addLecture(lect){
-     var timetable = this.state.timetable
-     timetable.push(lect)
+     var newTimetable = this.state.timetable
+     newTimetable.push(lect)
+     this.setState({timetable: newTimetable})
     }
 
 
@@ -161,10 +165,33 @@ import FontAwesome from 'react-fontawesome';
       return rows
     }
 
+
+   constraintModuleChange(e){
+     var newConstraint = this.state.constraint
+     newConstraint.module = e.value
+
+   }
+
+   constraintDayChange(e){
+     var newConstraint = this.state.constraint
+     newConstraint.day = e.value
+   }
+
+   constraintStartChange(e){
+     var newConstraint = this.state.constraint
+     newConstraint.start = e.value
+   }
+
+   constraintEndChange(e){
+     var newConstraint = this.state.constraint
+     newConstraint.end = e.value
+   }
+
+
+
     generateViolations(){
       var violations = []
       const violationData = this.state.violationData;
-      console.log(violationData)
       if (violationData !=  null){
         for (var i=0; i<violationData.violations.length; i++){
           const activeViolation = violationData.metadata[i];
@@ -220,15 +247,45 @@ import FontAwesome from 'react-fontawesome';
       }
 
     render () {
+      var cstyle = {
+        overlay : {
+          position          : 'fixed',
+          top               : 0,
+          left              : 0,
+          right             : 0,
+          bottom            : 0,
+          backgroundColor   : 'rgba(255, 255, 255, 0.75)'
+        },
+        content : {
+          position                   : 'relative',
+          top                        : '40px',
+          left                       : '50%',
+          right                      : '0px',
+          bottom                     : '40px',
+          border                     : '1px solid #ccc',
+          background                 : '#fff',
+          overflow                   : 'auto',
+          WebkitOverflowScrolling    : 'touch',
+          borderRadius               : '4px',
+          outline                    : 'none',
+          padding                    : '20px',
+          width                      : '400px',
+          height                     : '400px',
+          transform: 'translate(-50%, 0)'
+       }
+     };
+     var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+     var hours = []
+     for(var i = this.state.hours.start; i<= this.state.hours.finish; i++){
+       hours.push(i)
+     }
       var violations = this.generateViolations()
       var constraintSelectorItems = this.generateConstraintSelector()
       var violationList = <ul className="violation-list">{violations}</ul>
-      var timetable
       var ftable = this.filterTable(this.state.timetable)
       var rows = this.generateRows(ftable)
-      timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
-                   removeLecture={this.removeLecture} openModal={this.openModal} closeModal={this.closeModal}
-                   modalOpen={this.state.modalOpen} violation={this.state.activeViolation}
+      var timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
+                   removeLecture={this.removeLecture} violation={this.state.activeViolation}
                    rooms={this.state.rooms} subjects={this.state.subjects}/>
       var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
       var checkBtn = <button class="horizontal2" onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
@@ -265,6 +322,7 @@ import FontAwesome from 'react-fontawesome';
                                 onChange={(e) => {this.onSelectedTermChange(e);} }
                                 value={this.state.selected_term}
                                />
+     var addConstrainBtn = <button class="horizontal2" onClick={()=>{this.addConstraintModal()}}>Add Constraint</button>
       return( <div>
                 <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
                 <h2>DEPARTMENT OF COMPUTING</h2>
@@ -277,7 +335,8 @@ import FontAwesome from 'react-fontawesome';
                   </div>
                   <div>{saveBtn}
                   {checkBtn}
-                  {generateBtn}</div>
+                  {generateBtn}
+                  {addConstrainBtn}</div>
                   <div className="violation-console">
                   {violationList}
                   </div>
@@ -285,6 +344,18 @@ import FontAwesome from 'react-fontawesome';
                 <div class="right-component">
                   {timetable}
                 </div>
+                <Modal isOpen={this.state.addConstraintModal} style={cstyle}>
+                  <Dropdown options={this.state.subjects} placeholder="Select a module" onChange={this.constraintModuleChange} value={this.state.constraint.module}/>
+                  Cannot be schedule on:
+                  <Dropdown options={days} placeholder="Select a day" onChange={this.constraintDayChange} value={this.state.constraint.day}/>
+                  between
+                  <Dropdown options={hours} placeholder="Select a time" onChange={this.constraintStartChange} value={this.state.constraint.start}/>
+                  and
+                  <Dropdown options={hours} placeholder="Select a time" onChange={this.constraintEndChange} value={this.state.constraint.end}/>
+                  <br/>
+                  <button onClick={()=>{this.closeConstraintModal()}}>Cancel</button>
+                  <button onClick={()=>{this.addLecture()}}>Save</button>
+                </Modal>
               </div>);
 
     }

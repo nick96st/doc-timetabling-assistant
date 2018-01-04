@@ -8,8 +8,8 @@ class App extends React.Component {
   constructor(props){
     super(props)
     this.state={username: ''}
-    // localStorage.setItem('user', 'Duncan')
-    localStorage.clear()
+    localStorage.setItem('user', 'Duncan')
+    // localStorage.clear()
     this.login = this.login.bind(this)
   }
 

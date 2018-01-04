@@ -9,7 +9,7 @@ class Timetable extends React.Component{
 
   constructor(props) {
     super(props);
-    this.state={}
+    this.state={modalOpen:false}
     this.lectureChange = this.lectureChange.bind(this);
     this.roomChange = this.roomChange.bind(this);
     this.openModal = this.openModal.bind(this);
@@ -26,12 +26,11 @@ class Timetable extends React.Component{
   }
 
   openModal(slot){
-   this.props.openModal()
-   this.setState({time:slot.time, day:slot.day })
+   this.setState({time:slot.time, day:slot.day, modalOpen:true })
   }
 
   closeModal(){
-    this.props.closeModal()
+    this.setState({modalOpen:false})
   }
 
   deleteLecture(lect){
@@ -51,7 +50,7 @@ class Timetable extends React.Component{
         var warn = ""
         const slot = {time: i, day:r.day}
         if (r[i].length == 0){
-          cols.push(<td><a onClick = {()=>this.openModal(slot)}><FontAwesome name="plus"></FontAwesome><TimetableSlot name = "" room = ""/></a></td>)
+          cols.push(<td><button onClick = {()=>this.openModal(slot)} class="round"><FontAwesome name="plus"></FontAwesome></button><TimetableSlot name = "" room = ""/></td>)
         }else{
           var courses =[]
           r[i].forEach(s=>{
@@ -89,14 +88,42 @@ class Timetable extends React.Component{
   }
 
     render() {
+      var style = {
+    overlay : {
+    position          : 'fixed',
+    top               : 0,
+    left              : 0,
+    right             : 0,
+    bottom            : 0,
+    backgroundColor   : 'rgba(255, 255, 255, 0.75)'
+  },
+  content : {
+    position                   : 'relative',
+    top                        : '40px',
+    left                       : '50%',
+    right                      : '0px',
+    bottom                     : '40px',
+    border                     : '1px solid #ccc',
+    background                 : '#fff',
+    overflow                   : 'auto',
+    WebkitOverflowScrolling    : 'touch',
+    borderRadius               : '4px',
+    outline                    : 'none',
+    padding                    : '20px',
+    width                      : '400px',
+    height                     : '200px',
+    transform: 'translate(-50%, 0)'
+
+  }
+}
     return(
       <div>
-      <Modal isOpen={this.props.modalOpen}>
+      <Modal isOpen={this.state.modalOpen} style={style}>
         <Dropdown options={this.props.subjects} placeholder="Select an option" onChange={this.lectureChange} value={this.state.lecture}/>
         <Dropdown options={this.props.rooms} placeholder="Select an option" onChange={this.roomChange} value={this.state.room}/>
         <br/>
-        <button onClick={()=>{this.closeModal()}}>Close</button>
-        <button onClick={()=>{this.addLecture()}}>Add Lecture</button>
+        <button onClick={()=>{this.closeModal()}}>Cancel</button>
+        <button onClick={()=>{this.addLecture()}}>Save</button>
       </Modal>
       <table>
        {this.generateHeader()}
