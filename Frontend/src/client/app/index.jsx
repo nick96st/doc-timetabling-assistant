@@ -7,6 +7,7 @@ import Dropdown from 'react-dropdown';
 import {getDropdownData} from './Utils.jsx';
 import MyCheckbox from './MyCheckbox.jsx'
 import FontAwesome from 'react-fontawesome';
+import Modal from 'react-modal';
 
 class App extends React.Component {
   constructor(props) {
@@ -17,7 +18,7 @@ class App extends React.Component {
                                // {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                // {time:17, day:"Tuesday", room: "311", name:"Databases I", type: "lecture"},
                               //  {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},
-                                ], modalOpen:false,
+                                ], modalOpen:false,isOpenSaveAsModal:false,isOpenLoadModal:false,
                   subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [], labels:[]};
     this.openModal=this.openModal.bind(this)
     this.closeModal=this.closeModal.bind(this)
@@ -231,6 +232,39 @@ class App extends React.Component {
 
     }
 
+  // start LOAD SAVE AS functionality
+  openSaveAs() {
+  console.log("opening saveas");
+  this.setState({isOpenSaveAsModal:true});
+  console.log(this.state.isOpenSaveAsModal);
+  }
+
+  openLoad() {
+  console.log("opening load");
+  this.setState({isOpenLoadModal:true});
+  }
+
+  closeSaveAs() {
+  console.log("closing close saveas");
+  this.setState({isOpenSaveAsModal: false});
+  }
+
+  closeLoad() {
+  console.log("closing load modal");
+  this.setState({isOpenLoadModal: false});
+  }
+
+  saveAs() {
+  }
+
+  loadSave() {
+  }
+
+  selectedLoadChange(e) {
+  }
+
+
+
   render () {
     var violations = this.generateViolations()
     var constraintSelectorItems = this.generateConstraintSelector()
@@ -245,6 +279,20 @@ class App extends React.Component {
     var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
     var checkBtn = <button class="horizontal2" onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
     var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
+    var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.openSaveAs(this.state)}}>Save As</button>
+    var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad(this.state)}}>Load</button>
+    var saveAsModal = <Modal isOpen={this.isOpenSaveAsModal}>
+                     <label> Name</label>
+                    //  <input type="text" name="saveAsName"></input>
+                    //  <button class="horizontal2" onClick={ () => this.saveAs()}> Save </button>
+                      </Modal>
+    var loadModal = <Modal isOpen={this.isOpenLoadModal}>
+                    <Dropdown options={this.state.possibleLoads} placeholder="Select a table to load"
+                    onChange={this.selectedLoadChange} value={this.state.selected_load} />
+                    <button class="horizontal2" onClick={ () => this.loadSave()}> Load </button>
+                    </Modal>
+
+
     var style = {color:'white'}
 
     var dropDownRooms = <MultiSelect
@@ -277,9 +325,14 @@ class App extends React.Component {
                               onChange={(e) => {this.onSelectedTermChange(e);} }
                               value={this.state.selected_term}
                              />
+
+    console.log(saveAsModal);
     return( <div>
               <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
               <h2>DEPARTMENT OF COMPUTING</h2>
+              <div class="utilityLine">
+               {saveAsBtn} {loadBtn}
+              </div>
               <div class="left-component">
                 {selectTermDropdown}
                 <div id="top-item">{dropDownRooms}</div>
@@ -297,6 +350,9 @@ class App extends React.Component {
               <div class="right-component">
                 {timetable}
               </div>
+
+              {loadModal}
+              {saveAsModal}
             </div>);
 
   }

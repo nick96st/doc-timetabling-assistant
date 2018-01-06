@@ -36,3 +36,4 @@ urlpatterns = [
     url(r'init_timeslots_doc', views.init_timeslots_DoC),
     url(r'', views.get_index),
 ]
+
