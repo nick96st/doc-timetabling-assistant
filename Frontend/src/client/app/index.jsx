@@ -241,7 +241,21 @@ class App extends React.Component {
 
   openLoad() {
   console.log("opening load");
-  this.setState({isOpenLoadModal:true});
+  axios.get('/timetable/existingsaves').
+    then((response) => {
+        console.log(response.data)
+        var possibleLoads = []
+        for(var i=0; i< response.data.length; i++) {
+            possibleLoads.push(response.data[i].name);
+        }
+        // sets the complete id+name data and a name list for the dropdown select
+        this.setState({possibleLoads: response.data,possibleLoadsNameList: possibleLoads})
+         this.setState({isOpenLoadModal:true});
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
   }
 
   closeSaveAs() {
@@ -281,15 +295,19 @@ class App extends React.Component {
     var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
     var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.openSaveAs(this.state)}}>Save As</button>
     var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad(this.state)}}>Load</button>
-    var saveAsModal = <Modal isOpen={this.isOpenSaveAsModal}>
-                     <label> Name</label>
-                    //  <input type="text" name="saveAsName"></input>
-                    //  <button class="horizontal2" onClick={ () => this.saveAs()}> Save </button>
+
+    var saveAsModal = <Modal isOpen={this.state.isOpenSaveAsModal}>
+                     <label>Name</label>
+                     <input type="text" name="saveAsName"></input>
+                      <button class="horizontal2" onClick={ () => this.saveAs()}> Save </button>
                       </Modal>
-    var loadModal = <Modal isOpen={this.isOpenLoadModal}>
-                    <Dropdown options={this.state.possibleLoads} placeholder="Select a table to load"
+
+    var loadModal = <Modal isOpen={this.state.isOpenLoadModal}>
+                    <label>Please, Select a save to load: </label>
+                    <Dropdown options={this.state.possibleLoadsNameList} placeholder="Select a save"
                     onChange={this.selectedLoadChange} value={this.state.selected_load} />
                     <button class="horizontal2" onClick={ () => this.loadSave()}> Load </button>
+
                     </Modal>
 
 
@@ -326,7 +344,6 @@ class App extends React.Component {
                               value={this.state.selected_term}
                              />
 
-    console.log(saveAsModal);
     return( <div>
               <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
               <h2>DEPARTMENT OF COMPUTING</h2>
