@@ -7,6 +7,7 @@ import Dropdown from 'react-dropdown';
 import {getDropdownData} from './Utils.jsx';
 import SimpleCheckbox from './SimpleCheckbox.jsx'
 import FontAwesome from 'react-fontawesome';
+import {CircleLoader} from 'react-spinners';
 import Modal from 'react-modal';
 
   class TimetableContainer extends React.Component{
@@ -14,8 +15,10 @@ import Modal from 'react-modal';
       super(props);
       this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                   {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},], addConstraintModal:false, constraint:{},
-                                  subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [], labels:[]};
+                                  subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [],
+                                  labels:[], loading: true};
       this.addConstraintModal=this.addConstraintModal.bind(this)
+      this.saveConstraint=this.saveConstraint.bind(this)
       this.constraintModuleChange=this.constraintModuleChange.bind(this)
       this.constraintDayChange=this.constraintDayChange.bind(this)
       this.constraintStartChange=this.constraintStartChange.bind(this)
@@ -147,6 +150,20 @@ import Modal from 'react-modal';
         timetable.splice(i, 1)
       }
       this.setState({timetable:timetable})
+    }
+
+    saveConstraint(){
+
+      axios.post('/timetable/add_constraint', {
+      constraint: this.state.constraint
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
     }
 
     generateRows(data){
@@ -283,10 +300,17 @@ import Modal from 'react-modal';
       var constraintSelectorItems = this.generateConstraintSelector()
       var violationList = <ul className="violation-list">{violations}</ul>
       var ftable = this.filterTable(this.state.timetable)
+      var timetable
+      if(!this.state.loading){
       var rows = this.generateRows(ftable)
-      var timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
+      timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
                    removeLecture={this.removeLecture} violation={this.state.activeViolation}
                    rooms={this.state.rooms} subjects={this.state.subjects}/>
+      }
+      else {
+        timetable = <div><CircleLoader loading={this.state.loading} color={'white'} /> Generating timetable...</div>
+
+      }
       var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
       var checkBtn = <button class="horizontal2" onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
       var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
@@ -354,7 +378,7 @@ import Modal from 'react-modal';
                   <Dropdown options={hours} placeholder="Select a time" onChange={this.constraintEndChange} value={this.state.constraint.end}/>
                   <br/>
                   <button onClick={()=>{this.closeConstraintModal()}}>Cancel</button>
-                  <button onClick={()=>{this.addLecture()}}>Save</button>
+                  <button onClick={()=>{this.saveConstraint()}}>Save</button>
                 </Modal>
               </div>);
 
