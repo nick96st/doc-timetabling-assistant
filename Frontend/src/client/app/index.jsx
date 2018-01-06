@@ -26,6 +26,7 @@ class App extends React.Component {
     this.removeLecture=this.removeLecture.bind(this)
     this.handleRemovingFilter=this.handleRemovingFilter.bind(this)
     this.toggleCheckbox=this.toggleCheckbox.bind(this)
+    this.selectedLoadChange=this.selectedLoadChange.bind(this)
     this.getInitialData();
   }
 
@@ -272,9 +273,30 @@ class App extends React.Component {
   }
 
   loadSave() {
+  var save_id = null;
+  var e = this.state.loadCandidate;
+  var obj = this.state.possibleLoads.filter(function(item) {return item.name == e });
+  save_id = obj[0].id;
+  console.log(this.state.possibleLoads,save_id);
+  axios.get('/timetable/load',  {
+        params: {
+            save_id: save_id
+        }
+    })
+    .then((response) => {
+    // update table and set active save info for direct save
+    this.setState({timetable:response.data,active_save:save_id});
+    // empties possible loads and list
+    this.setState({possibleLoads:[],possibleLoadsNameList:[]});
+    //closes the modal
+    this.closeLoad();
+  }).catch(function(error) {
+    });
   }
 
   selectedLoadChange(e) {
+    console.log('e',e);
+    this.setState({loadCandidate:e.value});
   }
 
 
@@ -305,7 +327,7 @@ class App extends React.Component {
     var loadModal = <Modal isOpen={this.state.isOpenLoadModal}>
                     <label>Please, Select a save to load: </label>
                     <Dropdown options={this.state.possibleLoadsNameList} placeholder="Select a save"
-                    onChange={this.selectedLoadChange} value={this.state.selected_load} />
+                    onChange={this.selectedLoadChange} value={this.state.loadCandidate} />
                     <button class="horizontal2" onClick={ () => this.loadSave()}> Load </button>
 
                     </Modal>
