@@ -18,6 +18,39 @@ def get_index(request):
     context = {}
     return response.HttpResponse(template.render(context,request))
 
+@csrf_exempt
+@login_required
+def add_constraint(request):
+    try:
+        constraint_def = json.loads(request.body)['constraint']
+    except:
+        return response.HttpResponseBadRequest("No query parameter for constraint object.")
+
+    constraint_obj = ta_models.SlotBlocker()
+    # input validation
+    try:
+        constraint_obj.subject = ta_models.Subject.objects.get(title=constraint_def["subject"])
+        constraint_obj.day = ta_models.DayDef.objects.get(day_string=constraint_def["day"])
+    except IndexError:
+        return response.HttpResponseBadRequest('Day or Subject does not exist.')
+    # table def
+
+    td = constraint_obj.day.model.table
+    if constraint_def["start"] in range(td.start_hour, td.end_hour):
+        constraint_obj.start = constraint_def["start"]
+    else:
+        return response.HttpResponseBadRequest('Start hour not in range')
+    if constraint_def["end"] in range(td.start_hour,td.end_hour) \
+       and constraint_def["start"] <= constraint_def["end"]:
+        constraint_obj.end = constraint_def["end"]
+    else:
+        return response.HttpResponseBadRequest('End hour is not suitable')
+
+    constraint_obj.owner = request.user
+    constraint_obj.generate_title()
+    constraint_obj.save()
+    return response.HttpResponse(status=200)
+
 
 @csrf_exempt
 @login_required
@@ -220,6 +253,8 @@ def get_room_choices(request):
 @login_required
 def get_constraint_choices(request):
     constraints = Constraints.constraint_table_parse_verbose.keys()
+    for blocker in ta_models.SlotBlocker.objects.filter(owner=request.user).all():
+        constraints.append(blocker.title)
     return response.HttpResponse(content=json.dumps(constraints))
 
 

@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'timetable/updatesave',views.update_save),
     url(r'timetable/generate', views.generate_table),
     url(r'timetable/load', views.load_save),
+    url(r'timetable/add_constraint', views.add_constraint),
     url(r'timetable/existingsaves', views.get_load_choices),
     url(r'choices/rooms', views.get_room_choices),
     url(r'choices/subjects', views.get_subject_choices),

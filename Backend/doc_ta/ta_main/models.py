@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.contrib.auth.models import User
 import asp_manipulators
 
 # Create your models here.
@@ -251,3 +252,35 @@ class Clash(models.Model):
                                       ]}
         return asp_manipulators.json_term_to_asp_string(json_data) + '.\n' + \
             asp_manipulators.json_term_to_asp_string(json_data_inverse)
+
+
+import asp_constraints
+class SlotBlocker(models.Model):
+    subject = models.ForeignKey(Subject)
+    day = models.ForeignKey(DayDef)
+    start = models.IntegerField()
+    end = models.IntegerField()
+    owner = models.ForeignKey(User)
+    title = models.CharField(max_length=80,default="Blocks something")
+
+    def get_creator(self):
+        return "slotblocker("+str(self.id) + ",X) :- " + "class_with_year(" + self.subject.title_asp + \
+               ",_," + str(self.day.day_asp) + ",X,_)," + "X=" + str(self.start) + ".." + str(self.end) + ".\n"
+
+    def get_negator(self):
+        return ":- slotblocker("+str(self.id) + ",_,_).\n"
+
+    def parse_constraint(self, params):
+        return "Blocking violated by " + self.subject.title + " on " + self.day.day_string \
+               + " at " + str(params[1]) + "."
+
+    @staticmethod
+    def get_show_string():
+        return "#show slotblocker/2."
+
+    def get_metadata(self, params):
+        return asp_constraints.metadata_timeslot(str(self.day.day_asp), params[1])
+
+    def generate_title(self):
+        self.title = "Not allow " + self.subject.title + " on " + self.day.day_string + " between " \
+                     + str(self.start) + " and " + str(self.end) + "."

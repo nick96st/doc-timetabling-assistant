@@ -26,6 +26,7 @@ class ASPCodeGenerator():
         self.subjects = []         # subjects which belong to the term
         self.result_facts = []
         self.hard_constraints = []
+        self.userdef_constraints = []
         self.soft_constraints = []
         self.should_generate = True
         self.status = ""
@@ -92,9 +93,11 @@ class ASPCodeGenerator():
             except ValueError:
                 pass
 
-
         for constraint in self.hard_constraints:
             axiom_constraints_string += Constraints.constraint_creator(constraint)
+
+        for constraint in self.userdef_constraints:
+            axiom_constraints_string += ta_models.SlotBlocker.objects.filter(title=constraint).first().get_creator()
 
         axiom_constraints_string += "1 { slot_occupied(D,S,Y) } 1 :- class_with_year(_,_,D,S,Y).\n" + \
                                     "1 { day_occupied(T,D) } 1 :- class_with_year(T,_,D,_,Y).\n" + \
@@ -130,6 +133,8 @@ class ASPCodeGenerator():
         if self.status == "GENERATE" or self.status == "CHECKSLOTS":
             for constraint in self.hard_constraints:
                 result_string += Constraints.constraint_negator(constraint)
+            for constraint in self.userdef_constraints:
+                result_string += ta_models.SlotBlocker.objects.filter(title=constraint).first().get_negator()
 
         return result_string
 
@@ -191,6 +196,8 @@ class ASPCodeGenerator():
         if self.status == "CHECK":
             for constraint in self.hard_constraints:
                 code_string += Constraints.constraint_show(constraint)
+            for constraint in self.userdef_constraints:
+                code_string += ta_models.SlotBlocker.objects.filter(title=constraint).first().get_show_string()
         # writes the code to file
         fd = open(file_name,'w+')
         fd.write(code_string)
@@ -278,7 +285,11 @@ class ASPCodeGenerator():
         notification_list = []
 
         for violation in violation_terms:
-            notification_list.append(Constraints.constraint_parse(violation["id"], violation["params"]))
+            try:
+                notification_list.append(Constraints.constraint_parse(violation["id"], violation["params"]))
+            except KeyError:
+                notification_list.append(ta_models.SlotBlocker.objects.filter(id=violation["params"][0]).first() \
+                    .parse_constraint(violation["params"]))
 
         return notification_list
 
@@ -286,7 +297,11 @@ class ASPCodeGenerator():
         metadata_list = []
 
         for violation in violation_terms:
-            metadata_item = Constraints.constraint_metadata(violation["id"], violation["params"])
+            try:
+                metadata_item = Constraints.constraint_metadata(violation["id"], violation["params"])
+            except KeyError:
+                metadata_item = ta_models.SlotBlocker.objects.filter(id=violation["params"][0]).first() \
+                    .get_metadata(violation["params"])
             if metadata_item is not None:
                 metadata_list.append(metadata_item)
             else:
@@ -297,6 +312,17 @@ class ASPCodeGenerator():
 # Build pattern for the code generator to define which constraints
 # facts, and object definitions to have
 class CodeGeneratorBuilder():
+    @staticmethod
+    def constraints_split(all_constraints):
+        buildin_constraints = []
+        userdef_constraints = []
+        for item in all_constraints:
+            if item in Constraints.constraint_table_parse_verbose.keys():
+                buildin_constraints.append(item)
+            else:
+                userdef_constraints.append(item)
+        return buildin_constraints, userdef_constraints
+
     def __init__(self):
         self.table = None
         self.subject_to_check = None
@@ -304,6 +330,7 @@ class CodeGeneratorBuilder():
         self.result_facts = []
         # Default hard constraints are all the defined keys in the verbose map table
         self.hard_constraints = Constraints.constraint_table_parse_verbose.keys()
+        self.userdef_constraints = []
         self.soft_constraints = []
         self.should_generate = True
         self.status = ""
@@ -332,7 +359,8 @@ class CodeGeneratorBuilder():
     def with_hard_constraints(self, hard_constraints):
         if not hard_constraints:
             return
-        self.hard_constraints = hard_constraints
+
+        self.hard_constraints, self.userdef_constraints = CodeGeneratorBuilder.constraints_split(hard_constraints)
         return self
 
     def with_soft_constraints(self, soft_constraints):
@@ -345,6 +373,7 @@ class CodeGeneratorBuilder():
         code_generator = ASPCodeGenerator()
         code_generator.result_facts = [] + self.result_facts
         code_generator.hard_constraints = [] + self.hard_constraints
+        code_generator.userdef_constraints = [] + self.userdef_constraints
         code_generator.soft_constraints = [] + self.soft_constraints
         code_generator.should_generate = self.should_generate
         code_generator.term = self.selected_term
