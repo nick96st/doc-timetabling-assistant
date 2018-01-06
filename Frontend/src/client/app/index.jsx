@@ -19,6 +19,7 @@ class App extends React.Component {
                                // {time:17, day:"Tuesday", room: "311", name:"Databases I", type: "lecture"},
                               //  {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},
                                 ], modalOpen:false,isOpenSaveAsModal:false,isOpenLoadModal:false,active_save:null,
+                                  errorSaveAsMessage:"",
                   subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [], labels:[]};
     this.openModal=this.openModal.bind(this)
     this.closeModal=this.closeModal.bind(this)
@@ -27,6 +28,7 @@ class App extends React.Component {
     this.handleRemovingFilter=this.handleRemovingFilter.bind(this)
     this.toggleCheckbox=this.toggleCheckbox.bind(this)
     this.selectedLoadChange=this.selectedLoadChange.bind(this)
+    this.saveNameInputChange=this.saveNameInputChange.bind(this)
     this.getInitialData();
   }
 
@@ -70,7 +72,7 @@ class App extends React.Component {
     // if knows current save just save
     if(this.state.active_save != null) {
 
-        axios.post('/timetable/save', {
+        axios.post('/timetable/updatesave', {
         timetable: timetable,
         save_id: this.state.active_save,
         })
@@ -279,6 +281,26 @@ class App extends React.Component {
   }
 
   saveAs() {
+  //takes input field
+  var name = this.state.saveName;
+  var timetable = this.state.timetable;
+  if( name == "" || name==null) {
+   this.setState({errorSaveAsMessage:"No name selected!"});
+   return;
+  }
+  // request
+  axios.post('/timetable/saveas', {
+    timetable: timetable,
+    save_name: name,
+    })
+    .then((response) => {
+        this.setState({saveName:"",active_save:response.data.save_id});
+        this.closeSaveAs();
+    })
+    .catch(function (error) {
+    console.log(error);
+  });
+
   }
 
   loadSave() {
@@ -308,6 +330,10 @@ class App extends React.Component {
     this.setState({loadCandidate:e.value});
   }
 
+  saveNameInputChange(e) {
+  console.log("eS",e.target);
+    this.setState({saveName:e.target.value});
+  }
 
 
   render () {
@@ -328,8 +354,9 @@ class App extends React.Component {
     var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad(this.state)}}>Load</button>
 
     var saveAsModal = <Modal isOpen={this.state.isOpenSaveAsModal}>
-                     <label>Name</label>
-                     <input type="text" name="saveAsName"></input>
+                     <label>Name</label><br/>
+                     <label>{this.state.errorSaveAsMessage}</label> <br/>
+                     <input type="text" onChange={this.saveNameInputChange} name="saveAsName"></input>
                       <button class="horizontal2" onClick={ () => this.saveAs()}> Save </button>
                       </Modal>
 

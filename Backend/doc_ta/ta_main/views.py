@@ -102,6 +102,7 @@ def check_constraints(request):
     else:
         return response.HttpResponseServerError("ASP result is not satisfiable")
 
+
 @csrf_exempt
 @login_required
 def update_save(request):
@@ -123,9 +124,10 @@ def update_save(request):
             model.init_from_json(obj)
             model.save_it_belongs_to = save_obj
             model.save()
-        response.HttpResponse(status=200)
+        return response.HttpResponse(status=200)
     except IndexError:
         response.HttpResponseBadRequest("Save id parameter does not exist.")
+
 
 
 @csrf_exempt
@@ -151,7 +153,7 @@ def save_timetable(request):
         model.save_it_belongs_to = save_id
         model.save()
 
-    return response.HttpResponse(status=200)
+    return response.HttpResponse(status=200,content=json.dumps({"save_id":save_id.id}))
 
 
 @csrf_exempt
