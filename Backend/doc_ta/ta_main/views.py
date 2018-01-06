@@ -181,6 +181,7 @@ def load_save(request):
     for item in saved_data:
         result.append(item.to_json_for_frontend())
 
+    result= {"table":result,"save_id":save_id}
     return response.HttpResponse(content=json.dumps(result))
 
 

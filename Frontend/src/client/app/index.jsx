@@ -18,7 +18,7 @@ class App extends React.Component {
                                // {time:17, day:"Tuesday", room: "311", name:"Hardware", type: "lecture"},
                                // {time:17, day:"Tuesday", room: "311", name:"Databases I", type: "lecture"},
                               //  {time:12, day:"Wednesday", room: "308", name:"Databases I", type: "lecture"},
-                                ], modalOpen:false,isOpenSaveAsModal:false,isOpenLoadModal:false,
+                                ], modalOpen:false,isOpenSaveAsModal:false,isOpenLoadModal:false,active_save:null,
                   subjects:["Databases I", "Hardware", "Architecture"], rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [], labels:[]};
     this.openModal=this.openModal.bind(this)
     this.closeModal=this.closeModal.bind(this)
@@ -67,15 +67,24 @@ class App extends React.Component {
   }
 
   saveTimetable(timetable){
-    axios.post('/timetable/save', {
-    timetable: timetable
-  })
-  .then(function (response) {
-    console.log(response);
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
+    // if knows current save just save
+    if(this.state.active_save != null) {
+
+        axios.post('/timetable/save', {
+        timetable: timetable,
+        save_id: this.state.active_save,
+        })
+        .then(function (response) {
+        console.log(response);
+        })
+        .catch(function (error) {
+        console.log(error);
+        });
+    }
+    // else prompt for name as a new save
+    else {
+    this.openSaveAs();
+    }
   }
 
   checkTimetable(state) {
@@ -277,7 +286,7 @@ class App extends React.Component {
   var e = this.state.loadCandidate;
   var obj = this.state.possibleLoads.filter(function(item) {return item.name == e });
   save_id = obj[0].id;
-  console.log(this.state.possibleLoads,save_id);
+
   axios.get('/timetable/load',  {
         params: {
             save_id: save_id
@@ -285,7 +294,7 @@ class App extends React.Component {
     })
     .then((response) => {
     // update table and set active save info for direct save
-    this.setState({timetable:response.data,active_save:save_id});
+    this.setState({timetable:response.data.table,active_save:response.data.save_id});
     // empties possible loads and list
     this.setState({possibleLoads:[],possibleLoadsNameList:[]});
     //closes the modal
