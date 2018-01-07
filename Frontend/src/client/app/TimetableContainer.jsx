@@ -354,7 +354,7 @@ import Modal from 'react-modal';
         // empties possible loads and list
         this.setState({possibleLoads:[],possibleLoadsNameList:[]});
         //closes the modal
-        this.setState({isOpenloadModal: false});
+        this.setState({isOpenLoadModal: false});
       }).catch(function(error) {
         });
       }
