@@ -18,7 +18,7 @@ import {render} from 'react-dom';
        <label>
         <input type="checkbox"
                value={this.props.label}
-               checked={this.state.isChecked}
+               checked={this.props.checked}
                onChange={this.toggleCheckboxChange}/>
         {this.props.label}
        </label>

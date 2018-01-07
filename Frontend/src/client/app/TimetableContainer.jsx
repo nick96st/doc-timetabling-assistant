@@ -19,7 +19,7 @@ import Modal from 'react-modal';
                      active_save:null, errorSaveAsMessage:"",  constraintModal:false,
                      subjects:[],
                      courses:[],selectedCourses:[],
-                     rooms:[] ,roomsFilter: [], coursesFilter: [],
+                     rooms:[] ,roomsFilter: [], coursesFilter: [],selectedCheckboxes: new Set(),
                      labels:[], loading: false};
 
       this.saveConstraint=this.saveConstraint.bind(this)
@@ -34,11 +34,21 @@ import Modal from 'react-modal';
       this.toggleCheckbox=this.toggleCheckbox.bind(this)
       this.selectedLoadChange=this.selectedLoadChange.bind(this)
       this.saveNameInputChange=this.saveNameInputChange.bind(this)
+      if(sessionStorage.getItem("constraint")) {
+          //        this.state.labels = sessionStorage.getItem("constraint")
+        } else {
+                sessionStorage.setItem("constraint",new Set());
+     }
       this.getInitialData();
     }
 
     getInitialData(){
     var dropdownData = utils.getDropdownData(this)
+    if(sessionStorage.getItem("constraint")) {
+//        this.state.labels = sessionStorage.getItem("constraint")
+    } else {
+//        sessionStorage.setItem("constraint",[]);
+    }
       this.getConstraints();
     }
 
@@ -91,7 +101,7 @@ import Modal from 'react-modal';
     }
 
     checkTimetable(state) {
-    console.log(this.state,this.selectedCheckboxes);
+    console.log(this.state,this.state.selectedCheckboxes);
 
     var coursesArr = this.getSelectedCourses(state);
   //    var data = {violations:["Room 311 is used by different lectures at the same time", "Class Databases I does not have enough hours"],
@@ -100,7 +110,7 @@ import Modal from 'react-modal';
        axios.post('/timetable/check', {
        timetable: state.timetable,
        term: state.selected_term,
-       constraints: Array.from(this.selectedCheckboxes),
+       constraints: Array.from(this.state.selectedCheckboxes),
        courses: coursesArr,
      })
      .then( (response) => {
@@ -124,7 +134,7 @@ import Modal from 'react-modal';
               term: state.selected_term,
               timetable: state.timetable,
               courses: coursesArr,
-              constraints: Array.from(this.selectedCheckboxes),
+              constraints: Array.from(this.state.selectedCheckboxes),
           }
       })
       .then((response) => {
@@ -146,19 +156,25 @@ import Modal from 'react-modal';
     generateConstraintSelector(){
       var checkboxes = []
       const labels = this.state.labels
+      console.log("foreach label",labels);
       labels.forEach(l =>{
-        checkboxes.push(<li><SimpleCheckbox label={l} handleChange={this.toggleCheckbox} key={l}/></li>)
+        checkboxes.push(<li><SimpleCheckbox label={l} checked={this.state.selectedCheckboxes.has(l)} handleChange={this.toggleCheckbox} key={l}/></li>)
       })
       var checkboxList = <ul>{checkboxes}</ul>
       return checkboxList
     }
 
     toggleCheckbox(label){
-      if(this.selectedCheckboxes.has(label)){
-        this.selectedCheckboxes.delete(label)
+      var boxes = this.state.selectedCheckboxes
+      if(boxes.has(label)){
+        boxes.delete(label);
+//        sessionStorage.setItem("constraint",this.state.selectedCheckboxes);
       }else{
-        this.selectedCheckboxes.add(label)
+        boxes.add(label);
+//        sessionStorage.setItem("constraint",this.state.selectedCheckboxes);
       }
+       this.setState({selectedCheckboxes: boxes})
+       sessionStorage.setItem("constraints",boxes)
     }
 
     onSelectedTermChange(e) {
@@ -402,7 +418,7 @@ import Modal from 'react-modal';
       var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state)}}>Generate</button>
       var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.setState({isOpenSaveAsModal:true})}}>Save As</button>
       var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad()}}>Load</button>
-
+      var clearBtn = <button class="horizontal2" onClick={ () => {this.setState({timetable:[]})}}>Clear Table</button>
       var saveAsModal = <Modal isOpen={this.state.isOpenSaveAsModal} style={styles.sstyle}>
                      <label className="save-error">{this.state.errorSaveAsMessage}</label><br/>
                      <label>Save as:</label>
@@ -467,7 +483,7 @@ import Modal from 'react-modal';
                                />
      var constraintBtn = <button class="horizontal2" onClick={()=>{this.setState({constraintModal:true})}}>Constraints</button>
 
-     console.log(this.state.activeViolation);
+     console.log("on render",sessionStorage.getItem("constraint"));
       return( <div>
                 <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
                 <h2>DEPARTMENT OF COMPUTING</h2>
@@ -494,6 +510,7 @@ import Modal from 'react-modal';
                 </div>
                 <div class="right-component">
                   {timetable}
+                  {clearBtn}
                 </div>
                 <Modal isOpen={this.state.constraintModal} style={styles.cstyle}>
                 <div className = "constraint-list">
