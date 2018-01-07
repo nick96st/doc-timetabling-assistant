@@ -125,7 +125,7 @@ button:hover {
 }
 
 .left-component:hover {
-  background: rgba(117, 117, 117, 0.49);
+ background: rgba(117, 117, 117, 0.49);
 }
 
 .right-component {
@@ -768,6 +768,13 @@ button:hover {
   padding:10px;
 }
 
+.violation-list-item-active{
+  margin-top: 5px;
+  color: white;
+  background-color: red;
+  padding:10px;
+}
+
 .check-success{
   margin-top: 5px;
   color: #4F8A10;
@@ -856,6 +863,13 @@ button:hover {
 
 .constraint-title{
   color:black;
+  font-family: "verdana";
+  letter-spacing: normal;
+  font-weight: bold;
+}
+
+.control-title{
+  color:white;
   font-family: "verdana";
   letter-spacing: normal;
   font-weight: bold;

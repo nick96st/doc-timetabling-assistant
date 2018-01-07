@@ -464,7 +464,7 @@ import Modal from 'react-modal';
                 <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
                 <h2>DEPARTMENT OF COMPUTING</h2>
                 <div class="left-component">
-                  <h2> Filter Timetable: </h2>
+                  <h2 className="control-title"> Filter Timetable: </h2>
                   <div id="top-item">{dropDownRooms}</div>
                   <div>{dropDownCourses}</div>
                   <div style={{color: 'white'}}>
@@ -476,9 +476,9 @@ import Modal from 'react-modal';
                   {generateBtn}
                   {constraintBtn}
                   </div>
-                  <h2>Select Courses to which the constraints apply:</h2>
+                  <h2 className="control-title">Select Courses to which the constraints apply:</h2>
                   {selectCoursesMulti}
-                  <h2>Select Term(Mandatory):</h2>
+                  <h2 className="control-title">Select Term(Mandatory):</h2>
                   {selectTermDropdown}
                   <div className="violation-console">
                   {violationList}
