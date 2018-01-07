@@ -35,7 +35,7 @@ def add_constraint(request):
         return response.HttpResponseBadRequest('Day or Subject does not exist.')
     # table def
 
-    td = constraint_obj.day.model.table
+    td = constraint_obj.day.table
     if constraint_def["start"] in range(td.start_hour, td.end_hour):
         constraint_obj.start = constraint_def["start"]
     else:

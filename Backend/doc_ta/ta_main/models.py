@@ -265,7 +265,7 @@ class SlotBlocker(models.Model):
 
     def get_creator(self):
         return "slotblocker("+str(self.id) + ",X) :- " + "class_with_year(" + self.subject.title_asp + \
-               ",_," + str(self.day.day_asp) + ",X,_)," + "X=" + str(self.start) + ".." + str(self.end) + ".\n"
+               ",_," + str(self.day.day_asp) + ",X,_)," + "X=" + str(self.start) + ".." + str(self.end-1) + ".\n"
 
     def get_negator(self):
         return ":- slotblocker("+str(self.id) + ",_,_).\n"
