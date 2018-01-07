@@ -4,8 +4,9 @@ import Timetable from './Timetable.jsx';
 import axios from 'axios'
 import {ReactSelectize, SimpleSelect, MultiSelect} from 'react-selectize';
 import Dropdown from 'react-dropdown';
-import {getDropdownData} from './Utils.jsx';
-import SimpleCheckbox from './SimpleCheckbox.jsx'
+import {utils} from './Utils.jsx';
+import {styles} from './Utils.jsx';
+import SimpleCheckbox from './SimpleCheckbox.jsx';
 import FontAwesome from 'react-fontawesome';
 import {CircleLoader} from 'react-spinners';
 import Modal from 'react-modal';
@@ -16,7 +17,7 @@ import Modal from 'react-modal';
       this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                                                 {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},],
                                                                  addConstraintModal:false, constraint:{},isOpenSaveAsModal:false,isOpenLoadModal:false,
-                                                                 active_save:null,errorSaveAsMessage:"",
+                                                                 active_save:null, errorSaveAsMessage:"",
                                                                  subjects:["Databases I", "Hardware", "Architecture"],
                                                                  rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [],
                                                                  labels:[], loading: false};
@@ -26,7 +27,6 @@ import Modal from 'react-modal';
       this.constraintDayChange=this.constraintDayChange.bind(this)
       this.constraintStartChange=this.constraintStartChange.bind(this)
       this.constraintEndChange=this.constraintEndChange.bind(this)
-      this.closeConstraintModal=this.closeConstraintModal.bind(this)
       this.addLecture=this.addLecture.bind(this)
       this.removeLecture=this.removeLecture.bind(this)
       this.handleRemovingFilter=this.handleRemovingFilter.bind(this)
@@ -37,7 +37,7 @@ import Modal from 'react-modal';
     }
 
     getInitialData(){
-    var dropdownData = getDropdownData(this)
+    var dropdownData = utils.getDropdownData(this)
 
   //    this.getConstraints();
       axios.get('/choices/constraints').
@@ -59,9 +59,6 @@ import Modal from 'react-modal';
       this.setState({addConstraintModal: true})
     }
 
-    closeConstraintModal(){
-      this.setState({addConstraintModal:false})
-    }
 
 
   saveTimetable(timetable){
@@ -304,15 +301,7 @@ import Modal from 'react-modal';
 
       }
 
-      closeSaveAs() {
-      console.log("closing close saveas");
-      this.setState({isOpenSaveAsModal: false});
-      }
 
-      closeLoad() {
-      console.log("closing load modal");
-      this.setState({isOpenLoadModal: false});
-      }
 
       saveAs() {
       //takes input field
@@ -370,33 +359,7 @@ import Modal from 'react-modal';
       }
 
     render () {
-      var cstyle = {
-        overlay : {
-          position          : 'fixed',
-          top               : 0,
-          left              : 0,
-          right             : 0,
-          bottom            : 0,
-          backgroundColor   : 'rgba(255, 255, 255, 0.75)'
-        },
-        content : {
-          position                   : 'relative',
-          top                        : '40px',
-          left                       : '50%',
-          right                      : '0px',
-          bottom                     : '40px',
-          border                     : '1px solid #ccc',
-          background                 : '#fff',
-          overflow                   : 'auto',
-          WebkitOverflowScrolling    : 'touch',
-          borderRadius               : '4px',
-          outline                    : 'none',
-          padding                    : '20px',
-          width                      : '400px',
-          height                     : '400px',
-          transform: 'translate(-50%, 0)'
-       }
-     };
+
      var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
      var hours = []
      for(var i = this.state.hours.start; i<= this.state.hours.finish; i++){
@@ -423,18 +386,23 @@ import Modal from 'react-modal';
       var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.openSaveAs(this.state)}}>Save As</button>
       var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad(this.state)}}>Load</button>
 
-      var saveAsModal = <Modal isOpen={this.state.isOpenSaveAsModal}>
-                     <label>Name</label><br/>
-                     <label>{this.state.errorSaveAsMessage}</label> <br/>
-                     <input type="text" onChange={this.saveNameInputChange} name="saveAsName"></input>
-                      <button class="horizontal2" onClick={ () => this.saveAs()}> Save </button>
+      var saveAsModal = <Modal isOpen={this.state.isOpenSaveAsModal} style={styles.sstyle}>
+                     <label className="save-error">{this.state.errorSaveAsMessage}</label><br/>
+                     <label>Save as:</label>
+
+                     <input type="text" className="save-input" onChange={this.saveNameInputChange} name="saveAsName"></input><br/>
+                     <div className="button-row">
+                     <button  onClick={ () => this.setState({isOpenSaveAsModal: false})}> Cancel</button>
+                     <button  onClick={ () => this.saveAs()}> Save </button>
+                     </div>
                       </Modal>
 
-      var loadModal = <Modal isOpen={this.state.isOpenLoadModal}>
+      var loadModal = <Modal isOpen={this.state.isOpenLoadModal} style={styles.sstyle}>
                     <label>Please, Select a save to load: </label>
                     <Dropdown options={this.state.possibleLoadsNameList} placeholder="Select a save"
                     onChange={this.selectedLoadChange} value={this.state.loadCandidate} />
-                    <button class="horizontal2" onClick={ () => this.loadSave()}> Load </button>
+                    <button  onClick={ () => this.setState({isOpenLoadModal: false})}> Cancel</button>
+                    <button  onClick={ () => this.loadSave()}> Load </button>
 
                     </Modal>
 
@@ -495,7 +463,7 @@ import Modal from 'react-modal';
                 <div class="right-component">
                   {timetable}
                 </div>
-                <Modal isOpen={this.state.addConstraintModal} style={cstyle}>
+                <Modal isOpen={this.state.addConstraintModal} style={styles.cstyle}>
                   <Dropdown options={this.state.subjects} placeholder="Select a module" onChange={this.constraintModuleChange} value={this.state.constraint.subject}/>
                   Cannot be scheduled on:
                   <Dropdown options={days} placeholder="Select a day" onChange={this.constraintDayChange} value={this.state.constraint.day}/>
@@ -504,7 +472,7 @@ import Modal from 'react-modal';
                   and
                   <Dropdown options={hours} placeholder="Select a time" onChange={this.constraintEndChange} value={this.state.constraint.end}/>
                   <br/>
-                  <button onClick={()=>{this.closeConstraintModal()}}>Cancel</button>
+                  <button onClick={()=>{this.setState({addConstraintModal: false})}}>Cancel</button>
                   <button onClick={()=>{this.saveConstraint()}}>Save</button>
                 </Modal>
 

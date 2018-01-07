@@ -803,14 +803,13 @@ button:hover {
       padding: 20px;
 }
 
-.login-input{
+.save-input{
   width: 200;
   font-size: 24px;
   position:relative;
-  display:block;
+  display:inline;
+  margin-left: 0.5em;
   margin-bottom: 5px;
-  margin-left:auto;
-  margin-right:auto;
   border-style: solid;
   border-width: 1px;
 }
@@ -843,4 +842,15 @@ button:hover {
   width:auto;
   font-family: Futura;
   color: white;
+}
+
+.button-row{
+  margin-left: auto;
+  margin-right: auto;
+  width:70%
+}
+
+.save-error{
+  color:red;
+  text-align: center;
 }
