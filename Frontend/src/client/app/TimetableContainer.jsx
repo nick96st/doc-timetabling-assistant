@@ -187,8 +187,8 @@ import Modal from 'react-modal';
       axios.post('/timetable/add_constraint', {
       constraint: this.state.constraint
     })
-    .then(function (response) {
-      this.getDropdownData()
+    .then((response) => {
+      this.getInitialData()
     })
     .catch(function (error) {
       console.log(error);

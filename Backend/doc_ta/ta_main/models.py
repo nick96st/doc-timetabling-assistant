@@ -282,5 +282,5 @@ class SlotBlocker(models.Model):
         return asp_constraints.metadata_timeslot(str(self.day.day_asp), params[1])
 
     def generate_title(self):
-        self.title = "Not allow " + self.subject.title + " on " + self.day.day_string + " between " \
+        self.title = "Subject " + self.subject.title + " cannot be scheduled on " + self.day.day_string + " between " \
                      + str(self.start) + " and " + str(self.end) + "."
