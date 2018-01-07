@@ -14,14 +14,14 @@ import Modal from 'react-modal';
   class TimetableContainer extends React.Component{
     constructor(props) {
       super(props);
-      this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
-                                                                {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},],
-                                                                 addConstraintModal:false, constraint:{}, isOpenSaveAsModal:false,isOpenLoadModal:false,
-                                                                 active_save:null, errorSaveAsMessage:"",  constraintModal:false,
-                                                                 subjects:["Databases I", "Hardware", "Architecture"],
-                                                                 courses:[],selectedCourses:[],
-                                                                 rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [],
-                                                                 labels:[], loading: false};
+      this.state = {hours:{start: 9, finish: 17} ,timetable: [],
+                     addConstraintModal:false, constraint:{}, isOpenSaveAsModal:false,isOpenLoadModal:false,
+                     active_save:null, errorSaveAsMessage:"",  constraintModal:false,
+                     subjects:[],
+                     courses:[],selectedCourses:[],
+                     rooms:[] ,roomsFilter: [], coursesFilter: [],
+                     labels:[], loading: false};
+
       this.saveConstraint=this.saveConstraint.bind(this)
       this.getConstraints=this.getConstraints.bind(this)
       this.constraintModuleChange=this.constraintModuleChange.bind(this)
@@ -437,7 +437,8 @@ import Modal from 'react-modal';
                      />
 
       var selectCoursesMulti = <MultiSelect
-                                placeholder= "Select Courses(s) for checking/generating"
+                                placeholder= "Select Courses(s)"
+                                theme="material"
                                 options = {this.state.courses.map(
                                  course => ({label: course, value: course})
                                  )}
@@ -463,8 +464,7 @@ import Modal from 'react-modal';
                 <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
                 <h2>DEPARTMENT OF COMPUTING</h2>
                 <div class="left-component">
-                  {selectTermDropdown}
-                  {selectCoursesMulti}
+                  <h2> Filter Timetable: </h2>
                   <div id="top-item">{dropDownRooms}</div>
                   <div>{dropDownCourses}</div>
                   <div style={{color: 'white'}}>
@@ -476,6 +476,10 @@ import Modal from 'react-modal';
                   {generateBtn}
                   {constraintBtn}
                   </div>
+                  <h2>Select Courses to which the constraints apply:</h2>
+                  {selectCoursesMulti}
+                  <h2>Select Term(Mandatory):</h2>
+                  {selectTermDropdown}
                   <div className="violation-console">
                   {violationList}
                   </div>
