@@ -200,7 +200,7 @@ import Modal from 'react-modal';
 
    constraintModuleChange(e){
      var newConstraint = this.state.constraint
-     newConstraint.module = e.value
+     newConstraint.subject = e.value
 
    }
 
@@ -496,7 +496,7 @@ import Modal from 'react-modal';
                   {timetable}
                 </div>
                 <Modal isOpen={this.state.addConstraintModal} style={cstyle}>
-                  <Dropdown options={this.state.subjects} placeholder="Select a module" onChange={this.constraintModuleChange} value={this.state.constraint.module}/>
+                  <Dropdown options={this.state.subjects} placeholder="Select a module" onChange={this.constraintModuleChange} value={this.state.constraint.subject}/>
                   Cannot be scheduled on:
                   <Dropdown options={days} placeholder="Select a day" onChange={this.constraintDayChange} value={this.state.constraint.day}/>
                   between
