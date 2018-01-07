@@ -239,6 +239,14 @@ def get_subject_choices(request):
 
     return response.HttpResponse(content=json.dumps(subject_list))
 
+@login_required
+def get_courses_choices(request):
+    all_courses = ta_models.CourseYear.objects.all()
+    course_list = []
+    for course in all_courses:
+        course_list.append(course.name)
+
+    return response.HttpResponse(content=json.dumps(course_list))
 
 @login_required
 def get_room_choices(request):
