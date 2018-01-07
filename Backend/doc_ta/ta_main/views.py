@@ -11,6 +11,19 @@ from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.permissions import AllowAny
 from django.contrib.auth.decorators import login_required
 
+def parse_timetable_into_facts(timetable):
+    # create models from json
+    grid_objects = []
+    # return response.HttpResponse(content=timetable,
+    #                              content_type="application/json")
+    for obj in timetable:
+        model = ta_models.LectureClass()
+        model.init_from_json(obj)
+        grid_objects.append(model)
+
+    return grid_objects
+
+
 # get index page
 @login_required
 def get_index(request):
@@ -78,8 +91,6 @@ def generate_table(request):
         output["solutions"] = result
         output["status"] = generator.get_result_status()
     # TODO: fix frontend to handle empty arrays adn remove this
-    output["solutions"].append([{"time":12, "day":"Monday", "room": "308", "name":"Architecture"},
-                            {"time": 13, "day": "Monday", "room": "308", "name": "Architecture"}])
     return response.HttpResponse(content=json.dumps(output), content_type="application/json")
 
 
@@ -108,16 +119,8 @@ def check_constraints(request):
         courses_array = json.loads(request.body)["courses"]
     except KeyError:
         courses_array = None
-    # hard_constraints = request.data["constraints"]
-    # soft_constraints = request.data[""]
-    # create models from json
-    grid_objects = []
-    # return response.HttpResponse(content=timetable,
-    #                              content_type="application/json")
-    for obj in timetable:
-        model = ta_models.LectureClass()
-        model.init_from_json(obj)
-        grid_objects.append(model)
+
+    grid_objects = parse_timetable_into_facts(timetable)
     # build pattern
     codegen = asp_code_generator.CodeGeneratorBuilder()
     codegen.for_term(term_name).for_courses(courses_array).perform("CHECK")
