@@ -23,6 +23,7 @@ class ASPCodeGenerator():
         self.table_def = ta_models.TableSizeDef.objects.all().first()
         self.check_subject = "architecture"
         self.term = ""             # term to be generated on
+        self.courses = None        # course for which the counstraints should apply only
         self.subjects = []         # subjects which belong to the term
         self.result_facts = []
         self.hard_constraints = []
@@ -167,7 +168,8 @@ class ASPCodeGenerator():
         if selected_term is None:
             raise CodeGeneratorException("Term Does Not Exist")
 
-        subjects_queryset = ta_models.ClassTerm.objects.filter(term=selected_term)
+        subjects_queryset = ta_models.ClassTerm.objects.filter(term=selected_term,
+                                                               subject__subjectscourses__in=self.courses)
         for class_term in subjects_queryset:
             self.subjects.append(class_term.subject)
 
@@ -345,6 +347,13 @@ class CodeGeneratorBuilder():
         self.selected_term = term_name
         return self
 
+    def for_courses(self,courses):
+        if courses is None:
+            self.courses = ta_models.SubjectsCourses.objects.all() # if doesnt specify which course apply to all
+        else:
+            self.courses = ta_models.SubjectsCourses.objects.filter(courseyear__name__in=courses)
+        return self
+
     def perform(self,action_name):
         self.status = action_name
         return self
@@ -377,6 +386,7 @@ class CodeGeneratorBuilder():
         code_generator.soft_constraints = [] + self.soft_constraints
         code_generator.should_generate = self.should_generate
         code_generator.term = self.selected_term
+        code_generator.courses = self.courses
         code_generator.status = self.status
         if self.subject_to_check is not None:
             code_generator.check_subject = ta_models.Subject.objects.filter(title=self.subject_to_check).first().title_asp

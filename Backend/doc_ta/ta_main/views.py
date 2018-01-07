@@ -59,8 +59,10 @@ def generate_table(request):
     # term_name = json.loads(request.body)["term"]
     if not term_name:
         return response.HttpResponseBadRequest("No term field")
+    courses_array = request.GET.get("courses",None)
+
     codegen = asp_code_generator.CodeGeneratorBuilder()
-    codegen.for_term(term_name).perform("GENERATE")
+    codegen.for_term(term_name).for_courses(courses_array).perform("GENERATE")
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
@@ -102,6 +104,10 @@ def check_constraints(request):
         constraints = json.loads(request.body)["constraints"]
     except KeyError:
         constraints = None
+    try:
+        courses_array = json.loads(request.body)["courses"]
+    except KeyError:
+        courses_array = None
     # hard_constraints = request.data["constraints"]
     # soft_constraints = request.data[""]
     # create models from json
@@ -114,7 +120,7 @@ def check_constraints(request):
         grid_objects.append(model)
     # build pattern
     codegen = asp_code_generator.CodeGeneratorBuilder()
-    codegen.for_term(term_name).perform("CHECK")
+    codegen.for_term(term_name).for_courses(courses_array).perform("CHECK")
     codegen.with_result_facts(grid_objects)
     # set constraints if  None - it will use default(ALL)
     codegen.with_hard_constraints(constraints)
