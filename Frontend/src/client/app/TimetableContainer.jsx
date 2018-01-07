@@ -17,12 +17,12 @@ import Modal from 'react-modal';
       this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                                                 {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},],
                                                                  addConstraintModal:false, constraint:{},isOpenSaveAsModal:false,isOpenLoadModal:false,
-                                                                 active_save:null, errorSaveAsMessage:"",
+                                                                 active_save:null, errorSaveAsMessage:"",  constraintModal:false,
                                                                  subjects:["Databases I", "Hardware", "Architecture"],
                                                                  rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [],
                                                                  labels:[], loading: false};
-      this.addConstraintModal=this.addConstraintModal.bind(this)
       this.saveConstraint=this.saveConstraint.bind(this)
+      this.getConstraints=this.getConstraints.bind(this)
       this.constraintModuleChange=this.constraintModuleChange.bind(this)
       this.constraintDayChange=this.constraintDayChange.bind(this)
       this.constraintStartChange=this.constraintStartChange.bind(this)
@@ -38,8 +38,14 @@ import Modal from 'react-modal';
 
     getInitialData(){
     var dropdownData = utils.getDropdownData(this)
+      this.getConstraints();
+    }
 
-  //    this.getConstraints();
+    componentWillMount(){
+      this.selectedCheckboxes = new Set();
+    }
+
+    getConstraints(){
       axios.get('/choices/constraints').
       then((response) => {
           console.log(response.data)
@@ -50,14 +56,8 @@ import Modal from 'react-modal';
       });
     }
 
-    componentWillMount(){
-      this.selectedCheckboxes = new Set();
-    }
 
 
-    addConstraintModal(){
-      this.setState({addConstraintModal: true})
-    }
 
 
 
@@ -170,7 +170,7 @@ import Modal from 'react-modal';
       constraint: this.state.constraint
     })
     .then(function (response) {
-      console.log(response);
+      this.getDropdownData()
     })
     .catch(function (error) {
       console.log(error);
@@ -438,24 +438,23 @@ import Modal from 'react-modal';
                                 onChange={(e) => {this.onSelectedTermChange(e);} }
                                 value={this.state.selected_term}
                                />
-     var addConstrainBtn = <button class="horizontal2" onClick={()=>{this.addConstraintModal()}}>Add Constraint</button>
+     var constraintBtn = <button class="horizontal2" onClick={()=>{this.setState({constraintModal:true})}}>Constraints</button>
       return( <div>
                 <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
                 <h2>DEPARTMENT OF COMPUTING</h2>
-              <div class="utilityLine">
-               {saveAsBtn} {loadBtn}
-              </div>
                 <div class="left-component">
                   {selectTermDropdown}
                   <div id="top-item">{dropDownRooms}</div>
                   <div>{dropDownCourses}</div>
                   <div style={{color: 'white'}}>
-                  {constraintSelectorItems}
                   </div>
                   <div>{saveBtn}
+                  {saveAsBtn}
+                  {loadBtn}
                   {checkBtn}
                   {generateBtn}
-                  {addConstrainBtn}</div>
+                  {constraintBtn}
+                  </div>
                   <div className="violation-console">
                   {violationList}
                   </div>
@@ -463,7 +462,13 @@ import Modal from 'react-modal';
                 <div class="right-component">
                   {timetable}
                 </div>
-                <Modal isOpen={this.state.addConstraintModal} style={styles.cstyle}>
+                <Modal isOpen={this.state.constraintModal} style={styles.cstyle}>
+                <div className = "constraint-list">
+                <h2 className="constraint-title"> Constraints </h2>
+                {constraintSelectorItems}
+                </div>
+                <div className = "add-constraint-form">
+                  <h2 className="constraint-title">Add a Constraint</h2>
                   <Dropdown options={this.state.subjects} placeholder="Select a module" onChange={this.constraintModuleChange} value={this.state.constraint.subject}/>
                   Cannot be scheduled on:
                   <Dropdown options={days} placeholder="Select a day" onChange={this.constraintDayChange} value={this.state.constraint.day}/>
@@ -472,11 +477,10 @@ import Modal from 'react-modal';
                   and
                   <Dropdown options={hours} placeholder="Select a time" onChange={this.constraintEndChange} value={this.state.constraint.end}/>
                   <br/>
-                  <button onClick={()=>{this.setState({addConstraintModal: false})}}>Cancel</button>
-                  <button onClick={()=>{this.saveConstraint()}}>Save</button>
+                  <button className="constraint-button" onClick={()=>{this.setState({constraintModal: false})}}>Close</button>
+                  <button className="constraint-button" onClick={()=>{this.saveConstraint()}}>Add Constraint</button>
+                </div>
                 </Modal>
-
-
               {loadModal}
               {saveAsModal}
               </div>);

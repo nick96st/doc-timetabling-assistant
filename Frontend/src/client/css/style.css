@@ -854,3 +854,14 @@ button:hover {
   color:red;
   text-align: center;
 }
+
+.constraint-title{
+  color:black;
+  font-family: "verdana";
+  letter-spacing: normal;
+  font-weight: bold;
+}
+
+.constraint-button{
+  width:150px;
+}
