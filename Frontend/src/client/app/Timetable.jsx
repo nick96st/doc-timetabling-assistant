@@ -57,7 +57,7 @@ class Timetable extends React.Component{
             const lect = s
             if (this.props.violation !== undefined){
                console.log(this.props.activeViolation)
-              if (this.props.violation.name !== undefined && this.props.violation.name === s.name){
+              if (this.props.violation.subject !== undefined && this.props.violation.subject.name === s.name){
                 warn = "timeslot-warning"
               }else if (this.props.violation.timeslot != undefined && days[this.props.violation.timeslot.day] == slot.day && parseInt(this.props.violation.timeslot.hour) == slot.time)
                 warn = "timeslot-warning"

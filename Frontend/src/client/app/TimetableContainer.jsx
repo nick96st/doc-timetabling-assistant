@@ -242,7 +242,13 @@ import Modal from 'react-modal';
       if (violationData !=  null){
         for (var i=0; i<violationData.violations.length; i++){
           const activeViolation = violationData.metadata[i];
-          violations.push(<li className="violation-list-item"><span onClick={()=>{this.setState({activeViolation: activeViolation})}}>{violationData.violations[i]}</span></li>)
+          var active
+          if(activeViolation == this.state.activeViolation){
+            active = "violation-list-item-active"
+          }else{
+            active = "violation-list-item"
+            }
+          violations.push(<li className={active}><span onClick={()=>{this.setState({activeViolation: activeViolation})}}>{violationData.violations[i]}</span></li>)
         }
         if(violationData.violations.length == 0 && this.state.isChecked){
         violations = <li className="check-success"><span>Timetable is valid on all selected constraints</span></li>

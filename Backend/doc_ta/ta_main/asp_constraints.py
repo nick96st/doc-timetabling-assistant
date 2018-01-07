@@ -22,6 +22,8 @@ def metadata_timeslot(day, hour):
 def metadata_day(day):
     return {}
 
+def metadata_subject(subject):
+    return {"subject":{"name": parse_subject(subject)}}
 # TODO:
 def parse_year(course):
     return str(course)
@@ -65,7 +67,7 @@ class HasEnoughHoursConstraint():
         return 'Class ' + str(subject_obj.title) + " does not have " + str(subject_obj.hours) + " hours per week."
 
     def get_metadata(self,params):
-        return None # if no metadata
+        return metadata_subject(params[0])  # if no metadata
 
 
 class NoThreeConsecutiveLecture():
@@ -130,7 +132,7 @@ class LimitDayToFormTwohourSlot():
         return 'Subject ' + parse_subject(param[0]) + " is not in 2 hour daily slots."
 
     def get_metadata(self, params):
-        return None  # if no metadata
+        return metadata_subject(params[0])  # if no metadata
 
 
 class UniqueRoom():

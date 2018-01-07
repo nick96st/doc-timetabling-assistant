@@ -887,9 +887,11 @@ button:hover {
 .timeslot{
   width:60%;
   float: left;
+  margin-bottom:15px;
 }
 .timeslot-warning{
   width:60%;
   float: left;
   background-color: #FFD2D2;
+  margin-bottom:15px;
 }
