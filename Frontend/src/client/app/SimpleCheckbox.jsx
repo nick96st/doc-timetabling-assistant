@@ -1,7 +1,7 @@
 import React from 'react'
 import {render} from 'react-dom';
 
-  class MyCheckbox extends React.Component{
+  class SimpleCheckbox extends React.Component{
     constructor(props){
       super(props)
       this.state={isChecked:false}
@@ -27,4 +27,4 @@ import {render} from 'react-dom';
   }
 
 
-export default MyCheckbox;
+export default SimpleCheckbox;
