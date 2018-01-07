@@ -16,7 +16,7 @@ import Modal from 'react-modal';
       super(props);
       this.state = {hours:{start: 9, finish: 17} ,timetable: [  {time:12, day:"Monday", room: "308", name:"Architecture", type: "lecture"},
                                                                 {time:13, day:"Monday", room: "308", name:"Architecture", type: "lecture"},],
-                                                                 addConstraintModal:false, constraint:{},isOpenSaveAsModal:false,isOpenLoadModal:false,
+                                                                 addConstraintModal:false, constraint:{}, isOpenSaveAsModal:false,isOpenLoadModal:false,
                                                                  active_save:null, errorSaveAsMessage:"",  constraintModal:false,
                                                                  subjects:["Databases I", "Hardware", "Architecture"],
                                                                  courses:[],selectedCourses:[],
@@ -79,7 +79,7 @@ import Modal from 'react-modal';
     }
     // else prompt for name as a new save
     else {
-    this.openSaveAs();
+    this.setState({isOpenSaveAsModal: true});
     }
   }
 
@@ -293,13 +293,6 @@ import Modal from 'react-modal';
 
       }
 
-      // start LOAD SAVE AS functionality
-      openSaveAs() {
-      console.log("opening saveas");
-      this.setState({isOpenSaveAsModal:true});
-      console.log(this.state.isOpenSaveAsModal);
-      }
-
       openLoad() {
       console.log("opening load");
       axios.get('/timetable/existingsaves').
@@ -336,7 +329,7 @@ import Modal from 'react-modal';
         })
         .then((response) => {
             this.setState({saveName:"",active_save:response.data.save_id});
-            this.closeSaveAs();
+            this.setState({isOpenSaveAsModal: false});
         })
         .catch(function (error) {
         console.log(error);
@@ -361,7 +354,7 @@ import Modal from 'react-modal';
         // empties possible loads and list
         this.setState({possibleLoads:[],possibleLoadsNameList:[]});
         //closes the modal
-        this.closeLoad();
+        this.setState({isOpenloadModal: false});
       }).catch(function(error) {
         });
       }
@@ -401,8 +394,8 @@ import Modal from 'react-modal';
       var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
       var checkBtn = <button class="horizontal2" onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
       var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state)}}>Generate</button>
-      var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.openSaveAs(this.state)}}>Save As</button>
-      var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad(this.state)}}>Load</button>
+      var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.setState({isOpenSaveAsModal:true})}}>Save As</button>
+      var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad()}}>Load</button>
 
       var saveAsModal = <Modal isOpen={this.state.isOpenSaveAsModal} style={styles.sstyle}>
                      <label className="save-error">{this.state.errorSaveAsMessage}</label><br/>
