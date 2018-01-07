@@ -92,11 +92,16 @@ import Modal from 'react-modal';
 
     checkTimetable(state) {
     console.log(this.state,this.selectedCheckboxes);
+
+    var coursesArr = this.getSelectedCourses(state);
   //    var data = {violations:["Room 311 is used by different lectures at the same time", "Class Databases I does not have enough hours"],
   //                metadata:[{day:"Tuesday", time:17}, {name:"Databases I"}]}
   //    this.setState({violationData:data})
        axios.post('/timetable/check', {
-       timetable: state.timetable, term: state.selected_term, constraints: Array.from(this.selectedCheckboxes)
+       timetable: state.timetable,
+       term: state.selected_term,
+       constraints: Array.from(this.selectedCheckboxes),
+       courses: coursesArr,
      })
      .then( (response) => {
        this.setState({violationData: response.data[0]})
@@ -111,10 +116,15 @@ import Modal from 'react-modal';
 
     }
 
-    generateTimetable(selected_term) {
+    generateTimetable(state) {
+    var coursesArr = this.getSelectedCourses(state);
+    // if not empty select or full select
       axios.get('/timetable/generate', {
           params: {
-              term: selected_term
+              term: state.selected_term,
+              timetable: state.timetable,
+              courses: coursesArr,
+              constraints: Array.from(this.selectedCheckboxes),
           }
       })
       .then((response) => {

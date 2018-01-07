@@ -348,7 +348,7 @@ class CodeGeneratorBuilder():
         return self
 
     def for_courses(self,courses):
-        if courses is None:
+        if not courses:
             self.courses = ta_models.SubjectsCourses.objects.all() # if doesnt specify which course apply to all
         else:
             self.courses = ta_models.SubjectsCourses.objects.filter(courseyear__name__in=courses)

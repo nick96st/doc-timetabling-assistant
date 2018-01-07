@@ -72,10 +72,20 @@ def generate_table(request):
     # term_name = json.loads(request.body)["term"]
     if not term_name:
         return response.HttpResponseBadRequest("No term field")
-    courses_array = request.GET.get("courses",None)
+    courses_array = request.GET.getlist("courses[]", None)
+    timetable_str = request.GET.getlist("timetable[]", None)
+    constraints = request.GET.getlist("constraints[]",None)
+    timetable = []
+    for item in timetable_str:
+        timetable.append(json.loads(item))
+    if not timetable:
+        timetable = []
 
+    grid_objects = parse_timetable_into_facts(timetable)
     codegen = asp_code_generator.CodeGeneratorBuilder()
     codegen.for_term(term_name).for_courses(courses_array).perform("GENERATE")
+    codegen.with_result_facts(grid_objects)
+    codegen.with_hard_constraints(constraints)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
@@ -117,6 +127,8 @@ def check_constraints(request):
         constraints = None
     try:
         courses_array = json.loads(request.body)["courses"]
+        # if courses_array is []:
+            # courses_array = None
     except KeyError:
         courses_array = None
 
