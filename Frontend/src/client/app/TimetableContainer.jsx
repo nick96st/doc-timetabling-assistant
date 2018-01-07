@@ -370,7 +370,7 @@ import Modal from 'react-modal';
                 </div>
                 <Modal isOpen={this.state.addConstraintModal} style={cstyle}>
                   <Dropdown options={this.state.subjects} placeholder="Select a module" onChange={this.constraintModuleChange} value={this.state.constraint.module}/>
-                  Cannot be schedule on:
+                  Cannot be scheduled on:
                   <Dropdown options={days} placeholder="Select a day" onChange={this.constraintDayChange} value={this.state.constraint.day}/>
                   between
                   <Dropdown options={hours} placeholder="Select a time" onChange={this.constraintStartChange} value={this.state.constraint.start}/>
