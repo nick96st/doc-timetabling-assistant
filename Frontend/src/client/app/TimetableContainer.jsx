@@ -19,6 +19,7 @@ import Modal from 'react-modal';
                                                                  addConstraintModal:false, constraint:{},isOpenSaveAsModal:false,isOpenLoadModal:false,
                                                                  active_save:null, errorSaveAsMessage:"",
                                                                  subjects:["Databases I", "Hardware", "Architecture"],
+                                                                 courses:[],selectedCourses:[],
                                                                  rooms:["308", "311"] ,roomsFilter: [], coursesFilter: [],
                                                                  labels:[], loading: false};
       this.addConstraintModal=this.addConstraintModal.bind(this)
@@ -81,6 +82,13 @@ import Modal from 'react-modal';
     this.openSaveAs();
     }
   }
+
+    getSelectedCourses(state) {
+        var coursesArr = [];
+        state.selectedCourses.forEach((element) => {coursesArr.push(element.value);})
+        console.log(coursesArr);
+        return coursesArr;
+    }
 
     checkTimetable(state) {
     console.log(this.state,this.selectedCheckboxes);
@@ -382,7 +390,7 @@ import Modal from 'react-modal';
       }
       var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
       var checkBtn = <button class="horizontal2" onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
-      var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state.selected_term)}}>Generate</button>
+      var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state)}}>Generate</button>
       var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.openSaveAs(this.state)}}>Save As</button>
       var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad(this.state)}}>Load</button>
 
@@ -424,8 +432,17 @@ import Modal from 'react-modal';
                                          }
                                     }
                      />
+
+      var selectCoursesMulti = <MultiSelect
+                                placeholder= "Select Courses(s) for checking/generating"
+                                options = {this.state.courses.map(
+                                 course => ({label: course, value: course})
+                                 )}
+                                 onValuesChange = { value => {this.setState({selectedCourses: value})}}
+                                 />
+
       var dropDownCourses = <MultiSelect
-                            placeholder = "Select Course(s)"
+                            placeholder = "Select Subjects(s)"
                             theme = "material"
                             options = {this.state.subjects.map(
                               course => ({label: course, value: course})
@@ -447,6 +464,7 @@ import Modal from 'react-modal';
               </div>
                 <div class="left-component">
                   {selectTermDropdown}
+                  {selectCoursesMulti}
                   <div id="top-item">{dropDownRooms}</div>
                   <div>{dropDownCourses}</div>
                   <div style={{color: 'white'}}>

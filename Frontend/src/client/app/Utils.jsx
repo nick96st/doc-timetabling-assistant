@@ -25,6 +25,13 @@ var utils = {
     .catch(function(error){
       console.log(error)
     })
+    axios.get('/choices/courses').
+    then((response)=>{
+      main_this.setState({courses:response.data});
+    })
+    .catch(function(error){
+        console.log(error);
+    });
     return data;
   }
 
