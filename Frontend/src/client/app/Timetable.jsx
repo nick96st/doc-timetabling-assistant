@@ -61,8 +61,9 @@ class Timetable extends React.Component{
               }else if (this.props.violation.timeslot !== undefined && days[this.props.violation.timeslot.day] === slot.day && parseInt(this.props.violation.timeslot.hour) === slot.time)
                 warn = "warning-slot"
             }
-            courses.push (<div className={warn} class="session"><a onClick = {()=>this.openModal(slot)}><TimetableSlot name = {s.name} room = {s.room}/></a>
-            <button onClick={()=>this.deleteLecture(lect)} class="delete round"> <FontAwesome name="trash-o"></FontAwesome> </button></div>)
+            courses.push (<div className={warn} class="session"><TimetableSlot name = {s.name} room = {s.room} lecture={lect}/>
+            <div className="delete-div"><button onClick={()=>this.deleteLecture(lect)} class="delete round"> <FontAwesome name="trash-o"></FontAwesome> </button></div></div>)
+            courses.push(<br/>)
           })
           cols.push(<td>{courses}<button onClick={()=>this.openModal(slot)} class="round"><FontAwesome name="plus"></FontAwesome></button></td>)
         }
