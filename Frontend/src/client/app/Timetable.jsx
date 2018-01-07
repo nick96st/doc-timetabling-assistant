@@ -56,12 +56,13 @@ class Timetable extends React.Component{
           r[i].forEach(s=>{
             const lect = s
             if (this.props.violation !== undefined){
+               console.log(this.props.activeViolation)
               if (this.props.violation.name !== undefined && this.props.violation.name === s.name){
-                warn = "warning-slot"
-              }else if (this.props.violation.timeslot !== undefined && days[this.props.violation.timeslot.day] === slot.day && parseInt(this.props.violation.timeslot.hour) === slot.time)
-                warn = "warning-slot"
+                warn = "timeslot-warning"
+              }else if (this.props.violation.timeslot != undefined && days[this.props.violation.timeslot.day] == slot.day && parseInt(this.props.violation.timeslot.hour) == slot.time)
+                warn = "timeslot-warning"
             }
-            courses.push (<div className={warn} class="session"><TimetableSlot name = {s.name} room = {s.room} lecture={lect}/>
+            courses.push (<div className={warn} class="session"><TimetableSlot className={warn} name = {s.name} room = {s.room} lecture={lect}/>
             <div className="delete-div"><button onClick={()=>this.deleteLecture(lect)} class="delete round"> <FontAwesome name="trash-o"></FontAwesome> </button></div></div>)
             courses.push(<br/>)
           })

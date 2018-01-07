@@ -460,6 +460,8 @@ import Modal from 'react-modal';
                                 value={this.state.selected_term}
                                />
      var constraintBtn = <button class="horizontal2" onClick={()=>{this.setState({constraintModal:true})}}>Constraints</button>
+
+     console.log(this.state.activeViolation);
       return( <div>
                 <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
                 <h2>DEPARTMENT OF COMPUTING</h2>

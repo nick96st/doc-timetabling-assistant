@@ -888,3 +888,8 @@ button:hover {
   width:60%;
   float: left;
 }
+.timeslot-warning{
+  width:60%;
+  float: left;
+  background-color: #FFD2D2;
+}
