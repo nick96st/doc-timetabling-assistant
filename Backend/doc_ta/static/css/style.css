@@ -1,0 +1,897 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  background: #1F2739;
+  /*background: #2A3132;*/
+  /*background: steelblue;*/
+  font-family: "Open Sans", arial;
+}
+
+h1{
+  text-align: center;
+  font-family: Futura;
+  font-weight: 300;
+  font-size: 2em;
+  letter-spacing: 0.1ch;
+  color: white;
+  margin-bottom: 0;
+  text-decoration: underline;
+}
+
+h2{
+  text-align: center;
+  font-size: 1em;
+  font-weight: 100;
+  letter-spacing: 0.735ch;
+  color: white;
+  margin-top: 0.5ex;
+}
+
+p {
+  color: white;
+}
+table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #38678f;
+  /*margin: 50px auto;*/
+  background: white;
+  table-layout: fixed;
+}
+th {
+  background: steelblue;
+  /*background: #336B87;*/
+  height: 54px;
+  width: 25%;
+  font-weight: lighter;
+  text-shadow: 0 1px 0 #38678f;
+  color: white;
+  border: 1px solid #38678f;
+  box-shadow: inset 0px 1px 2px #568ebd;
+}
+tr {
+  border-bottom: 1px solid #cccccc;
+  width: 100px;
+}
+tr:last-child {
+  border-bottom: 0px;
+}
+td {
+  border-right: 1px solid #cccccc;
+  padding: 10px;
+  text-overflow: ellipsis;
+}
+td:first-child {
+  background-color: rgba(117, 117, 117, 0.2);
+}
+td:last-child {
+  border-right: 0px;
+}
+
+button {
+  background-color: #555555;
+  /*background-color: #763626;*/
+  border: none;
+  /*border-radius: 8px;*/
+  margin: 10px;
+  color: white;
+  /*padding: 10px 25px;*/
+  width: 100px;
+  height: 60px;
+  text-align: center;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+button:hover {
+  background-color: white;
+  color: #555555;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+.round {
+  width: 30px;
+  height: 30px;
+  float: left;
+  border-radius: 50%;
+  display:inline;
+  background-color: rgba(117, 117, 117, 0.49);
+}
+
+
+.delete {
+  /*margin-right: 3em;*/
+}
+
+.delete:hover {
+  background-color: #FF4641;
+  color:white;
+}
+
+.left-component {
+  display: inline-block;
+  vertical-align: top;
+  width: 30%;
+  padding: 1rem;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+
+  /*margin: 50px auto;*/
+}
+
+.left-component:hover {
+ background: rgba(117, 117, 117, 0.49);
+}
+
+.right-component {
+  display: inline-block;
+  vertical-align: top;
+  width: 70%;
+  padding: 1rem;
+}
+
+.console_place_holder {
+  width: 100%;
+  height: 700px;
+  background-color:black;
+  color: black;
+  font-family: courier;
+}
+
+.console_place_holder:hover {
+  width: 100%;
+  height: 700px;
+  background-color:black;
+  color: white;
+}
+
+#top-item {
+  margin-top: 10px;
+}
+
+.horizontal2 {
+  display: inline-block;
+  width: 30%;
+  margin: 3px;
+}
+
+.save span{
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.4s;
+}
+
+.save span::before {
+  content: "\f0c7";
+  font-family: FontAwesome;
+  position: absolute;
+  opacity: 0;
+  top: 1px;
+  left: -20px;
+  transition: 0.4s;
+}
+
+.save:hover span {
+  padding-left: 25px;
+}
+
+.save:hover span::before {
+  opacity: 1;
+  left: 0;
+  color: black;
+}
+
+/* Below code is for selectize(dropdown menu) styling*/
+.react-selectize {
+  color: #000;
+}
+.react-selectize.root-node {
+  position: relative;
+  width: 300px;
+}
+.react-selectize.root-node.disabled {
+  pointer-events: none;
+}
+.react-selectize.root-node .react-selectize-control {
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  padding: 2px;
+}
+.react-selectize.root-node .react-selectize-control .react-selectize-placeholder {
+  display: block;
+  line-height: 30px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  position: absolute;
+  max-width: calc(100% - 56px);
+}
+.react-selectize.root-node .react-selectize-control .react-selectize-search-field-and-selected-values {
+  display: flex;
+  min-height: 30px;
+  flex-grow: 1;
+  flex-wrap: wrap;
+}
+.react-selectize.root-node .react-selectize-control .react-selectize-search-field-and-selected-values .resizable-input {
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 1em;
+  margin: 2px;
+  padding: 4px 0px;
+  vertical-align: middle;
+  width: 0px;
+}
+.react-selectize.root-node .react-selectize-control .react-selectize-search-field-and-selected-values .value-wrapper {
+  display: flex;
+  align-items: center;
+}
+.react-selectize.root-node .react-selectize-control .react-selectize-reset-button-container,
+.react-selectize.root-node .react-selectize-control .react-selectize-toggle-button-container {
+  flex-grow: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+}
+.react-selectize.root-node .react-selectize-control .react-selectize-reset-button-container {
+  width: 16px;
+}
+.react-selectize.root-node .react-selectize-control .react-selectize-toggle-button-container {
+  width: 32px;
+}
+.react-selectize.root-node .react-selectize-control .react-selectize-reset-button-container:hover .react-selectize-reset-button path {
+  stroke: #c0392b;
+}
+.react-selectize.root-node .react-selectize-control .react-selectize-reset-button path {
+  transition: stroke 0.5s 0s ease;
+  stroke: #999;
+  stroke-linecap: square;
+  stroke-linejoin: mitter;
+}
+.react-selectize.root-node .react-selectize-control .react-selectize-toggle-button path {
+  fill: #999;
+}
+.react-selectize.dropdown-menu-wrapper {
+  position: absolute;
+}
+.react-selectize.dropdown-menu-wrapper.tethered {
+  min-width: 300px;
+}
+.react-selectize.dropdown-menu-wrapper:not(.tethered) {
+  width: 100%;
+}
+.react-selectize.dropdown-menu {
+  box-sizing: border-box;
+  overflow: auto;
+  position: absolute;
+  max-height: 200px;
+  z-index: 10;
+}
+.react-selectize.dropdown-menu.tethered {
+  min-width: 300px;
+}
+.react-selectize.dropdown-menu:not(.tethered) {
+  width: 100%;
+}
+.react-selectize.dropdown-menu .groups.as-columns {
+  display: flex;
+}
+.react-selectize.dropdown-menu .groups.as-columns > div {
+  flex: 1;
+}
+.react-selectize.dropdown-menu .option-wrapper {
+  cursor: pointer;
+  outline: none;
+}
+.multi-select.react-selectize.root-node .simple-value {
+  display: inline-block;
+  margin: 2px;
+  vertical-align: middle;
+}
+.multi-select.react-selectize.root-node .simple-value span {
+  display: inline-block;
+  padding: 2px 5px 4px;
+  vertical-align: center;
+}
+.simple-select.react-selectize.root-node .simple-value {
+  margin: 2px;
+}
+.simple-select.react-selectize.root-node .simple-value span {
+  display: inline-block;
+  vertical-align: center;
+}
+.react-selectize.default {
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+.react-selectize.default.root-node .react-selectize-control {
+  background-color: #fff;
+  border: 1px solid;
+  border-color: #d9d9d9 #ccc #b3b3b3;
+  border-radius: 4px;
+  font-size: 1em;
+}
+.react-selectize.default.root-node .react-selectize-control .react-selectize-placeholder {
+  color: #aaa;
+  text-indent: 8px;
+}
+.react-selectize.default.root-node .react-selectize-control .react-selectize-search-field-and-selected-values {
+  padding-left: 5px;
+}
+.react-selectize.default.root-node.open.flipped .react-selectize-control {
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+.react-selectize.default.root-node.open:not(.flipped) .react-selectize-control {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+.react-selectize.dropdown-menu-wrapper.default {
+  overflow: hidden;
+}
+.react-selectize.dropdown-menu-wrapper.default .dropdown-menu.custom-enter-active,
+.react-selectize.dropdown-menu-wrapper.default .dropdown-menu.custom-leave-active {
+  transition: transform 0.2s 0s ease;
+}
+.react-selectize.dropdown-menu-wrapper.default .dropdown-menu.flipped.custom-enter {
+  transform: translateY(100%);
+}
+.react-selectize.dropdown-menu-wrapper.default .dropdown-menu.flipped.custom-enter-active {
+  transform: translateY(0%);
+}
+.react-selectize.dropdown-menu-wrapper.default .dropdown-menu.flipped.custom-leave {
+  transform: translateY(0%);
+}
+.react-selectize.dropdown-menu-wrapper.default .dropdown-menu.flipped.custom-leave-active {
+  transform: translateY(100%);
+}
+.react-selectize.dropdown-menu-wrapper.default .dropdown-menu:not(.flipped).custom-enter {
+  transform: translateY(-100%);
+}
+.react-selectize.dropdown-menu-wrapper.default .dropdown-menu:not(.flipped).custom-enter-active {
+  transform: translateY(0%);
+}
+.react-selectize.dropdown-menu-wrapper.default .dropdown-menu:not(.flipped).custom-leave {
+  transform: translateY(0%);
+}
+.react-selectize.dropdown-menu-wrapper.default .dropdown-menu:not(.flipped).custom-leave-active {
+  transform: translateY(-100%);
+}
+.react-selectize.dropdown-menu.default {
+  background: #fff;
+  border: 1px solid #ccc;
+  margin-top: -1px;
+}
+.react-selectize.dropdown-menu.default.flipped {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+.react-selectize.dropdown-menu.default:not(.flipped) {
+  border-color: #b3b3b3 #ccc #d9d9d9;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+.react-selectize.dropdown-menu.default .no-results-found {
+  color: #aaa !important;
+  font-style: oblique;
+  padding: 8px 10px;
+}
+.react-selectize.dropdown-menu.default .simple-group-title {
+  background-color: #fafafa;
+  padding: 8px 8px;
+}
+.react-selectize.dropdown-menu.default .option-wrapper.highlight {
+  background: #f2f9fc;
+  color: #333;
+}
+.react-selectize.dropdown-menu.default .option-wrapper .simple-option {
+  color: #666;
+  cursor: pointer;
+  padding: 8px 10px;
+}
+.react-selectize.dropdown-menu.default .option-wrapper .simple-option.not-selectable {
+  background-color: #f8f8f8;
+  color: #999;
+  cursor: default;
+  font-style: oblique;
+  text-shadow: 0px 1px 0px #fff;
+}
+.multi-select.react-selectize.default.root-node .simple-value {
+  background: #f2f9fc;
+  border: 1px solid #c9e6f2;
+  border-radius: 2px;
+  color: #08c;
+}
+.simple-select.react-selectize.default.root-node.open .react-selectize-control {
+  background-color: #fff;
+}
+.simple-select.react-selectize.default.root-node:not(.open) .react-selectize-control {
+  background-color: #f9f9f9;
+  background-image: linear-gradient(to bottom, #fefefe, #f2f2f2);
+}
+.react-selectize.bootstrap3 {
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+.react-selectize.bootstrap3.root-node.open .react-selectize-control {
+  background-color: #fff;
+  border: 1px solid #66afe9;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+}
+.react-selectize.bootstrap3.root-node .react-selectize-control {
+  border: 1px solid;
+  border-color: #d9d9d9 #ccc #b3b3b3;
+  border-radius: 4px;
+  font-size: 1em;
+}
+.react-selectize.bootstrap3.root-node .react-selectize-control .react-selectize-placeholder {
+  color: #aaa;
+  text-indent: 8px;
+}
+.react-selectize.bootstrap3.root-node .react-selectize-control .react-selectize-search-field-and-selected-values {
+  padding-left: 5px;
+}
+.react-selectize.bootstrap3.dropdown-menu-wrapper.flipped {
+  margin-bottom: 5px;
+}
+.react-selectize.bootstrap3.dropdown-menu-wrapper:not(.flipped) {
+  margin-top: 5px;
+}
+.react-selectize.bootstrap3.dropdown-menu-wrapper .dropdown-menu.custom-enter-active,
+.react-selectize.bootstrap3.dropdown-menu-wrapper .dropdown-menu.custom-leave-active {
+  transition: opacity 0.2s 0s ease;
+}
+.react-selectize.bootstrap3.dropdown-menu-wrapper .dropdown-menu.custom-enter {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.react-selectize.bootstrap3.dropdown-menu-wrapper .dropdown-menu.custom-enter-active {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.react-selectize.bootstrap3.dropdown-menu-wrapper .dropdown-menu.custom-leave {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+.react-selectize.bootstrap3.dropdown-menu-wrapper .dropdown-menu.custom-leave-active {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.react-selectize.bootstrap3.dropdown-menu {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+}
+.react-selectize.bootstrap3.dropdown-menu.flipped {
+  margin-bottom: 5px;
+}
+.react-selectize.bootstrap3.dropdown-menu:not(.flipped) {
+  margin-top: 5px;
+}
+.react-selectize.bootstrap3.dropdown-menu .no-results-found {
+  color: #aaa !important;
+  font-style: oblique;
+  padding: 8px 10px;
+}
+.react-selectize.bootstrap3.dropdown-menu .groups:not(.as-columns) > div:not(:first-child) {
+  border-top: 1px solid #e5e5e5;
+  margin: 12px 0px 0px 0px;
+}
+.react-selectize.bootstrap3.dropdown-menu .simple-group-title {
+  background-color: #fff;
+  color: #999;
+  padding: 8px 8px;
+  text-shadow: 0px 1px 0px rgba(0,0,0,0.05);
+}
+.react-selectize.bootstrap3.dropdown-menu .option-wrapper.highlight {
+  background: #428bca;
+}
+.react-selectize.bootstrap3.dropdown-menu .option-wrapper.highlight .simple-option {
+  color: #fff;
+}
+.react-selectize.bootstrap3.dropdown-menu .option-wrapper .simple-option {
+  color: #333;
+  cursor: pointer;
+  padding: 8px 10px;
+}
+.react-selectize.bootstrap3.dropdown-menu .option-wrapper .simple-option.not-selectable {
+  background-color: #f8f8f8;
+  color: #999;
+  cursor: default;
+  font-style: oblique;
+  text-shadow: 0px 1px 0px #fff;
+}
+.multi-select.react-selectize.bootstrap3.root-node .simple-value {
+  background: #efefef;
+  border-radius: 4px;
+  color: #333;
+}
+.react-selectize.material {
+  font-family: Roboto, sans-serif;
+  margin: auto;
+  margin-bottom: 10px
+}
+.react-selectize.material.root-node.open .react-selectize-control:after {
+  transform: scaleX(1);
+  background-color: #fff;
+}
+.react-selectize.material.root-node .react-selectize-control {
+  /*border-bottom: 1px solid rgba(0,0,0,0.3);*/
+  border-bottom: 1px solid #FFF842;
+}
+.react-selectize.material.root-node .react-selectize-control:after {
+  /*background-color: #00bcd4;*/
+  background-color: #FFF842;
+  content: "";
+  transform: scaleX(0);
+  transition: transform 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  position: absolute;
+  left: 0px;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+}
+.react-selectize.material.root-node .react-selectize-control .react-selectize-placeholder {
+  color: rgba(0,0,0,0.3);
+  color: rgba(204, 204, 204,1);
+  text-indent: 4px;
+  font-weight: lighter;
+  text-shadow: 0 1px 0 #38678f;
+}
+.react-selectize.material.dropdown-menu-wrapper.flipped {
+  margin-bottom: 8px;
+}
+.react-selectize.material.dropdown-menu-wrapper.flipped .dropdown-menu {
+  transform-origin: 100% 100%;
+}
+.react-selectize.material.dropdown-menu-wrapper:not(.flipped) {
+  margin-top: 8px;
+}
+.react-selectize.material.dropdown-menu-wrapper:not(.flipped) .dropdown-menu {
+  transform-origin: 0% 0%;
+}
+.react-selectize.material.dropdown-menu-wrapper .dropdown-menu.custom-enter-active,
+.react-selectize.material.dropdown-menu-wrapper .dropdown-menu.custom-leave-active {
+  transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, opacity 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-selectize.material.dropdown-menu-wrapper .dropdown-menu.custom-enter {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  transform: scale(0, 0);
+}
+.react-selectize.material.dropdown-menu-wrapper .dropdown-menu.custom-enter-active {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  transform: scale(1, 1);
+}
+.react-selectize.material.dropdown-menu-wrapper .dropdown-menu.custom-leave {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  transform: scale(1, 1);
+}
+.react-selectize.material.dropdown-menu-wrapper .dropdown-menu.custom-leave-active {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.react-selectize.material.dropdown-menu {
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: rgba(0,0,0,0.118) 0px 1px 6px, rgba(0,0,0,0.118) 0px 1px 4px;
+  max-height: 250px;
+  padding: 8px 0px;
+}
+.react-selectize.material.dropdown-menu.flipped {
+  margin-bottom: 8px;
+}
+.react-selectize.material.dropdown-menu:not(.flipped) {
+  margin-top: 8px;
+}
+.react-selectize.material.dropdown-menu .no-results-found {
+  font-style: oblique;
+  font-size: 16px;
+  height: 32px;
+  padding: 0px 16px;
+  display: flex;
+  align-items: center;
+}
+.react-selectize.material.dropdown-menu .groups:not(.as-columns) > div:not(:last-child) {
+  border-bottom: 1px solid #e5e5e5;
+}
+.react-selectize.material.dropdown-menu .simple-group-title {
+  color: #8f8f8f;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  height: 48px;
+  padding: 0px 10px;
+}
+.react-selectize.material.dropdown-menu .option-wrapper.highlight {
+  background-color: rgba(0,0,0,0.098);
+}
+.react-selectize.material.dropdown-menu .option-wrapper .simple-option {
+  color: rgba(0,0,0,0.875);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  font-size: 16px;
+  height: 48px;
+  padding: 0px 16px;
+}
+.react-selectize.material.dropdown-menu .option-wrapper .simple-option.not-selectable {
+  background-color: #f8f8f8;
+  color: #999;
+  cursor: default;
+  font-style: oblique;
+  text-shadow: 0px 1px 0px #fff;
+}
+.multi-select.react-selectize.material.root-node .simple-value span {
+  padding: 4px;
+  background: #efefef;
+  border-radius: 4px;
+  color: #333;
+}
+.multi-select.react-selectize.material.root-node .simple-value span:after {
+  content: "";
+}
+.simple-select.react-selectize.material.root-node .simple-value {
+  margin: 4px 3px 3px 2px;
+}
+
+.Dropdown-root {
+  position: relative;
+}
+
+.Dropdown-control {
+  position: relative;
+  overflow: hidden;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  box-sizing: border-box;
+  color: #333;
+  cursor: default;
+  outline: none;
+  padding: 8px 52px 8px 10px;
+  transition: all 200ms ease;
+}
+
+.Dropdown-control:hover {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+.Dropdown-arrow {
+  border-color: #999 transparent transparent;
+  border-style: solid;
+  border-width: 5px 5px 0;
+  content: ' ';
+  display: block;
+  height: 0;
+  margin-top: -ceil(2.5);
+  position: absolute;
+  right: 10px;
+  top: 14px;
+  width: 0
+}
+
+.is-open .Dropdown-arrow {
+  border-color: transparent transparent #999;
+  border-width: 0 5px 5px;
+}
+
+.Dropdown-menu {
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  margin-top: -1px;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  z-index: 1000;
+  -webkit-overflow-scrolling: touch;
+}
+
+.Dropdown-menu .Dropdown-group > .Dropdown-title{
+  padding: 8px 10px;
+  color: rgba(51, 51, 51, 1);
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.Dropdown-option {
+  box-sizing: border-box;
+  color: rgba(51, 51, 51, 0.8);
+  cursor: pointer;
+  display: block;
+  padding: 8px 10px;
+}
+
+.Dropdown-option:last-child {
+  border-bottom-right-radius: 2px;
+   border-bottom-left-radius: 2px;
+}
+
+.Dropdown-option:hover {
+  background-color: #f2f9fc;
+  color: #333;
+}
+
+.Dropdown-option.is-selected {
+  background-color: #f2f9fc;
+  color: #333;
+}
+
+.Dropdown-noresults {
+  box-sizing: border-box;
+  color: #ccc;
+  cursor: default;
+  display: block;
+  padding: 8px 10px;
+}
+.violation-list{
+  padding:0;
+  width: 80%;
+  margin:auto;
+  list-style-type: none;
+}
+.violation-list-item{
+  margin-top: 5px;
+  color: #D8000C;
+  background-color: #FFD2D2;
+  padding:10px;
+}
+
+.violation-list-item-active{
+  margin-top: 5px;
+  color: white;
+  background-color: red;
+  padding:10px;
+}
+
+.check-success{
+  margin-top: 5px;
+  color: #4F8A10;
+  background-color: #DFF2BF;
+  padding:10px;
+}
+
+.violation-console{
+  height: 60%;
+  overflow-y: auto;
+  background-color: #FFFFFF;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-top: 10px;
+}
+
+.warning-slot{
+  background-color: #FFD2D2;
+}
+
+.session {
+  display: inline-block;
+  width: 100%;
+}
+
+.login-div{
+      background-color: rgba(117, 117, 117, 0.2);
+      width: 350px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 5%;
+      padding: 20px;
+}
+
+.save-input{
+  width: 200;
+  font-size: 24px;
+  position:relative;
+  display:inline;
+  margin-left: 0.5em;
+  margin-bottom: 5px;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.login-input-error{
+  width: 200;
+  font-size: 24px;
+  position:relative;
+  display:block;
+  margin-bottom: 5px;
+  margin-left:auto;
+  margin-right:auto;
+  color: #D8000C;
+  background-color: #FFD2D2;
+  border-color: red;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.login-button{
+  position:relative;
+  display:block;
+  margin-left:auto;
+  margin-right: auto;
+}
+
+.login-title{
+  margin-left: auto;
+  margin-right: auto;
+  width:auto;
+  font-family: Futura;
+  color: white;
+}
+
+.button-row{
+  margin-left: auto;
+  margin-right: auto;
+  width:70%
+}
+
+.save-error{
+  color:red;
+  text-align: center;
+}
+
+.constraint-title{
+  color:black;
+  font-family: "verdana";
+  letter-spacing: normal;
+  font-weight: bold;
+}
+
+.control-title{
+  color:white;
+  font-family: "verdana";
+  letter-spacing: normal;
+  font-weight: bold;
+}
+
+.constraint-button{
+  width:150px;
+}
+
+.delete-div{
+  display: block;
+  float:right;
+}
+
+.timeslot{
+  width:60%;
+  float: left;
+  margin-bottom:2px;
+}
+.timeslot-warning{
+  width:60%;
+  float: left;
+  background-color: #FFD2D2;
+  margin-bottom:2px;
+}
