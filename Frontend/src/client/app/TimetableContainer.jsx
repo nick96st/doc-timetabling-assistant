@@ -490,8 +490,10 @@ import Modal from 'react-modal';
 
      console.log("on render",sessionStorage.getItem("constraint"));
       return( <div>
+
                 <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
                 <h2>DEPARTMENT OF COMPUTING</h2>
+                <div className="db-link-div"><a href= "/admin/" className="db-link"> Edit Database </a></div>
                 <div class="left-component">
                   <h2 className="control-title"> Filter Timetable: </h2>
                   <div id="top-item">{dropDownRooms}</div>
