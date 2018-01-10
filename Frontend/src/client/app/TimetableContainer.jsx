@@ -405,12 +405,15 @@ import Modal from 'react-modal';
       var timetable
       if(!this.state.loading){
       var rows = this.generateRows(ftable)
-      timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
+      var clearBtn = <button class="horizontal2" onClick={ () => {this.setState({timetable:[]})}}>Clear Table</button>
+      timetable = <div><Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
                    removeLecture={this.removeLecture} violation={this.state.activeViolation}
                    rooms={this.state.rooms} subjects={this.state.subjects}/>
+                   {clearBtn}
+                   </div>
       }
       else {
-        timetable = <div><CircleLoader loading={this.state.loading} color={'white'} /> Generating timetable...</div>
+        timetable = <div className="loading-text"><div className="loading-spinner"><CircleLoader size="200"  loading={this.state.loading} color={'white'} /></div> Loading...</div>
 
       }
       var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
@@ -418,7 +421,7 @@ import Modal from 'react-modal';
       var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state)}}>Generate</button>
       var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.setState({isOpenSaveAsModal:true})}}>Save As</button>
       var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad()}}>Load</button>
-      var clearBtn = <button class="horizontal2" onClick={ () => {this.setState({timetable:[]})}}>Clear Table</button>
+
       var saveAsModal = <Modal isOpen={this.state.isOpenSaveAsModal} style={styles.sstyle}>
                      <label className="save-error">{this.state.errorSaveAsMessage}</label><br/>
                      <label>Save as:</label>
@@ -510,7 +513,6 @@ import Modal from 'react-modal';
                 </div>
                 <div class="right-component">
                   {timetable}
-                  {clearBtn}
                 </div>
                 <Modal isOpen={this.state.constraintModal} style={styles.cstyle}>
                 <div className = "constraint-list">

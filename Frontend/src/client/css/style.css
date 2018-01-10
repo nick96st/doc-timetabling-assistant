@@ -895,3 +895,17 @@ button:hover {
   background-color: #FFD2D2;
   margin-bottom:15px;
 }
+
+.loading-text{
+  color: white;
+  font-size: 30px;
+  text-align: center;
+}
+
+.loading-spinner{
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  width:200px;
+  margin-top: 10%;
+}
