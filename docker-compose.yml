@@ -13,11 +13,11 @@ services:
 #      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
   web:
     build: .
-    command: python Backend/doc_ta/manage.py runserver 0.0.0.0:8000
+    command: python Backend/doc_ta/manage.py runserver 0.0.0.0:80
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
+      - "80:80"
     depends_on:
       - db
 
