@@ -16,7 +16,7 @@ import Modal from 'react-modal';
       super(props);
       this.state = {hours:{start: 9, finish: 17} ,timetable: [],
                      addConstraintModal:false, constraint:{}, isOpenSaveAsModal:false,isOpenLoadModal:false,
-                     active_save:null, errorSaveAsMessage:"",  constraintModal:false,
+                     active_save:null, errorSaveAsMessage:"",  constraintModal:false,activeViolation:{},
                      subjects:[],
                      courses:[],selectedCourses:[],
                      rooms:[] ,roomsFilter: [], coursesFilter: [],selectedCheckboxes: new Set(),
@@ -101,8 +101,8 @@ import Modal from 'react-modal';
     }
 
     checkTimetable(state) {
-    console.log(this.state,this.state.selectedCheckboxes);
-
+//    console.log(this.state,this.state.selectedCheckboxes);
+    this.setState({activeViolation:[]})
     var coursesArr = this.getSelectedCourses(state);
   //    var data = {violations:["Room 311 is used by different lectures at the same time", "Class Databases I does not have enough hours"],
   //                metadata:[{day:"Tuesday", time:17}, {name:"Databases I"}]}
@@ -127,6 +127,7 @@ import Modal from 'react-modal';
     }
 
     generateTimetable(state) {
+    this.setState({activeViolation:[]});
     var coursesArr = this.getSelectedCourses(state);
     // if not empty select or full select
     this.setState({loading:true});
