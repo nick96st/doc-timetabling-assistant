@@ -887,11 +887,38 @@ button:hover {
 .timeslot{
   width:60%;
   float: left;
-  margin-bottom:2px;
+  margin-bottom:15px;
 }
 .timeslot-warning{
   width:60%;
   float: left;
   background-color: #FFD2D2;
-  margin-bottom:2px;
+  margin-bottom:15px;
+}
+
+.loading-text{
+  color: white;
+  font-size: 30px;
+  text-align: center;
+}
+
+.loading-spinner{
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  width:200px;
+  margin-top: 10%;
+}
+
+.db-link{
+  color:white;
+  text-align:center;
+
+
+}
+
+.db-link-div{
+  margin-left: auto;
+  margin-right: auto;
+  width: 105;
 }
