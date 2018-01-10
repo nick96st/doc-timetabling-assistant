@@ -146,7 +146,7 @@ class UniqueRoom():
         return "#show not_unique_room/3.\n"
 
     def constraint_parse(self,param):
-        return 'Room ' + param[0] + " has multiple classes at time " + param[2] + " " + param[1] + "."
+        return 'Room ' + param[0] + " has multiple classes" + parse_timeslot(param[1], param[2]) + "."
 
     def get_metadata(self, params):
         return metadata_timeslot(params[1],params[2])  # if no metadata

@@ -129,6 +129,7 @@ import Modal from 'react-modal';
     generateTimetable(state) {
     var coursesArr = this.getSelectedCourses(state);
     // if not empty select or full select
+    this.setState({loading:true});
       axios.get('/timetable/generate', {
           params: {
               term: state.selected_term,
@@ -146,6 +147,7 @@ import Modal from 'react-modal';
           var timetables = response.data.solutions;
           this.setState({timetable: timetables[0]});
           }
+          this.setState({loading:false});
       })
       .catch(function (error) {
         console.log(error);
