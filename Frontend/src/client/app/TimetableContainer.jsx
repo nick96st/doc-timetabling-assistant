@@ -408,9 +408,12 @@ import Modal from 'react-modal';
       var timetable
       if(!this.state.loading){
       var rows = this.generateRows(ftable)
-      timetable = <Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
+      var clearBtn = <button class="horizontal2" onClick={ () => {this.setState({timetable:[]})}}>Clear Table</button>
+      timetable = <div><Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
                    removeLecture={this.removeLecture} violation={this.state.activeViolation}
                    rooms={this.state.rooms} subjects={this.state.subjects}/>
+                   {clearBtn}
+                   </div>
       }
       else {
         timetable = <div className="loading-text">
@@ -419,14 +422,14 @@ import Modal from 'react-modal';
                         </div>
                         Loading...
                     </div>
-
       }
+
       var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
       var checkBtn = <button class="horizontal2" onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
       var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state)}}>Generate</button>
       var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.setState({isOpenSaveAsModal:true})}}>Save As</button>
       var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad()}}>Load</button>
-      var clearBtn = <button class="horizontal2" onClick={ () => {this.setState({timetable:[]})}}>Clear Table</button>
+
       var saveAsModal = <Modal isOpen={this.state.isOpenSaveAsModal} style={styles.sstyle}>
                      <label className="save-error">{this.state.errorSaveAsMessage}</label><br/>
                      <label>Save as:</label>
@@ -493,6 +496,7 @@ import Modal from 'react-modal';
 
      console.log("on render",sessionStorage.getItem("constraint"));
       return( <div>
+
                 <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
                 <h2>DEPARTMENT OF COMPUTING</h2>
                 <div className="db-link-div">
@@ -521,7 +525,6 @@ import Modal from 'react-modal';
                 </div>
                 <div class="right-component">
                   {timetable}
-                  {clearBtn}
                 </div>
                 <Modal isOpen={this.state.constraintModal} style={styles.cstyle}>
                 <div className = "constraint-list">
