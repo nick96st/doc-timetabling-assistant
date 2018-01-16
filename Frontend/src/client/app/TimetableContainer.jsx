@@ -16,7 +16,7 @@ import Modal from 'react-modal';
       super(props);
       this.state = {hours:{start: 9, finish: 17} ,timetable: [],
                      addConstraintModal:false, constraint:{}, isOpenSaveAsModal:false,isOpenLoadModal:false,
-                     active_save:null, errorSaveAsMessage:"",  constraintModal:false,
+                     active_save:null, errorSaveAsMessage:"",  constraintModal:false, activeViolation: {},
                      subjects:[],
                      courses:[],selectedCourses:[],
                      rooms:[] ,roomsFilter: [], coursesFilter: [],selectedCheckboxes: new Set(),
@@ -101,7 +101,7 @@ import Modal from 'react-modal';
     }
 
     checkTimetable(state) {
-    console.log(this.state,this.state.selectedCheckboxes);
+    this.setState({activeViolation:[]});
 
     var coursesArr = this.getSelectedCourses(state);
   //    var data = {violations:["Room 311 is used by different lectures at the same time", "Class Databases I does not have enough hours"],
@@ -128,6 +128,7 @@ import Modal from 'react-modal';
 
     generateTimetable(state) {
     var coursesArr = this.getSelectedCourses(state);
+    this.setState({activeViolation:[]});
     // if not empty select or full select
     this.setState({loading:true});
       axios.get('/timetable/generate', {
@@ -412,7 +413,12 @@ import Modal from 'react-modal';
                    rooms={this.state.rooms} subjects={this.state.subjects}/>
       }
       else {
-        timetable = <div><CircleLoader loading={this.state.loading} color={'white'} /> Generating timetable...</div>
+        timetable = <div className="loading-text">
+                        <div className="loading-spinner">
+                            <CircleLoader size="200" loading={this.state.loading} color={'white'} />
+                        </div>
+                        Loading...
+                    </div>
 
       }
       var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
@@ -489,6 +495,9 @@ import Modal from 'react-modal';
       return( <div>
                 <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
                 <h2>DEPARTMENT OF COMPUTING</h2>
+                <div className="db-link-div">
+                   <a href= "/admin/" className="db-link"> Edit Database </a>
+                </div>
                 <div class="left-component">
                   <h2 className="control-title"> Filter Timetable: </h2>
                   <div id="top-item">{dropDownRooms}</div>
