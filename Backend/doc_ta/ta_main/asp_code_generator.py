@@ -368,8 +368,12 @@ class CodeGeneratorBuilder():
     def with_hard_constraints(self, hard_constraints):
         if not hard_constraints:
             return
-
+        # Splits constraint selection into 2 types depending on how they are handled
         self.hard_constraints, self.userdef_constraints = CodeGeneratorBuilder.constraints_split(hard_constraints)
+
+        # Appends axiomatic constraints
+        for axiomatic_constraint in Constraints.get_verbose_axiomatic_constraints():
+            self.hard_constraints.append(axiomatic_constraint)
         return self
 
     def with_soft_constraints(self, soft_constraints):

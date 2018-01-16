@@ -281,7 +281,7 @@ def get_room_choices(request):
 
 @login_required
 def get_constraint_choices(request):
-    constraints = Constraints.constraint_table_parse_verbose.keys()
+    constraints = Constraints.get_verbose_nonaxiomatic_constraints()
     for blocker in ta_models.SlotBlocker.objects.filter(owner=request.user).all():
         constraints.append(blocker.title)
     return response.HttpResponse(content=json.dumps(constraints))

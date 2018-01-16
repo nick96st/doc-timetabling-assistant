@@ -429,6 +429,8 @@ class ThreeConsecutiveHourForLecturer():
 
 
 class ConstraintHandler():
+    IS_AXIOM = True
+    NOT_AXIOM = False
     # static fields
     constraint_table = {
         "not_class_has_enough_hours": HasEnoughHoursConstraint(),
@@ -453,26 +455,26 @@ class ConstraintHandler():
         "three_consecutive_hour_for_lecturer": ThreeConsecutiveHourForLecturer(),
     }
     constraint_table_parse_verbose = {
-        "Each class to have enough hours.": "not_class_has_enough_hours",
-        "No three consecutive lecture" : "no_three_consecutive_lecture",
-        "Force two-hour slot" : "two_hour_slot",
-        "Check Room Capacity" : "check_room_capacity",
-        "Limit the number of days have a subject to form 2h slot": "limit_day_to_form_2h_slot",
-        "Forbid 2 lecturers in the same room" : "not_unique_room",
-        "only allow clashes of time slot if stated" : "clash_when_not_allowed",
-        "Students have max 6 hours a day" : "max_six_hour_a_day",
-        "Lecture is exactly one room at a day" : "not_unique_room_lecture",
-        "Lecturer can only teach one subject at a time" : "lecturer_clash",
-        "Lecturer teaches max 4 hour a day" : "max_four_hour_a_day_lecturer",
-        "Reserve specific slot for specific year" : "reserve_slot",
+        "Each class to have enough hours.": ("not_class_has_enough_hours", NOT_AXIOM),
+        "No three consecutive lecture" : ("no_three_consecutive_lecture", NOT_AXIOM),
+        "Force two-hour slot" : ("two_hour_slot", NOT_AXIOM),
+        "Check Room Capacity" : ("check_room_capacity", IS_AXIOM),
+        "Limit the number of days have a subject to form 2h slot": ("limit_day_to_form_2h_slot", NOT_AXIOM),
+        "Forbid 2 lectures in the same room" : ("not_unique_room", IS_AXIOM),
+        "only allow clashes of time slot if stated" : ("clash_when_not_allowed", NOT_AXIOM),
+        "Students have max 6 hours a day" : ("max_six_hour_a_day", NOT_AXIOM),
+        "Lecture is exactly one room at a day" : ("not_unique_room_lecture", NOT_AXIOM),
+        "Lecturer can only teach one subject at a time" : ("lecturer_clash", IS_AXIOM),
+        "Lecturer teaches max 4 hour a day" : ("max_four_hour_a_day_lecturer", NOT_AXIOM),
+        "Reserve specific slot for specific year" : ("reserve_slot", NOT_AXIOM),
         #"specific lecturer want to teach everything on one day" : "not_concentration",
         #"specific lecturer want all teaching in two days" : "not_concentrate_two",
-        "specific class spread out during a week(at least one day break)" : "not_spreading",
+        "specific class spread out during a week(at least one day break)" : ("not_spreading", NOT_AXIOM),
         #"specific lecturer cannot teach on specific day and specific time" : "no_lecturer_day_time",
         #"specific lecturer cannot teach on specific day" : "no_lecturer_day",
         #"specific lecturer cannot teach on specific time" : "no_lecturer_time",
-        "Forbid early morning and late afternoon on same day.": "no_9_to_5",
-        "Lecturer can't have 3 consequitive hours of tutoring.": "three_consecutive_hour_for_lecturer"
+        "Forbid early morning and late afternoon on same day.": ("no_9_to_5", NOT_AXIOM),
+        "Lecturer can't have 3 consequitive hours of tutoring.": ("three_consecutive_hour_for_lecturer", NOT_AXIOM),
     }
 
     @staticmethod
@@ -481,16 +483,34 @@ class ConstraintHandler():
 
     @staticmethod
     def constraint_creator(name):
-        return ConstraintHandler.constraint_table[ConstraintHandler.constraint_table_parse_verbose[name]].get_creator()
+        return ConstraintHandler.constraint_table[ConstraintHandler.constraint_table_parse_verbose[name][0]].get_creator()
 
     @staticmethod
     def constraint_negator(name):
-        return ConstraintHandler.constraint_table[ConstraintHandler.constraint_table_parse_verbose[name]].get_negator()
+        return ConstraintHandler.constraint_table[ConstraintHandler.constraint_table_parse_verbose[name][0]].get_negator()
 
     @staticmethod
     def constraint_show(name):
-        return ConstraintHandler.constraint_table[ConstraintHandler.constraint_table_parse_verbose[name]].get_show_string()
+        return ConstraintHandler.constraint_table[ConstraintHandler.constraint_table_parse_verbose[name][0]].get_show_string()
 
     @staticmethod
     def constraint_metadata(id, params):
         return ConstraintHandler.constraint_table[id].get_metadata(params)
+
+    @staticmethod
+    def get_verbose_nonaxiomatic_constraints():
+        non_axiomatic_constraints = []
+        for key, value in ConstraintHandler.constraint_table_parse_verbose.iteritems():
+            if value[1] == ConstraintHandler.NOT_AXIOM:
+                non_axiomatic_constraints.append(key)
+
+        return non_axiomatic_constraints
+
+    @staticmethod
+    def get_verbose_axiomatic_constraints():
+        axiomatic_constraints = []
+        for key, value in ConstraintHandler.constraint_table_parse_verbose.iteritems():
+            if value[1] == ConstraintHandler.IS_AXIOM:
+                axiomatic_constraints.append(key)
+
+        return axiomatic_constraints
