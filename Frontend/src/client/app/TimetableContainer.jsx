@@ -119,10 +119,9 @@ import Modal from 'react-modal';
 
      })
      .catch( (error) => {
-       errorMessage =  <span style={{color:"red"}}>Not Selected </span>;
-       //TODO:UGLY HACK
-       this.setState({ERR_MES_selected_term:errorMessage});
-       console.log(error);
+       if(error.response.data.no_term != null) {
+        this.setState({ERR_MES_selected_term: <span style={{color:"red"}}>Not Selected</span>});
+       } else { this.setState({ERR_MES_selected_term: ""}); }
      });
 
     }

@@ -107,20 +107,14 @@ def generate_table(request):
 @csrf_exempt
 @login_required
 def check_constraints(request):
-    # grid_objects = request["data"]["grid_objects"]
-
     try:
         timetable = json.loads(request.body)['timetable']
-        if not timetable:
-            return response.HttpResponseBadRequest("No timetable specified")
-    except ValueError:
-        return response.HttpResponseBadRequest("No timetable specified")
+    except KeyError:
+        timetable = []
     try:
         term_name = json.loads(request.body)["term"]
-        if not term_name:
-            return response.HttpResponseBadRequest("No term specified")
     except KeyError:
-        return response.HttpResponseBadRequest("No term specified")
+        return response.HttpResponseBadRequest(json.dumps({"no_term": True}))
     try:
         constraints = json.loads(request.body)["constraints"]
     except KeyError:
