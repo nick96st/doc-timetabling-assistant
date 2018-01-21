@@ -128,7 +128,7 @@ import Modal from 'react-modal';
 
     generateTimetable(state) {
     var coursesArr = this.getSelectedCourses(state);
-    this.setState({activeViolation:[]});
+    this.setState({activeViolation:[],violationData: null});
     // if not empty select or full select
     this.setState({loading:true});
       axios.get('/timetable/generate', {
