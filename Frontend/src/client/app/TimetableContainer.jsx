@@ -19,6 +19,7 @@ import Modal from 'react-modal';
                      active_save:null, errorSaveAsMessage:"",  constraintModal:false, activeViolation: {},
                      subjects:[],
                      courses:[],selectedCourses:[],
+                     ERR_MES_selected_term:"",
                      rooms:[] ,roomsFilter: [], coursesFilter: [],selectedCheckboxes: new Set(),
                      labels:[], loading: false};
 
@@ -104,9 +105,6 @@ import Modal from 'react-modal';
     this.setState({activeViolation:[]});
 
     var coursesArr = this.getSelectedCourses(state);
-  //    var data = {violations:["Room 311 is used by different lectures at the same time", "Class Databases I does not have enough hours"],
-  //                metadata:[{day:"Tuesday", time:17}, {name:"Databases I"}]}
-  //    this.setState({violationData:data})
        axios.post('/timetable/check', {
        timetable: state.timetable,
        term: state.selected_term,
@@ -115,12 +113,15 @@ import Modal from 'react-modal';
      })
      .then( (response) => {
        this.setState({violationData: response.data[0]})
-      this.setState({isChecked:true})
+      this.setState({isChecked:true,ERR_MES_selected_term:""});
   //    this.generateViolations();
 
 
      })
-     .catch(function (error) {
+     .catch( (error) => {
+       errorMessage =  <span style={{color:"red"}}>Not Selected </span>;
+       //TODO:UGLY HACK
+       this.setState({ERR_MES_selected_term:errorMessage});
        console.log(error);
      });
 
@@ -517,7 +518,7 @@ import Modal from 'react-modal';
                   </div>
                   <h2 className="control-title">Select Courses to which the constraints apply:</h2>
                   {selectCoursesMulti}
-                  <h2 className="control-title">Select Term(Mandatory):</h2>
+                  <h2 className="control-title">Select Term(Mandatory): {this.state.ERR_MES_selected_term}</h2>
                   {selectTermDropdown}
                   <div className="violation-console">
                   {violationList}
