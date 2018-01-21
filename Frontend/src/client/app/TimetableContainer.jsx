@@ -60,8 +60,7 @@ import Modal from 'react-modal';
     getConstraints(){
       axios.get('/choices/constraints').
       then((response) => {
-          console.log(response.data)
-          this.setState({labels: response.data})
+          this.setState({labels: response.data});
       })
       .catch(function (error) {
         console.log(error);
@@ -97,7 +96,7 @@ import Modal from 'react-modal';
     getSelectedCourses(state) {
         var coursesArr = [];
         state.selectedCourses.forEach((element) => {coursesArr.push(element.value);})
-        console.log(coursesArr);
+//        console.log(coursesArr);
         return coursesArr;
     }
 
@@ -128,8 +127,9 @@ import Modal from 'react-modal';
 
     generateTimetable(state) {
     var coursesArr = this.getSelectedCourses(state);
+    // clears checkTimetalbe UI info
     this.setState({activeViolation:[],violationData: null});
-    // if not empty select or full select
+    // set loading item
     this.setState({loading:true});
       axios.get('/timetable/generate', {
           params: {
@@ -140,6 +140,7 @@ import Modal from 'react-modal';
           }
       })
       .then((response) => {
+        // if asp doesnt have a result
           if (response.data.status != "SATISFIABLE" &&
               response.data.status != "OPTIMAL") {
               console.log("ERROR");
@@ -159,7 +160,6 @@ import Modal from 'react-modal';
     generateConstraintSelector(){
       var checkboxes = []
       const labels = this.state.labels
-      console.log("foreach label",labels);
       labels.forEach(l =>{
         checkboxes.push(<li><SimpleCheckbox label={l} checked={this.state.selectedCheckboxes.has(l)} handleChange={this.toggleCheckbox} key={l}/></li>)
       })
@@ -169,13 +169,13 @@ import Modal from 'react-modal';
 
     toggleCheckbox(label){
       var boxes = this.state.selectedCheckboxes
+      // perform toggle
       if(boxes.has(label)){
         boxes.delete(label);
-//        sessionStorage.setItem("constraint",this.state.selectedCheckboxes);
       }else{
         boxes.add(label);
-//        sessionStorage.setItem("constraint",this.state.selectedCheckboxes);
       }
+      // update state and sessionStorage
        this.setState({selectedCheckboxes: boxes})
        sessionStorage.setItem("constraints",boxes)
     }
@@ -185,20 +185,20 @@ import Modal from 'react-modal';
     }
 
     addLecture(lect){
-     var newTimetable = this.state.timetable
-     newTimetable.push(lect)
-     this.setState({timetable: newTimetable})
+     var newTimetable = this.state.timetable;
+     newTimetable.push(lect);
+     this.setState({timetable: newTimetable});
     }
 
 
 
     removeLecture(lect){
-      var timetable = this.state.timetable
+      var timetable = this.state.timetable;
       var i = timetable.indexOf(lect);
       if (i> -1){
-        timetable.splice(i, 1)
+        timetable.splice(i, 1);
       }
-      this.setState({timetable:timetable})
+      this.setState({timetable:timetable});
     }
 
     saveConstraint(){
@@ -207,7 +207,7 @@ import Modal from 'react-modal';
       constraint: this.state.constraint
     })
     .then((response) => {
-      this.getInitialData()
+      this.getInitialData();
     })
     .catch(function (error) {
       console.log(error);
@@ -256,16 +256,16 @@ import Modal from 'react-modal';
 
 
     generateViolations(){
-      var violations = []
+      var violations = [];
       const violationData = this.state.violationData;
       if (violationData !=  null){
         for (var i=0; i<violationData.violations.length; i++){
           const activeViolation = violationData.metadata[i];
           var active
           if(activeViolation == this.state.activeViolation){
-            active = "violation-list-item-active"
+            active = "violation-list-item-active";
           }else{
-            active = "violation-list-item"
+            active = "violation-list-item";
             }
           violations.push(<li className={active}><span onClick={()=>{this.setState({activeViolation: activeViolation})}}>{violationData.violations[i]}</span></li>)
         }
@@ -273,7 +273,7 @@ import Modal from 'react-modal';
         violations = <li className="check-success"><span>Timetable is valid on all selected constraints</span></li>
       }
       }
-      return violations
+      return violations;
     }
 
 
@@ -296,13 +296,12 @@ import Modal from 'react-modal';
           filteredTimetable.push(lect);
         }
       })
-      return filteredTimetable
+      return filteredTimetable;
   }
 
     handleRemovingFilter(e) {
         if(e.button == 1) {
           var prevFilter = this.state.roomsFilter;
-  //        console.log("prev",prevFilter,"removes",e.target.textContent);
           var index = -1;
           for (var i=0; i < this.state.roomsFilter.length ;i ++) {
              if(this.state.roomsFilter[i].label == e.target.textContent) {
@@ -313,16 +312,15 @@ import Modal from 'react-modal';
           this.state.roomsFilter.splice(index,1);
           this.setState({roomsFilter: this.state.roomsFilter}); // force rerender
           }
-          console.log(this);
+//          console.log(this);
         }
 
       }
 
       openLoad() {
-      console.log("opening load");
       axios.get('/timetable/existingsaves').
         then((response) => {
-            console.log(response.data)
+//            console.log(response.data);
             var possibleLoads = []
             for(var i=0; i< response.data.length; i++) {
                 possibleLoads.push(response.data[i].name);
@@ -385,12 +383,10 @@ import Modal from 'react-modal';
       }
 
       selectedLoadChange(e) {
-        console.log('e',e);
         this.setState({loadCandidate:e.value});
       }
 
       saveNameInputChange(e) {
-      console.log("eS",e.target);
         this.setState({saveName:e.target.value});
       }
 
@@ -494,7 +490,6 @@ import Modal from 'react-modal';
                                />
      var constraintBtn = <button class="horizontal2" onClick={()=>{this.setState({constraintModal:true})}}>Constraints</button>
 
-     console.log("on render",sessionStorage.getItem("constraint"));
       return( <div>
 
                 <h1 id="top-item">Timetabling Assistant<FontAwesome name="pencil"></FontAwesome></h1>
