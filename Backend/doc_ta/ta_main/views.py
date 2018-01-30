@@ -183,6 +183,26 @@ def update_save(request):
         return response.HttpResponseBadRequest("Save id parameter does not exist.")
 
 
+def create_timetable_save(save_name,timetable,table_def):
+    if table_def == "DEFAULT":
+        try:
+            item = ta_models.TableSizeDef.objects.get(title="DEFAULT_DOC_TABLE")
+        except ObjectDoesNotExist:
+            item = ta_models.TableSizeDef()
+            table_def, _ = item.create(["Monday","Tuesday","Wednesday","Thursday", "Friday"],
+                                       9, 17, "DEFAULT_DOC_TABLE")
+
+    save_id = ta_models.SavedTable()
+    save_id.name = save_name
+    save_id.table_size = ta_models.TableSizeDef.objects.get(id=table_def)
+    save_id.save()
+    for obj in timetable:
+        model = ta_models.LectureClass()
+        model.init_from_json(obj)
+        model.save_it_belongs_to = save_id
+        model.save()
+
+    return {"save_id": save_id.id}
 
 @csrf_exempt
 @login_required
@@ -201,17 +221,9 @@ def save_timetable(request):
     except KeyError:
         return response.HttpResponseBadRequest("No table definition")
 
-    save_id = ta_models.SavedTable()
-    save_id.name = save_name  # TODO: pass a name of timetable
-    save_id.table_size = ta_models.TableSizeDef.objects.first() #TODO: select from frontend
-    save_id.save()
-    for obj in timetable:
-        model = ta_models.LectureClass()
-        model.init_from_json(obj)
-        model.save_it_belongs_to = save_id
-        model.save()
+    result = create_timetable_save(save_name, timetable, table_def_id)
 
-    return response.HttpResponse(status=200,content=json.dumps({"save_id":save_id.id}))
+    return response.HttpResponse(status=200,content=json.dumps(result))
 
 
 @csrf_exempt
@@ -304,15 +316,28 @@ def create_timeslots_for_table(request):
         name = params["name"]
     except KeyError:
         return response.HttpResponseBadRequest("Not a post request ot not have all params")
+    daydefs = daydefs.split(",")  # TODO: make this on frontend
+    try:
+        table_def_id, table_def = ta_models.TableSizeDef.create(daydefs, int(hours_start), int(hours_end), name)
+    except IntegrityError:
+        return response.HttpResponseBadRequest("NameExists")
 
-    ta_models.TableSizeDef.create(daydefs,hours_start,hours_end,name)
-    return response.HttpResponse()
+    save_id = create_timetable_save(name, [], table_def_id)
 
-import tests.database_inits as DB
-@csrf_exempt
-@login_required
-def init_timeslots_DoC(request):
-    DB.generate_all()
-    return response.HttpResponse()
+    result = {"save_id": save_id["save_id"],
+              "table_def_id": table_def_id,
+              "table_def": table_def["table_def"],
+              }
+    return response.HttpResponse(json.dumps(result))
+
+# FOR DEMOING PURPOSES
+# import tests.database_inits as DB
+#
+#
+# @csrf_exempt
+# @login_required
+# def init_timeslots_DoC(request):
+#     DB.generate_all()
+#     return response.HttpResponse()
 
 
