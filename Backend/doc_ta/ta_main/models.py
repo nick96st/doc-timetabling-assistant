@@ -21,7 +21,19 @@ def get_verbose_of_choice(current):
 class TableSizeDef(models.Model):
     start_hour = models.IntegerField()
     end_hour = models.IntegerField()
-    title = models.CharField(max_length=30,unique=True)
+    title = models.CharField(max_length=30, unique=True)
+
+    def to_json(self):
+        daydefs = DayDef.objects.filter(table=self)
+        days = []
+        for item in daydefs:
+            days.append(item.day_string)
+
+        return {"table_def": {"start_hour": self.start_hour,
+                              "end_hour": self.end_hour,
+                              "days": days},
+                "table_def_id": self.id,
+                }
 
     @staticmethod
     def create(daydefs,start_hour,end_hour,name):
@@ -39,8 +51,6 @@ class TableSizeDef(models.Model):
             curr_daydef.day_string = daydef
             curr_daydef.table = table_size_def
             curr_daydef.save()
-            curr_daydef.day_asp = i
-            curr_daydef.save()
             i = i + 1
             # generate timeslots
             for j in range(start_hour, end_hour):
@@ -48,6 +58,14 @@ class TableSizeDef(models.Model):
                 time_slot.hour = j
                 time_slot.day = curr_daydef
                 time_slot.save()
+
+            jsonized_definition = {"table_def": {"name": table_size_def.title,
+                                                "start_hour": table_size_def.start_hour,
+                                                "end_hour": table_size_def.end_hour,
+                                                "days": daydefs
+                                              },
+                                   }
+            return table_size_def.id, jsonized_definition
 
 class SavedTable(models.Model):
     name = models.CharField(max_length=50)
