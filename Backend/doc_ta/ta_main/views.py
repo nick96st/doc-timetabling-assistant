@@ -74,7 +74,7 @@ def generate_table(request):
     term_name = request.GET.get("term", None)
     # term_name = json.loads(request.body)["term"]
     if not term_name:
-        return response.HttpResponseBadRequest("No term field")
+        return response.HttpResponseBadRequest(json.dumps({"no_term": True}))
     courses_array = request.GET.getlist("courses[]", None)
     timetable_str = request.GET.getlist("timetable[]", None)
     constraints = request.GET.getlist("constraints[]", None)

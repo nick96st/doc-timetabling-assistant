@@ -156,8 +156,14 @@ import Modal from 'react-modal';
           }
           this.setState({loading:false});
       })
-      .catch(function (error) {
-        console.log(error);
+      .catch( (error) => {
+       if(error.response.data.no_term != null) {
+        this.setState({ERR_MES_selected_term: <span style={{color:"red"}}>Not Selected</span>});
+       } else {
+            this.setState({ERR_MES_selected_term: ""});
+        }
+
+       this.setState({loading:false});
       });
 
     }
