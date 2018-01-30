@@ -4,6 +4,24 @@ import TimetableSlot from './TimetableSlot.jsx';
 import Modal from 'react-modal';
 import Dropdown from 'react-dropdown';
 import FontAwesome from 'react-fontawesome';
+import axios from 'axios';
+
+class ExtInputTextField extends React.Component {
+    constructor(props) {
+         super(props);
+    }
+    render() {
+        var forRender = <div className={this.props.className}>
+                        <label>{this.props.labelText}</label><br/>
+                        <label style={{color:"red"}}>{this.props.errorMessage} </label><br/>
+                        <input type="text" onChange={this.props.onChange} placeholder={this.props.placeholder}/><br/>
+                        </div>
+
+     return forRender;
+    }
+
+
+}
 
 class Timetable extends React.Component{
 
