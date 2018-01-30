@@ -68,13 +68,13 @@ def add_constraint(request):
 @csrf_exempt
 @login_required
 def generate_table(request):
-    term_name = request.GET.get("term",None)
+    term_name = request.GET.get("term", None)
     # term_name = json.loads(request.body)["term"]
     if not term_name:
         return response.HttpResponseBadRequest("No term field")
     courses_array = request.GET.getlist("courses[]", None)
     timetable_str = request.GET.getlist("timetable[]", None)
-    constraints = request.GET.getlist("constraints[]",None)
+    constraints = request.GET.getlist("constraints[]", None)
     timetable = []
     for item in timetable_str:
         timetable.append(json.loads(item))
@@ -95,34 +95,32 @@ def generate_table(request):
         response.HttpResponseServerError()
     generator.run_clingo()
     success, result = generator.parse_result()
-    output = {"status":"","solutions":[]}
+    output = {"status": "", "solutions": []}
     # if there are solutions, gets them
     if success:
         output["solutions"] = result
         output["status"] = generator.get_result_status()
-    # TODO: fix frontend to handle empty arrays adn remove this
     return response.HttpResponse(content=json.dumps(output), content_type="application/json")
 
 
 @csrf_exempt
 @login_required
 def check_constraints(request):
+    query_params = json.loads(request.body)
     try:
-        timetable = json.loads(request.body)['timetable']
+        timetable = query_params['timetable']
     except KeyError:
         timetable = []
     try:
-        term_name = json.loads(request.body)["term"]
+        term_name = query_params["term"]
     except KeyError:
         return response.HttpResponseBadRequest(json.dumps({"no_term": True}))
     try:
-        constraints = json.loads(request.body)["constraints"]
+        constraints = query_params["constraints"]
     except KeyError:
         constraints = None
     try:
-        courses_array = json.loads(request.body)["courses"]
-        # if courses_array is []:
-            # courses_array = None
+        courses_array = query_params["courses"]
     except KeyError:
         courses_array = None
 
@@ -145,7 +143,7 @@ def check_constraints(request):
     success, violations = generator.parse_result()
     # if success then send the list of violations
     if success:
-        return response.HttpResponse(content=json.dumps(violations),content_type="application/json")
+        return response.HttpResponse(content=json.dumps(violations), content_type="application/json")
     # if not success then something has gone wrong since it asp result should be SATISFIABLE(no hard constraints)
     else:
         return response.HttpResponseServerError("ASP result is not satisfiable")
@@ -157,12 +155,11 @@ def update_save(request):
     try:
         timetable = json.loads(request.body)["timetable"]
     except KeyError:
-        response.HttpResponseBadRequest("No timetable parameter.")
-    save_id = 0
+        return response.HttpResponseBadRequest("No timetable parameter.")
     try:
         save_id = json.loads(request.body)["save_id"]
     except KeyError:
-        response.HttpResponseBadRequest("No save id parameter.")
+        return response.HttpResponseBadRequest("No save id parameter.")
 
     try:
         save_obj = ta_models.SavedTable.objects.get(id=save_id)
@@ -174,7 +171,7 @@ def update_save(request):
             model.save()
         return response.HttpResponse(status=200)
     except IndexError:
-        response.HttpResponseBadRequest("Save id parameter does not exist.")
+        return response.HttpResponseBadRequest("Save id parameter does not exist.")
 
 
 

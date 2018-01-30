@@ -109,12 +109,6 @@ class Subject(models.Model):
     def __str__(self):
         return str(self.code) + str(self.title)
 
-    # def to_json_for_frontend(self):
-    #     return {"course_code": self.code,
-    #             "name": self.title,
-    #             # "course_year": self.course_year,
-    #             }
-
     def to_asp(self):
         return "subject(" + self.title_asp + "," + str(self.population_estimate) + "," + str(self.hours) + ")"
 
@@ -237,6 +231,7 @@ class CourseYear(models.Model):
 
     def to_asp(self):
         return "course(" + str(self.name) + ")."
+
 
 class SubjectsCourses(models.Model):
     subject = models.ForeignKey(Subject)
