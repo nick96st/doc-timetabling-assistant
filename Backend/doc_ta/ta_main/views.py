@@ -10,6 +10,9 @@ from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import APIView, permission_classes
 # from rest_framework.permissions import AllowAny
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
+
 
 def parse_timetable_into_facts(timetable):
     # create models from json
@@ -76,16 +79,18 @@ def generate_table(request):
     timetable_str = request.GET.getlist("timetable[]", None)
     constraints = request.GET.getlist("constraints[]", None)
     timetable = []
+    table_def_id = request.GET.get("table_def_id", None)
     for item in timetable_str:
         timetable.append(json.loads(item))
     if not timetable:
         timetable = []
+    if not table_def_id:
+        return response.HttpResponseBadRequest("Missing table settings.")
 
     grid_objects = parse_timetable_into_facts(timetable)
     codegen = asp_code_generator.CodeGeneratorBuilder()
-    codegen.for_term(term_name).for_courses(courses_array).perform("GENERATE")
-    codegen.with_result_facts(grid_objects)
-    codegen.with_hard_constraints(constraints)
+    codegen.for_term(term_name).for_courses(courses_array).for_table(table_def_id) \
+        .perform("GENERATE").with_result_facts(grid_objects).with_hard_constraints(constraints)
     # codegen.with_hard_constraints(hard_constraints)
     # codegen.with_soft_constraints(soft_constraints)
     generator = codegen.build()
@@ -123,11 +128,15 @@ def check_constraints(request):
         courses_array = query_params["courses"]
     except KeyError:
         courses_array = None
+    try:
+        table_def = query_params["table_def_id"]
+    except KeyError:
+        return response.HttpResponseBadRequest("No table definition.")
 
     grid_objects = parse_timetable_into_facts(timetable)
     # build pattern
     codegen = asp_code_generator.CodeGeneratorBuilder()
-    codegen.for_term(term_name).for_courses(courses_array).perform("CHECK")
+    codegen.for_term(term_name).for_courses(courses_array).for_table(table_def).perform("CHECK")
     codegen.with_result_facts(grid_objects)
     # set constraints if  None - it will use default(ALL)
     codegen.with_hard_constraints(constraints)
@@ -182,11 +191,15 @@ def save_timetable(request):
     try:
         timetable = json.loads(request.body)["timetable"]
     except KeyError:
-        response.HttpResponseBadRequest("No timetable parameter.")
+        return response.HttpResponseBadRequest("No timetable parameter.")
     try:
         save_name = json.loads(request.body)["save_name"]
     except KeyError:
         save_name = "Unnamed"  # default name if no provided
+    try:
+        table_def_id = json.loads(request.body)["table_def_id"]
+    except KeyError:
+        return response.HttpResponseBadRequest("No table definition")
 
     save_id = ta_models.SavedTable()
     save_id.name = save_name  # TODO: pass a name of timetable
@@ -227,9 +240,11 @@ def load_save(request):
     result = []
     for item in saved_data:
         result.append(item.to_json_for_frontend())
-
-    result= {"table":result,"save_id":save_id}
-    return response.HttpResponse(content=json.dumps(result))
+    table_def_defs = save_obj.table_size.to_json()
+    table_def_defs["table"] = result
+    table_def_defs["save_id"] = save_id
+    # result= {"table": result, "save_id": save_id}
+    return response.HttpResponse(content=json.dumps(table_def_defs))
 
 
 @login_required
@@ -287,7 +302,7 @@ def create_timeslots_for_table(request):
         hours_start = params["hours_start"]
         hours_end = params["hours_end"]
         name = params["name"]
-    except ValueError:
+    except KeyError:
         return response.HttpResponseBadRequest("Not a post request ot not have all params")
 
     ta_models.TableSizeDef.create(daydefs,hours_start,hours_end,name)
