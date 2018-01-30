@@ -426,6 +426,8 @@ import Modal from 'react-modal';
       var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.setState({isOpenSaveAsModal:true})}}>Save As</button>
       var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad()}}>Load</button>
 
+      var newTableBtn = <button class="horizontal2" onClick={ () => {this.setState({isOpenNewTable:true});}}>New Table</button>
+
       var saveAsModal = <Modal isOpen={this.state.isOpenSaveAsModal} style={styles.sstyle}>
                      <label className="save-error">{this.state.errorSaveAsMessage}</label><br/>
                      <label>Save as:</label>
@@ -509,6 +511,7 @@ import Modal from 'react-modal';
                   {checkBtn}
                   {generateBtn}
                   {constraintBtn}
+                  {newTableBtn}
                   </div>
                   <h2 className="control-title">Select Courses to which the constraints apply:</h2>
                   {selectCoursesMulti}

@@ -27,7 +27,7 @@ class Timetable extends React.Component{
 
   constructor(props) {
     super(props);
-    this.state={modalOpen:false}
+    this.state={modalOpen:false,nameErrMsg:"",colNameErrMsg:"",colErrMsg:"",rowErrMsg:""};
     this.lectureChange = this.lectureChange.bind(this);
     this.roomChange = this.roomChange.bind(this);
     this.openModal = this.openModal.bind(this);
@@ -107,8 +107,43 @@ class Timetable extends React.Component{
     this.closeModal()
   }
 
+  validateInput() {
+    console.log("No validation atm");
+  }
+
+  createTableDefinition() {
+    this.validateInput();
+
+    axios.post('/create_table_size', {
+       hours_start: this.newRowNum,
+       hours_end: this.newColNum,
+       name: this.newName,
+       days: this.newColNames,
+     })
+     .then( (response) => {
+       //set table name
+       this.props.updateTableDefs(response.data.table_def,response.table_def_id,response.data.save_id);
+       this.state.nameErrMsg = "";
+       this.state.rowErrMsg  = "";
+       this.state.colErrMsg  = "";
+       this.state.colNameErrMsg = "";
+       this.props.closeNewTableFunc();
+       //reset error msgs
+     })
+     .catch( (error) => {
+        if(error.response.data === "NameExists"){
+          console.log("catches error Name Exists",this);
+          this.setState({nameErrMsg: "Name already exists."});
+          return;
+       }
+        console.log(error,"error at making new table");
+     });
+
+  }
+
     render() {
-      var style = {
+
+    var style = {
     overlay : {
     position          : 'fixed',
     top               : 0,
@@ -136,6 +171,15 @@ class Timetable extends React.Component{
 
   }
 }
+
+    console.log("constrIsopne",this.state.isOpenNewTable);
+
+    var cancelTableButton = "";
+    // initial mandatory init forbids cancelation of modal
+     if(this.props.tableDef !== null) {
+     cancelTableButton =<button  onClick={this.props.closeNewTableFunc}> Cancel</button>
+     }
+
     return(
       <div>
       <Modal isOpen={this.state.modalOpen} style={style}>
@@ -144,6 +188,20 @@ class Timetable extends React.Component{
         <br/>
         <button onClick={()=>{this.closeModal()}}>Cancel</button>
         <button onClick={()=>{this.addLecture()}}>Save</button>
+      </Modal>
+
+      <Modal isOpen={this.props.tableDef===null || this.props.isOpenNewTable} style={style}>
+      <ExtInputTextField labelText="Table Name"
+                         onChange={(e) => {this.newName=e.target.value}}  errorMessage={this.state.nameErrMsg}/>
+      <ExtInputTextField labelText="Starting slot" placeholder="Enter number"
+                         onChange={(e) => {this.newRowNum=e.target.value}}  errorMessage={this.state.rowErrMsg}/>
+      <ExtInputTextField labelText="Ending slot" placeholder="Enter number"
+                       onChange={(e) => {this.newColNum=e.target.value}}  errorMessage={this.state.colErrMsg}/>
+      <ExtInputTextField labelText="Names of columns(comma separated)" placeholder="eg.:Monday,Tues_day,wdnsday,4day"
+                       onChange={(e) => {this.newColNames=e.target.value}} errorMessage={this.state.colNameErrMsg}/>
+
+     {cancelTableButton}
+     <button  onClick={ () => this.createTableDefinition()}> Create </button>
       </Modal>
       <table>
        {this.generateHeader()}
