@@ -76,7 +76,6 @@ class Timetable extends React.Component{
           r[i].forEach(s=>{
             const lect = s
             if (this.props.violation !== undefined){
-               console.log(this.props.activeViolation)
               if (this.props.violation.subject !== undefined && this.props.violation.subject.name === s.name){
                 warn = "timeslot-warning"
               }else if (this.props.violation.timeslot != undefined && days[this.props.violation.timeslot.day-1] == slot.day && parseInt(this.props.violation.timeslot.hour) == slot.time)
@@ -134,11 +133,10 @@ class Timetable extends React.Component{
      })
      .catch( (error) => {
         if(error.response.data === "NameExists"){
-          console.log("catches error Name Exists",this);
           this.setState({nameErrMsg: "Name already exists."});
           return;
        }
-        console.log(error,"error at making new table");
+        console.log(error);
      });
 
   }
@@ -173,8 +171,6 @@ class Timetable extends React.Component{
 
   }
 }
-
-    console.log("constrIsopne",this.state.isOpenNewTable);
 
     var cancelTableButton = "";
     // initial mandatory init forbids cancelation of modal

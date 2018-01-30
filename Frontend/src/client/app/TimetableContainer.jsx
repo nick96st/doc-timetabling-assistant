@@ -338,7 +338,6 @@ import Modal from 'react-modal';
           this.state.roomsFilter.splice(index,1);
           this.setState({roomsFilter: this.state.roomsFilter}); // force rerender
           }
-//          console.log(this);
         }
 
       }
@@ -346,7 +345,6 @@ import Modal from 'react-modal';
       openLoad() {
       axios.get('/timetable/existingsaves').
         then((response) => {
-//            console.log(response.data);
             var possibleLoads = []
             for(var i=0; i< response.data.length; i++) {
                 possibleLoads.push(response.data[i].name);
@@ -438,8 +436,7 @@ import Modal from 'react-modal';
                    tableDef={this.state.table_def} isOpenNewTable={this.state.isOpenNewTable}
                    closeNewTableFunc={()=>{this.setState({isOpenNewTable:false})}}
                    updateTableDefs={(new_table_def,new_id,new_save_id) =>
-                       { console.log("table+def".new_table_def);
-                       this.setState({table_def:new_table_def, tableDefId: new_id,save_id: new_save_id});}
+                       {this.setState({table_def:new_table_def, tableDefId: new_id,save_id: new_save_id});}
                    }
                    />
                    {clearBtn}
