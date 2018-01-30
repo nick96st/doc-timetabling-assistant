@@ -20,7 +20,7 @@ def append_new_definition(current, new):
 class ASPCodeGenerator():
 
     def __init__(self):
-        self.table_def = ta_models.TableSizeDef.objects.all().first()
+        self.table_def = None
         self.check_subject = "architecture"
         self.term = ""             # term to be generated on
         self.courses = None        # course for which the counstraints should apply only
@@ -326,7 +326,7 @@ class CodeGeneratorBuilder():
         return buildin_constraints, userdef_constraints
 
     def __init__(self):
-        self.table = None
+        self.table = ta_models.TableSizeDef.objects.all().first()
         self.subject_to_check = None
         self.selected_term = ""
         self.result_facts = []
@@ -341,7 +341,7 @@ class CodeGeneratorBuilder():
         self.subject_to_check = subject_name
 
     def for_table(self,table_id):
-        self.table = ta_models.SavedTable(id=table_id)
+        self.table = ta_models.SavedTable(id=table_id).table_size
 
     def for_term(self,term_name):
         self.selected_term = term_name
@@ -394,5 +394,5 @@ class CodeGeneratorBuilder():
         code_generator.status = self.status
         if self.subject_to_check is not None:
             code_generator.check_subject = ta_models.Subject.objects.filter(title=self.subject_to_check).first().title_asp
-        # code_generator.table_def = self.table.table_size
+        code_generator.table_def = self.table
         return code_generator
