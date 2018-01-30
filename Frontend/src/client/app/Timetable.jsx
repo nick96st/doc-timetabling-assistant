@@ -36,7 +36,9 @@ class Timetable extends React.Component{
 
  generateHeader() {
     var header = <thead/>
-    var headerItems = [<th></th>, <th>Monday</th>, <th>Tuesday</th>, <th>Wednesday</th>, <th>Thursday</th> ,<th>Friday</th>]
+    var headerItems = [<th></th>]
+    this.props.tableDef.days.forEach(day => { headerItems.push(<th>{day}</th>);});
+//    var headerItems = [<th></th>, <th>Monday</th>, <th>Tuesday</th>, <th>Wednesday</th>, <th>Thursday</th> ,<th>Friday</th>]
     header = <thead>
               <tr>{headerItems}</tr>
             </thead>
@@ -57,11 +59,11 @@ class Timetable extends React.Component{
 
 
   generateRows(){
-    var days = {"1":"Monday","2":"Tuesday","3":"Wednesday","4":"Thusday","5":"Friday"}
+    var days = this.props.tableDef.days;
 
     var rowItems = []
-    var start = this.props.hours.start
-    var end = this.props.hours.finish
+    var start = this.props.tableDef.start_hour
+    var end = this.props.tableDef.end_hour
     for (var i = start; i<= end; i++){
       var cols = [<td>{i}</td>]
       this.props.rows.forEach(r =>{
@@ -77,7 +79,7 @@ class Timetable extends React.Component{
                console.log(this.props.activeViolation)
               if (this.props.violation.subject !== undefined && this.props.violation.subject.name === s.name){
                 warn = "timeslot-warning"
-              }else if (this.props.violation.timeslot != undefined && days[this.props.violation.timeslot.day] == slot.day && parseInt(this.props.violation.timeslot.hour) == slot.time)
+              }else if (this.props.violation.timeslot != undefined && days[this.props.violation.timeslot.day-1] == slot.day && parseInt(this.props.violation.timeslot.hour) == slot.time)
                 warn = "timeslot-warning"
             }
             courses.push (<div className={warn} class="session"><TimetableSlot className={warn} name = {s.name} room = {s.room} lecture={lect}/>

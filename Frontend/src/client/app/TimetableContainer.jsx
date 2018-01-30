@@ -14,12 +14,16 @@ import Modal from 'react-modal';
   class TimetableContainer extends React.Component{
     constructor(props) {
       super(props);
-      this.state = {hours:{start: 9, finish: 17} ,timetable: [],
+      var init_table;
+
+      this.state = { timetable: [],
                      addConstraintModal:false, constraint:{}, isOpenSaveAsModal:false,isOpenLoadModal:false,
                      active_save:null, errorSaveAsMessage:"",  constraintModal:false, activeViolation: {},
                      subjects:[],
                      courses:[],selectedCourses:[],
                      ERR_MES_selected_term:"",
+                     tableDefId:"DEFAULT",
+                     isOpenNewTable:false, table_def: {"start_hour":9,"end_hour":17,"days":["Monday","Tuesday","Wednesday","Thursday","Friday"]},
                      rooms:[] ,roomsFilter: [], coursesFilter: [],selectedCheckboxes: new Set(),
                      labels:[], loading: false};
 
@@ -52,6 +56,7 @@ import Modal from 'react-modal';
     }
       this.getConstraints();
     }
+
 
     componentWillMount(){
       this.selectedCheckboxes = new Set();
@@ -215,21 +220,42 @@ import Modal from 'react-modal';
 
     }
 
-    generateRows(data){
-      var monday = {day: "Monday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
-      var tuesday = {day: "Tuesday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
-      var wednesday = {day: "Wednesday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
-      var thursday = {day: "Thursday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
-      var friday = {day: "Friday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
-
-      data.forEach(d => {if(d.day === "Monday"){ monday[d.time].push(d)}
-                         if(d.day === "Tuesday"){tuesday[d.time].push(d)}
-                         if(d.day === "Wednesday"){wednesday[d.time].push(d)}
-                         if(d.day === "Thursday"){thursday[d.time].push(d)}
-                         if(d.day === "Friday"){friday[d.time].push(d)}});
-      var rows = [monday, tuesday, wednesday, thursday, friday]
-      return rows
+    generateHours() {
+     var hours = [];
+     for(var i = this.state.table_def.start_hour; i<= this.state.table_def.end_hour; i++){
+       hours.push(i)
+     }
+     return hours;
     }
+    generateRows(data){
+//      var monday = {day: "Monday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+//      var tuesday = {day: "Tuesday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+//      var wednesday = {day: "Wednesday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+//      var thursday = {day: "Thursday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+//      var friday = {day: "Friday", 9:[], 10:[], 11:[], 12:[], 13:[], 14:[], 15:[], 16:[], 17:[]}
+//
+//      data.forEach(d => {if(d.day === "Monday"){ monday[d.time].push(d)}
+//                         if(d.day === "Tuesday"){tuesday[d.time].push(d)}
+//                         if(d.day === "Wednesday"){wednesday[d.time].push(d)}
+//                         if(d.day === "Thursday"){thursday[d.time].push(d)}
+//                         if(d.day === "Friday"){friday[d.time].push(d)}});
+//      var rows = [monday, tuesday, wednesday, thursday, friday]
+      var columns = []
+      var hours = this.generateHours();
+      this.state.table_def["days"].forEach(day => {
+            // creates empty data array
+            var column = {"day":day}
+            hours.forEach(hour => {column[hour] = [];});
+            columns.push(column);
+      });
+      // fills with existing data
+      data.forEach(datapoint => {
+        var arayPosOfDay = this.state.table_def.days.indexOf(datapoint.day);
+        columns[arayPosOfDay][datapoint.time].push(datapoint);
+      });
+      return columns;
+    }
+
 
 
    constraintModuleChange(e){
@@ -341,6 +367,7 @@ import Modal from 'react-modal';
       //takes input field
       var name = this.state.saveName;
       var timetable = this.state.timetable;
+      var tableDefId = this.state.tableDefId;
       if( name == "" || name==null) {
        this.setState({errorSaveAsMessage:"No name selected!"});
        return;
@@ -349,6 +376,7 @@ import Modal from 'react-modal';
       axios.post('/timetable/saveas', {
         timetable: timetable,
         save_name: name,
+        table_def_id: tableDefId,
         })
         .then((response) => {
             this.setState({saveName:"",active_save:response.data.save_id});
@@ -373,7 +401,8 @@ import Modal from 'react-modal';
         })
         .then((response) => {
         // update table and set active save info for direct save
-        this.setState({timetable:response.data.table,active_save:response.data.save_id});
+        this.setState({timetable:response.data.table,active_save:response.data.save_id,
+                       table_def:response.data.table_def,tableDefId:response.data.table_def_id});
         // empties possible loads and list
         this.setState({possibleLoads:[],possibleLoadsNameList:[]});
         //closes the modal
@@ -392,11 +421,8 @@ import Modal from 'react-modal';
 
     render () {
 
-     var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-     var hours = []
-     for(var i = this.state.hours.start; i<= this.state.hours.finish; i++){
-       hours.push(i)
-     }
+     var days = this.state.table_def.days;
+     var hours = this.generateHours();
       var violations = this.generateViolations()
       var constraintSelectorItems = this.generateConstraintSelector()
       var violationList = <ul className="violation-list">{violations}</ul>
@@ -404,10 +430,18 @@ import Modal from 'react-modal';
       var timetable
       if(!this.state.loading){
       var rows = this.generateRows(ftable)
+
       var clearBtn = <button class="horizontal2" onClick={ () => {this.setState({timetable:[]})}}>Clear Table</button>
-      timetable = <div><Timetable rows={rows} hours={this.state.hours} addLecture={this.addLecture}
+      timetable = <div><Timetable rows={rows} addLecture={this.addLecture}
                    removeLecture={this.removeLecture} violation={this.state.activeViolation}
-                   rooms={this.state.rooms} subjects={this.state.subjects}/>
+                   rooms={this.state.rooms} subjects={this.state.subjects}
+                   tableDef={this.state.table_def} isOpenNewTable={this.state.isOpenNewTable}
+                   closeNewTableFunc={()=>{this.setState({isOpenNewTable:false})}}
+                   updateTableDefs={(new_table_def,new_id,new_save_id) =>
+                       { console.log("table+def".new_table_def);
+                       this.setState({table_def:new_table_def, tableDefId: new_id,save_id: new_save_id});}
+                   }
+                   />
                    {clearBtn}
                    </div>
       }
