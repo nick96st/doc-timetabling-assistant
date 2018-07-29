@@ -10,6 +10,7 @@ import SimpleCheckbox from './SimpleCheckbox.jsx';
 import FontAwesome from 'react-fontawesome';
 import {CircleLoader} from 'react-spinners';
 import Modal from 'react-modal';
+import StandardTableControlPanel from './TableControlPanel/StandardTableControl.jsx';
 
   class TimetableContainer extends React.Component{
     constructor(props) {
@@ -17,15 +18,22 @@ import Modal from 'react-modal';
       var init_table;
 
       this.state = { timetable: [],
-                     addConstraintModal:false, constraint:{}, isOpenSaveAsModal:false,isOpenLoadModal:false,
+                     addConstraintModal:false,
+                     constraint:{},
                      active_save:null, errorSaveAsMessage:"",  constraintModal:false, activeViolation: {},
-                     subjects:[],
-                     courses:[],selectedCourses:[],
+                     subjects:[],  // information about the list of subjects known for the table
+                     courses:[],   // same as subjects but for courses
+                     rooms:[],
+                     selectedCourses:[],  // variable for the selection checker box
                      ERR_MES_selected_term:"",
                      tableDefId:"DEFAULT",
-                     isOpenNewTable:false, table_def: {"start_hour":9,"end_hour":17,"days":["Monday","Tuesday","Wednesday","Thursday","Friday"]},
-                     rooms:[] ,roomsFilter: [], coursesFilter: [],selectedCheckboxes: new Set(),
-                     labels:[], loading: false};
+                     isOpenNewTable:false,
+                     table_def: {"start_hour":9,"end_hour":17,"days":["Monday","Tuesday","Wednesday","Thursday","Friday"]},
+                     roomsFilter: [], coursesFilter: [],
+                     selectedCheckboxes: new Set(),
+                     labels:[],
+                     loading: false
+                     };
 
       this.saveConstraint=this.saveConstraint.bind(this)
       this.getConstraints=this.getConstraints.bind(this)
@@ -37,7 +45,6 @@ import Modal from 'react-modal';
       this.removeLecture=this.removeLecture.bind(this)
       this.handleRemovingFilter=this.handleRemovingFilter.bind(this)
       this.toggleCheckbox=this.toggleCheckbox.bind(this)
-      this.selectedLoadChange=this.selectedLoadChange.bind(this)
       this.saveNameInputChange=this.saveNameInputChange.bind(this)
       if(sessionStorage.getItem("constraint")) {
           //        this.state.labels = sessionStorage.getItem("constraint")
@@ -72,31 +79,6 @@ import Modal from 'react-modal';
       });
     }
 
-
-
-
-
-
-  saveTimetable(timetable){
-    // if knows current save just save
-    if(this.state.active_save != null) {
-
-        axios.post('/timetable/updatesave', {
-        timetable: timetable,
-        save_id: this.state.active_save,
-        })
-        .then(function (response) {
-        console.log(response);
-        })
-        .catch(function (error) {
-        console.log(error);
-        });
-    }
-    // else prompt for name as a new save
-    else {
-    this.setState({isOpenSaveAsModal: true});
-    }
-  }
 
     getSelectedCourses(state) {
         var coursesArr = [];
@@ -348,76 +330,6 @@ import Modal from 'react-modal';
 
       }
 
-      openLoad() {
-      axios.get('/timetable/existingsaves').
-        then((response) => {
-            var possibleLoads = []
-            for(var i=0; i< response.data.length; i++) {
-                possibleLoads.push(response.data[i].name);
-            }
-            // sets the complete id+name data and a name list for the dropdown select
-            this.setState({possibleLoads: response.data,possibleLoadsNameList: possibleLoads})
-             this.setState({isOpenLoadModal:true});
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-
-      }
-
-
-
-      saveAs() {
-      //takes input field
-      var name = this.state.saveName;
-      var timetable = this.state.timetable;
-      var tableDefId = this.state.tableDefId;
-      if( name == "" || name==null) {
-       this.setState({errorSaveAsMessage:"No name selected!"});
-       return;
-      }
-      // request
-      axios.post('/timetable/saveas', {
-        timetable: timetable,
-        save_name: name,
-        table_def_id: tableDefId,
-        })
-        .then((response) => {
-            this.setState({saveName:"",active_save:response.data.save_id});
-            this.setState({isOpenSaveAsModal: false});
-        })
-        .catch(function (error) {
-        console.log(error);
-      });
-
-      }
-
-      loadSave() {
-      var save_id = null;
-      var e = this.state.loadCandidate;
-      var obj = this.state.possibleLoads.filter(function(item) {return item.name == e });
-      save_id = obj[0].id;
-
-      axios.get('/timetable/load',  {
-            params: {
-                save_id: save_id
-            }
-        })
-        .then((response) => {
-        // update table and set active save info for direct save
-        this.setState({timetable:response.data.table,active_save:response.data.save_id,
-                       table_def:response.data.table_def,tableDefId:response.data.table_def_id});
-        // empties possible loads and list
-        this.setState({possibleLoads:[],possibleLoadsNameList:[]});
-        //closes the modal
-        this.setState({isOpenLoadModal: false});
-      }).catch(function(error) {
-        });
-      }
-
-      selectedLoadChange(e) {
-        this.setState({loadCandidate:e.value});
-      }
 
       saveNameInputChange(e) {
         this.setState({saveName:e.target.value});
@@ -457,33 +369,12 @@ import Modal from 'react-modal';
                     </div>
       }
 
-      var saveBtn = <button class="horizontal2 save" onClick={ () => {this.saveTimetable(this.state.timetable)}}><span>Save</span></button>
       var checkBtn = <button class="horizontal2" onClick={ () => {this.checkTimetable(this.state)}}>Check</button>
       var generateBtn = <button class="horizontal2" onClick={ () => {this.generateTimetable(this.state)}}>Generate</button>
-      var saveAsBtn = <button class="horizontal2 save" onClick={ () => {this.setState({isOpenSaveAsModal:true})}}>Save As</button>
-      var loadBtn = <button class="horizontal2" onClick={ () => {this.openLoad()}}>Load</button>
+      var SaveLoadButtons = <StandardTableControlPanel globalState={this} />
 
       var newTableBtn = <button class="horizontal2" onClick={ () => {this.setState({isOpenNewTable:true});}}>New Table</button>
 
-      var saveAsModal = <Modal isOpen={this.state.isOpenSaveAsModal} style={styles.sstyle}>
-                     <label className="save-error">{this.state.errorSaveAsMessage}</label><br/>
-                     <label>Save as:</label>
-
-                     <input type="text" className="save-input" onChange={this.saveNameInputChange} name="saveAsName"></input><br/>
-                     <div className="button-row">
-                     <button  onClick={ () => this.setState({isOpenSaveAsModal: false})}> Cancel</button>
-                     <button  onClick={ () => this.saveAs()}> Save </button>
-                     </div>
-                      </Modal>
-
-      var loadModal = <Modal isOpen={this.state.isOpenLoadModal} style={styles.sstyle}>
-                    <label>Please, Select a save to load: </label>
-                    <Dropdown options={this.state.possibleLoadsNameList} placeholder="Select a save"
-                    onChange={this.selectedLoadChange} value={this.state.loadCandidate} />
-                    <button  onClick={ () => this.setState({isOpenLoadModal: false})}> Cancel</button>
-                    <button  onClick={ () => this.loadSave()}> Load </button>
-
-                    </Modal>
 
       var style = {color:'white'}
 
@@ -542,9 +433,8 @@ import Modal from 'react-modal';
                   <div>{dropDownCourses}</div>
                   <div style={{color: 'white'}}>
                   </div>
-                  <div>{saveBtn}
-                  {saveAsBtn}
-                  {loadBtn}
+                  <div>
+                  {SaveLoadButtons}
                   {checkBtn}
                   {generateBtn}
                   {constraintBtn}
@@ -580,8 +470,7 @@ import Modal from 'react-modal';
                   <button className="constraint-button" onClick={()=>{this.saveConstraint()}}>Add Constraint</button>
                 </div>
                 </Modal>
-              {loadModal}
-              {saveAsModal}
+
               </div>);
 
     }
